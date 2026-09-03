@@ -18,7 +18,6 @@ from research_agent.db.models import (
 )
 from research_agent.pipeline.discovery import persist_scan_discoveries
 from research_agent.pipeline.lifecycle import process_scan_results
-from research_agent.pipeline.reclassify import reclassify_current_jobs
 from research_agent.pipeline.scanner import PortalScanResult, ScanSummary
 from research_agent.sources.base import PortalTarget, RawJob
 
@@ -209,36 +208,6 @@ def test_processing_persists_provenance_and_target_job(sqlite_engine: Engine) ->
         assert run is not None and run.pipeline_status == "COMPLETED"
         config_snapshot = json.loads(run.config_snapshot_json or "{}")
         assert set(config_snapshot["filter"]) == {"cyber", "seniority", "geography"}
-
-
-def test_reclassification_uses_stored_jobs_without_losing_source_adapter(
-    sqlite_engine: Engine,
-) -> None:
-    portal_id, _ = _seed_registry(sqlite_engine)
-    initial = _scan_summary(sqlite_engine, portal_id=portal_id, jobs=(_job(),))
-    process_scan_results(sqlite_engine, initial)
-
-    with Session(sqlite_engine) as session, session.begin():
-        source = session.scalar(select(SourceJob))
-        assert source is not None
-        source.raw_title = "Writer, Threat Intelligence & Communications"
-        source.raw_description = "Write CTI reports."
-
-    summary = reclassify_current_jobs(sqlite_engine)
-
-    assert summary.observations == 1
-    assert summary.excluded == 1
-    assert summary.closed_canonical_jobs == 1
-    with Session(sqlite_engine) as session:
-        source = session.scalar(select(SourceJob))
-        canonical = session.scalar(select(CanonicalJob))
-        run = session.get(ScanRun, summary.scan_run_id)
-        assert source is not None and source.adapter == "fixture"
-        assert source.canonical_job_id is None
-        assert source.is_active
-        assert canonical is not None and not canonical.active
-        assert run is not None and run.source == "taxonomy_reclassification"
-        assert run.request_count == 0
 
 
 def test_cross_source_observations_share_one_canonical_job(sqlite_engine: Engine) -> None:

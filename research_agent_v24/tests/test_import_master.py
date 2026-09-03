@@ -6,9 +6,6 @@ from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
 from research_agent.company.importer import import_master, read_master
-from research_agent.company.registry_changes import apply_registry_changes
-from research_agent.company.validation import validate_database
-from research_agent.config import AcceptanceSettings
 from research_agent.db.models import (
     ClusterPortalMapping,
     CompanyRecord,
@@ -79,41 +76,6 @@ def test_cluster_aggregation_preserves_multi_value_provenance(
         assert "Italy" in geographies
         assert "Australia" in geographies
         assert cluster.record_count == 14
-
-
-def test_validation_gate_passes(sqlite_engine: Engine, master_path: Path) -> None:
-    import_master(sqlite_engine, master_path)
-    result = validate_database(sqlite_engine, AcceptanceSettings(), master_path)
-
-    assert result.passed is True
-    assert all(check.passed for check in result.checks)
-    assert result.source_checksum_valid is True
-    assert result.portal_metadata_conflicts == 6
-
-
-def test_validation_uses_immutable_import_snapshot_after_registry_change(
-    sqlite_engine: Engine,
-    master_path: Path,
-    tmp_path: Path,
-) -> None:
-    import_master(sqlite_engine, master_path)
-    change = tmp_path / "retire.csv"
-    change.write_text(
-        "Action,Corporate Cluster ID,Old Jobs Search URL,Resolved Corporate Website,"
-        "Resolved Careers Landing URL,Resolved Jobs Search URL,Portal Scope,ATS Family,"
-        "ATS Confidence,Portal Resolution Status,Portal Verification URL,Portal Verified Date,"
-        "Resolution Parent Override,Resolution Wave,Reason\n"
-        "RETIRE,CG-2E3CAF15E7,https://www.careers.jnj.com/jobs,,,,,,,,"
-        "https://www.careers.jnj.com/jobs,2026-08-31,,,Fixture retirement\n",
-        encoding="utf-8",
-    )
-    apply_registry_changes(sqlite_engine, change, source_version="test-retire")
-
-    result = validate_database(sqlite_engine, AcceptanceSettings(), master_path)
-
-    assert result.passed is True
-    assert result.database_metrics.unique_resolved_jobs_urls == 510
-    assert result.current_database_metrics.unique_resolved_jobs_urls == 509
 
 
 def test_source_rows_are_complete_and_schema_strict(master_path: Path) -> None:

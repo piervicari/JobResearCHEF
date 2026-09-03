@@ -27,16 +27,6 @@ from research_agent.ai.job_triage import (
     preview_pending_triage,
     triage_pending_jobs,
 )
-from research_agent.benchmark import (
-    evaluate_benchmark,
-    render_benchmark_markdown,
-    write_benchmark_json,
-)
-from research_agent.company.adapter_prioritization import (
-    rank_fallback_portals,
-    render_adapter_candidate_report,
-    write_adapter_candidate_csv,
-)
 from research_agent.company.aliases import import_company_aliases, propose_company_aliases
 from research_agent.company.importer import import_master
 from research_agent.company.registry_changes import (
@@ -53,20 +43,6 @@ from research_agent.company.tier_s_operational_sources import (
     sync_operational_sources,
     write_resolution_summary_json,
     write_unmatched_csv,
-)
-from research_agent.company.validation import (
-    render_markdown_report,
-    validate_database,
-    write_json_report,
-)
-from research_agent.company.wave6 import (
-    build_wave6_review_artifacts,
-    render_wave6_completion_report,
-    render_wave6_selection_report,
-    select_wave6_candidates,
-    write_wave6_distribution_zip,
-    write_wave6_selection_csv,
-    write_wave6_summary,
 )
 from research_agent.config import PROJECT_ROOT, get_settings, load_yaml
 from research_agent.db.backup import (
@@ -85,9 +61,7 @@ from research_agent.pipeline.detail_enrichment import (
     enrich_official_html_details,
     select_detail_candidates,
 )
-from research_agent.pipeline.lifecycle import process_scan_results
 from research_agent.pipeline.pilot import prepare_pilot_database
-from research_agent.pipeline.reclassify import reclassify_current_jobs
 from research_agent.pipeline.scanner import load_portal_targets, scan_portals
 from research_agent.pipeline.v2_migration import prepare_legacy_source_jobs_for_v2
 from research_agent.sources.ats.registry import default_adapter_registry
@@ -367,185 +341,6 @@ def propose_company_aliases_command(
         )
 
 
-@app.command("rank-adapter-candidates")
-def rank_adapter_candidates_command(
-    output: Annotated[
-        Path, typer.Option(help="Machine-readable fallback ranking CSV.")
-    ] = PROJECT_ROOT / "docs" / "reports" / "fallback_adapter_priority_v1.csv",
-    report: Annotated[
-        Path, typer.Option(help="Human-readable ranking summary.")
-    ] = PROJECT_ROOT / "docs" / "reports" / "fallback_adapter_priority_v1.md",
-    database_url: Annotated[
-        str | None, typer.Option(help="Override the configured database URL.")
-    ] = None,
-) -> None:
-    """Rank remaining HTML fallbacks without changing routing or making network requests."""
-
-    rows = rank_fallback_portals(_engine(database_url))
-    write_adapter_candidate_csv(rows, output)
-    rendered = render_adapter_candidate_report(rows)
-    report.parent.mkdir(parents=True, exist_ok=True)
-    report.write_text(rendered, encoding="utf-8")
-    typer.echo(rendered)
-    typer.echo(f"csv: {output.resolve()}")
-
-
-@app.command("prepare-wave6")
-def prepare_wave6_command(
-    output: Annotated[
-        Path, typer.Option(help="Machine-readable Wave 6 selection CSV.")
-    ] = PROJECT_ROOT / "data" / "portal_resolution" / "wave6_candidate_selection_v1.csv",
-    report: Annotated[
-        Path, typer.Option(help="Human-readable selection methodology and top candidates.")
-    ] = PROJECT_ROOT / "docs" / "reports" / "wave6_candidate_selection_v1.md",
-    limit: Annotated[int, typer.Option(min=1, max=200)] = 100,
-    database_url: Annotated[
-        str | None, typer.Option(help="Override the configured database URL.")
-    ] = None,
-) -> None:
-    """Select unresolved Wave 6 clusters without changing the registry."""
-
-    rows = select_wave6_candidates(_engine(database_url), limit=limit)
-    write_wave6_selection_csv(rows, output)
-    rendered = render_wave6_selection_report(rows)
-    report.parent.mkdir(parents=True, exist_ok=True)
-    report.write_text(rendered, encoding="utf-8")
-    typer.echo(rendered)
-    typer.echo(f"csv: {output.resolve()}")
-
-
-@app.command("finalize-wave6")
-def finalize_wave6_command(
-    selection: Annotated[
-        Path, typer.Option(exists=True, dir_okay=False, help="Frozen 100-cluster selection.")
-    ] = PROJECT_ROOT / "data" / "portal_resolution" / "wave6_candidate_selection_v1.csv",
-    reviewed: Annotated[
-        Path, typer.Option(exists=True, dir_okay=False, help="Reviewed official resolutions.")
-    ] = PROJECT_ROOT / "data" / "portal_resolution" / "wave6_reviewed_resolutions_v1.csv",
-    master_output: Annotated[
-        Path, typer.Option(help="New synchronized Wave 6 master; must not already exist.")
-    ] = PROJECT_ROOT
-    / "data"
-    / "company_universe"
-    / "master_company_universe_v1_10_portal_resolution_wave6.csv",
-    database_url: Annotated[
-        str | None, typer.Option(help="Override the configured database URL.")
-    ] = None,
-) -> None:
-    """Validate, apply and package the reviewed Portal Resolution Wave 6."""
-
-    portal_dir = PROJECT_ROOT / "data" / "portal_resolution"
-    wave_path = portal_dir / "portal_resolution_wave6.csv"
-    audit_path = portal_dir / "portal_resolution_wave6_mapping_audit.csv"
-    registry_path = portal_dir / "registry_wave6_v1.csv"
-    summary_path = portal_dir / "portal_resolution_wave6_summary.json"
-    report_path = PROJECT_ROOT / "docs" / "reports" / "portal_resolution_wave6.md"
-    distribution_path = (
-        PROJECT_ROOT / "data" / "distributions" / "portal_resolution_wave6_v1.zip"
-    )
-    for output in (
-        wave_path,
-        audit_path,
-        registry_path,
-        summary_path,
-        report_path,
-        distribution_path,
-        master_output,
-    ):
-        if output.exists():
-            raise FileExistsError(f"Refusing to overwrite Wave 6 output: {output}")
-
-    engine = _engine(database_url)
-    build = build_wave6_review_artifacts(
-        engine,
-        selection_path=selection,
-        reviewed_path=reviewed,
-        wave_path=wave_path,
-        audit_path=audit_path,
-        registry_path=registry_path,
-    )
-    prior_master = (
-        PROJECT_ROOT
-        / "data"
-        / "company_universe"
-        / "master_company_universe_v1_9_registry_corrections_run26.csv"
-    )
-    prior_sha = hashlib.sha256(prior_master.read_bytes()).hexdigest()
-    result = apply_registry_changes(engine, registry_path, source_version="v1.10-wave6")
-    synchronized = export_synchronized_master(engine, master_output)
-    with Session(engine) as session:
-        active_portals = (
-            session.scalar(
-                select(func.count()).select_from(Portal).where(Portal.active_in_registry.is_(True))
-            )
-            or 0
-        )
-    summary = write_wave6_summary(
-        destination=summary_path,
-        build=build,
-        master_path=synchronized,
-        prior_master_path=prior_master,
-        prior_master_sha256=prior_sha,
-        import_batch_id=result.import_batch_id,
-        cumulative_resolved_clusters=result.after_metrics.resolved_clusters,
-        cumulative_resolved_records=result.after_metrics.resolved_rows,
-        cumulative_unique_jobs_urls=result.after_metrics.unique_resolved_jobs_urls,
-        active_portals=active_portals,
-    )
-    distribution = write_wave6_distribution_zip(
-        distribution_path,
-        (
-            selection,
-            reviewed,
-            wave_path,
-            audit_path,
-            registry_path,
-            summary,
-            synchronized,
-        ),
-    )
-    rendered = render_wave6_completion_report(
-        build,
-        cumulative_resolved_clusters=result.after_metrics.resolved_clusters,
-        cumulative_resolved_records=result.after_metrics.resolved_rows,
-        master_path=synchronized,
-        distribution_path=distribution,
-    )
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(rendered, encoding="utf-8")
-    typer.echo(rendered)
-
-
-@app.command("validate-master")
-def validate_master_command(
-    report: Annotated[Path, typer.Option(help="Markdown report output path.")] = PROJECT_ROOT
-    / "docs"
-    / "reports"
-    / "milestone_1_validation.md",
-    json_report: Annotated[
-        Path, typer.Option(help="Machine-readable report output path.")
-    ] = PROJECT_ROOT / "docs" / "reports" / "milestone_1_validation.json",
-    master_path: Annotated[Path, typer.Option(exists=True, dir_okay=False)] = DEFAULT_MASTER_PATH,
-    database_url: Annotated[
-        str | None, typer.Option(help="Override the configured database URL.")
-    ] = None,
-) -> None:
-    """Validate the imported master against the frozen acceptance metrics."""
-
-    settings = get_settings()
-    result = validate_database(
-        _engine(database_url),
-        settings.master_acceptance,
-        master_path,
-    )
-    report.parent.mkdir(parents=True, exist_ok=True)
-    report.write_text(render_markdown_report(result, master_path), encoding="utf-8")
-    write_json_report(result, json_report)
-    typer.echo(report.read_text(encoding="utf-8"))
-    if not result.passed:
-        raise typer.Exit(code=1)
-
-
 @app.command("adapter-coverage")
 def adapter_coverage_command(
     database_url: Annotated[
@@ -566,38 +361,7 @@ def adapter_coverage_command(
         typer.echo(f"{adapter}: {count}")
 
 
-@app.command("benchmark-taxonomy")
-def benchmark_taxonomy_command(
-    dataset: Annotated[
-        Path, typer.Option(exists=True, dir_okay=False, help="Labeled benchmark CSV.")
-    ] = DEFAULT_BENCHMARK_PATH,
-    report: Annotated[
-        Path, typer.Option(help="Markdown report output path.")
-    ] = PROJECT_ROOT / "docs" / "reports" / "taxonomy_benchmark.md",
-    json_report: Annotated[
-        Path, typer.Option(help="Machine-readable report output path.")
-    ] = PROJECT_ROOT / "docs" / "reports" / "taxonomy_benchmark.json",
-    minimum_component_accuracy: Annotated[
-        float, typer.Option(min=0.0, max=1.0, help="Required accuracy for each component.")
-    ] = 0.95,
-    minimum_final_accuracy: Annotated[
-        float, typer.Option(min=0.0, max=1.0, help="Required final decision accuracy.")
-    ] = 0.95,
-) -> None:
-    """Measure deterministic filter quality against a labeled offline dataset."""
 
-    result = evaluate_benchmark(
-        dataset,
-        minimum_component_accuracy=minimum_component_accuracy,
-        minimum_final_accuracy=minimum_final_accuracy,
-    )
-    rendered = render_benchmark_markdown(result)
-    report.parent.mkdir(parents=True, exist_ok=True)
-    report.write_text(rendered, encoding="utf-8")
-    write_benchmark_json(result, json_report)
-    typer.echo(rendered)
-    if not result.passed:
-        raise typer.Exit(code=1)
 
 
 @app.command("backup-db")
@@ -669,132 +433,6 @@ def verify_recovery_command(
         report.parent.mkdir(parents=True, exist_ok=True)
         report.write_text(rendered, encoding="utf-8")
     typer.echo(rendered)
-
-
-@app.command("scan-official")
-def scan_official_command(
-    portal_ids: Annotated[
-        list[int] | None,
-        typer.Option("--portal-id", help="Portal ID to scan; repeat for multiple portals."),
-    ] = None,
-    limit: Annotated[
-        int | None,
-        typer.Option(min=1, help="Scan at most N registry portals in stable order."),
-    ] = None,
-    scan_all: Annotated[
-        bool,
-        typer.Option("--all", help="Explicitly opt in to the full active Portal Registry."),
-    ] = False,
-    database_url: Annotated[
-        str | None, typer.Option(help="Override the configured database URL.")
-    ] = None,
-    backup: Annotated[
-        bool,
-        typer.Option(
-            "--backup/--no-backup",
-            help="Create an integrity-checked SQLite backup before network activity.",
-        ),
-    ] = True,
-    ignore_cooldowns: Annotated[
-        bool,
-        typer.Option(
-            "--ignore-cooldowns",
-            help="Explicitly retry cooled hosts; use only after resolving the block reason.",
-        ),
-    ] = False,
-) -> None:
-    """Run a bounded official-portal scan and persist filtering/lifecycle results."""
-
-    if scan_all and (portal_ids or limit is not None):
-        raise typer.BadParameter("--all cannot be combined with --portal-id or --limit")
-    if not scan_all and not portal_ids and limit is None:
-        raise typer.BadParameter("select --portal-id/--limit or explicitly pass --all")
-
-    settings = get_settings()
-    engine = _engine(database_url)
-    if backup:
-        backup_result = backup_sqlite_database(
-            engine, backup_directory=PROJECT_ROOT / "data" / "backups"
-        )
-        typer.echo(f"pre_scan_backup: {backup_result.path}")
-    else:
-        typer.echo("WARNING: pre-scan database backup explicitly disabled", err=True)
-    cache_directory = settings.scanner.cache_directory
-    if not cache_directory.is_absolute():
-        cache_directory = PROJECT_ROOT / cache_directory
-    scan = asyncio.run(
-        scan_portals(
-            engine,
-            default_adapter_registry(),
-            settings.scanner,
-            portal_ids=set(portal_ids) if portal_ids else None,
-            limit=limit,
-            allow_all=scan_all,
-            ignore_cooldowns=ignore_cooldowns,
-            cache_directory=cache_directory,
-        )
-    )
-    gate = assess_scan_gate(
-        scan,
-        ScanGatePolicy(
-            max_failure_rate=settings.scanner.gate_max_failure_rate,
-            max_retry_rate=settings.scanner.gate_max_retry_rate,
-            max_http_429=settings.scanner.gate_max_http_429,
-            max_unexpected_empty_complete=(
-                settings.scanner.gate_max_unexpected_empty_complete
-            ),
-        ),
-    )
-    typer.echo("scan")
-    for metric, value in asdict(scan).items():
-        if metric != "portal_results":
-            typer.echo(f"{metric}: {value}")
-    typer.echo("gate")
-    for metric, value in asdict(gate).items():
-        typer.echo(f"{metric}: {value}")
-    if not gate.passed:
-        typer.echo("processing: SKIPPED; inspect the cohort before lifecycle advancement", err=True)
-        raise typer.Exit(code=2)
-    processed = process_scan_results(
-        engine,
-        scan,
-        closure_missed_successful_runs=settings.scanner.closure_missed_successful_runs,
-    )
-    typer.echo("processing")
-    for metric, value in asdict(processed).items():
-        typer.echo(f"{metric}: {value}")
-
-
-@app.command("prepare-canary-db")
-def prepare_canary_db_command(
-    destination: Annotated[
-        Path,
-        typer.Option(
-            help="Disposable SQLite copy used by scan-canary.",
-        ),
-    ] = PROJECT_ROOT / "data" / "canary" / "research_agent_canary.db",
-    replace: Annotated[
-        bool,
-        typer.Option("--replace", help="Replace an existing canary DB explicitly."),
-    ] = False,
-) -> None:
-    """Create an integrity-checked disposable copy of the configured SQLite DB."""
-
-    destination = destination.expanduser().resolve()
-    if destination.exists():
-        if not replace:
-            raise typer.BadParameter(
-                f"canary DB already exists: {destination}; pass --replace to recreate it"
-            )
-        destination.unlink()
-        for suffix in ("-wal", "-shm"):
-            sidecar = Path(f"{destination}{suffix}")
-            if sidecar.exists():
-                sidecar.unlink()
-    result = backup_sqlite_database(_engine(), destination=destination)
-    typer.echo(f"canary_db: {result.path}")
-    typer.echo(f"sha256: {result.sha256}")
-    typer.echo(f"integrity_check: {result.integrity_check}")
 
 
 @app.command("prepare-pilot-db")
@@ -1060,133 +698,6 @@ def enrich_details_command(
         typer.echo(f"{key}: {value}")
 
 
-
-@app.command("scan-canary")
-def scan_canary_command(
-    portal_ids: Annotated[
-        list[int],
-        typer.Option("--portal-id", help="Canary portal ID; repeat 1-3 times."),
-    ],
-    database_url: Annotated[
-        str,
-        typer.Option(
-            help="REQUIRED disposable canary DB URL; production DB is rejected."
-        ),
-    ] = "sqlite:///data/canary/research_agent_canary.db",
-    dry_run: Annotated[
-        bool,
-        typer.Option("--dry-run", help="Print exact targets/budgets without network access."),
-    ] = False,
-) -> None:
-    """Run a deliberately low-impact network-only canary; no job processing occurs."""
-
-    unique_portal_ids = list(dict.fromkeys(portal_ids))
-    if not unique_portal_ids or len(unique_portal_ids) > 3:
-        raise typer.BadParameter("scan-canary requires between 1 and 3 unique --portal-id values")
-
-    settings = get_settings()
-
-    engine = _engine(database_url)
-    production_engine = _engine()
-    if engine.url.render_as_string(hide_password=False) == production_engine.url.render_as_string(
-        hide_password=False
-    ):
-        raise typer.BadParameter("scan-canary refuses to run against the configured production DB")
-    if engine.dialect.name != "sqlite" or not engine.url.database:
-        raise typer.BadParameter("scan-canary currently requires a file-backed SQLite canary DB")
-    if not Path(engine.url.database).is_file():
-        raise typer.BadParameter(
-            "canary DB does not exist; run `research-agent prepare-canary-db --replace` first"
-        )
-
-    canary = settings.scanner.model_copy(
-        update={
-            "global_concurrency": 1,
-            "per_domain_concurrency": 1,
-            "per_domain_min_interval_seconds": 10.0,
-            "max_retries": 0,
-            "jitter_seconds": 0.0,
-            "max_requests_per_host_per_run": 3,
-            "max_requests_per_run": 3,
-            "max_pages_per_portal": 1,
-            "max_jobs_per_portal": 25,
-            "host_cooldown_hours": 72.0,
-            "run_timeout_seconds": min(settings.scanner.run_timeout_seconds, 300.0),
-        }
-    )
-    cache_directory = PROJECT_ROOT / "data" / "cache" / "http_canary"
-
-    if dry_run:
-        targets = load_portal_targets(engine, portal_ids=set(unique_portal_ids))
-        by_id = {target.portal_id: target for target in targets}
-        typer.echo("CANARY DRY RUN — zero network requests")
-        typer.echo("effective_budget_per_portal: max_requests=3 max_pages=1 max_jobs=25 retries=0")
-        typer.echo("effective_network: concurrency=1 per_domain_interval_seconds=10")
-        for portal_id in unique_portal_ids:
-            target = by_id.get(portal_id)
-            if target is None:
-                typer.echo(f"portal_id={portal_id}: NOT FOUND OR NOT SCAN-ENABLED", err=True)
-                continue
-            typer.echo(
-                f"portal_id={portal_id} host={target.host} url={target.jobs_search_url} "
-                f"ats={','.join(target.ats_families) or 'unknown'}"
-            )
-        return
-
-    total_requests = 0
-    total_jobs = 0
-    stop_reason: str | None = None
-    for index, portal_id in enumerate(unique_portal_ids, start=1):
-        typer.echo(f"canary_portal_{index}: {portal_id}")
-        scan = asyncio.run(
-            scan_portals(
-                engine,
-                default_adapter_registry(),
-                canary,
-                portal_ids={portal_id},
-                allow_all=False,
-                ignore_cooldowns=False,
-                cache_directory=cache_directory,
-                run_source="canary_official_portals",
-            )
-        )
-        total_requests += scan.request_count
-        total_jobs += scan.jobs_discovered
-        result = scan.portal_results[0]
-        discovery_state = (
-            "JOBS_FOUND"
-            if scan.jobs_discovered > 0
-            else ("EMPTY_COMPLETE" if result.complete_snapshot else "EMPTY_INCOMPLETE")
-        )
-        typer.echo(
-            "result: "
-            f"status={result.status} http={result.final_http_status} "
-            f"requests={scan.request_count} retries={scan.retry_count} "
-            f"jobs={scan.jobs_discovered} adapter={result.adapter} "
-            f"discovery={discovery_state}"
-        )
-        if discovery_state == "EMPTY_INCOMPLETE":
-            typer.echo(
-                "WARNING: network access succeeded but job discovery is inconclusive; "
-                "do not treat this portal as extraction-healthy",
-                err=True,
-            )
-        if result.final_http_status in {401, 403, 429} or result.error_type in {
-            "AccessChallengeError",
-            "RobotsDisallowed",
-        }:
-            stop_reason = result.error_type or f"HTTP {result.final_http_status}"
-            typer.echo(f"CANARY STOP: access/block signal detected: {stop_reason}", err=True)
-            break
-        if index < len(unique_portal_ids):
-            # Different hosts do not require this, but the canary intentionally stays boring/slow.
-            time.sleep(10.0)
-
-    typer.echo(f"canary_total_requests: {total_requests}")
-    typer.echo(f"canary_total_jobs_observed: {total_jobs}")
-    typer.echo("semantic_processing: SKIPPED")
-    if stop_reason is not None:
-        raise typer.Exit(code=3)
 
 
 @app.command("scan-discover")
@@ -1867,23 +1378,6 @@ def ingest_linkedin_csv_command(
     if result.processing is not None:
         for metric, value in asdict(result.processing).items():
             typer.echo(f"{metric}: {value}")
-
-
-@app.command("reclassify-current")
-def reclassify_current_command(
-    database_url: Annotated[
-        str | None, typer.Option(help="Override the configured database URL.")
-    ] = None,
-) -> None:
-    """Apply current filters to stored source jobs without network requests."""
-
-    settings = get_settings()
-    result = reclassify_current_jobs(
-        _engine(database_url),
-        closure_missed_successful_runs=settings.scanner.closure_missed_successful_runs,
-    )
-    for metric, value in asdict(result).items():
-        typer.echo(f"{metric}: {value}")
 
 
 if __name__ == "__main__":

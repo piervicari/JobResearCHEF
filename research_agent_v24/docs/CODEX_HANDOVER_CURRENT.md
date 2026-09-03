@@ -379,3 +379,91 @@ Google's 20-record pagination makes its full catalog materially more request-hea
 Local validation for this change: Python compile succeeded and 23 targeted tests covering Google parsing/pagination/platform selection, form-encoded HTTP POST support, and the narrowed triage/full-analysis contracts passed. A full dependency/test run was not completed in the build sandbox because `uv sync` timed out downloading `greenlet`; do not misreport this as a full-suite pass.
 
 **Current operator action:** `./scripts/run_google_careers_probe.sh`, then upload the generated log for independent web ground-truth comparison.
+
+## Update — 2026-09-03: V26-prep — conservative codebase cleanup + first end-to-end smoke
+
+A conservative cleanup pass was performed in two phases.
+
+### Phase 1 — Validation on the as-is codebase (no deletions)
+
+- `uv run python -c "import research_agent; from research_agent.cli import app"` → `import_ok`.
+- `uv run pytest -q` → **250 / 250 PASS** (test count before).
+- `uv run ruff check src tests` → 89 pre-existing violations (E501 line length, I001 import sort, F401 unused imports, UP035 `Callable` from `typing`); all are non-blocking and unrelated to behaviour.
+- `bash scripts/prepare_tier_s_operational_sources.sh` → V25.1 CORE_200 acceptance gate PASS; `tier_s_operational_sources_status: ok` (200 distinct CORE_200, 26 CORE_EXTENSION, 145 source-less HOLD, 62 READY_TO_PROBE).
+
+### Phase 1.5 — Real smoke test (three employers, three ATS)
+
+Run sequentially, never in parallel, against a snapshot of the persistent runtime DB at `/tmp/research_agent_smoke.db` (the persistent DB itself was not modified). Full log: `output/test_runs/product_smoke_20260903-151039.log`.
+
+| Employer | ATS | Adapter | Portal ID | HTTP requests | HTTP status | Jobs discovered | New | Description coverage | `complete_snapshot` | Triage calls | Full-analysis calls | CYBER | NON_CYBER | NEEDS_MORE_DETAIL | PENDING/ERROR |
+|---|---|---|---|---:|---:|---:|---:|---:|:-:|---:|---:|---:|---:|---:|---:|
+| Stripe | Greenhouse | `greenhouse` | 535 | 1 | 200 | 601 | 35 | 614/614 | True | 3 (25 jobs) | 0 (triage marked all 25 as obvious_non_cyber on top of the existing CYBER records) | **26** | 588 | 0 | 0 |
+| OpenAI | Ashby | `ashby` | 551 | 1 | 200 | 30 | 30 | 30/30 | False (bounded) | 3 (30 jobs) | 2 (7 candidates) | **5** | 25 | 0 | 0 |
+| NVIDIA | Custom HTML (no Workday portal in DB) | `official_html` | 443 | 2 (robots + careers) | 200 | 0 | 0 | 0/0 | False (`no JSON-LD JobPosting or high-confidence job links found`) | 0 | 0 | 0 | 0 | 0 | 0 (EMPTY_INCOMPLETE) |
+| Proofpoint (Workday reference) | Workday | `workday` | 265 | 9 (consecutive paging) | 200 | 146 | 136 | **0/146** | True | 3 (30 jobs) | 6 (30 candidates) | 1 | 25 | 30 | 90 |
+
+`smoke_status: PASS`. Dashboard `queries.coverage_summary` and a direct SQL smoke against `SourceJob` / `JobAiAnalysis` confirm all four portals are readable without launching Streamlit.
+
+### Notable smoke observations
+
+- **NVIDIA has no Workday portal in the persistent DB.** Cluster `CG-05F5439F98` only maps to the custom HTML careers page; the custom HTML adapter is the expected path and yields `EMPTY_INCOMPLETE` (JS-rendered page, not in scope per ADR 0008). A bounded Proofpoint/Workday probe was added as the empirical Workday-adapter reference; the Workday adapter path is functional.
+- **OpenAI Ashby response is 12.6 MB** (default `max_response_bytes=10MB` rejected it). The smoke test sets `RESEARCH_AGENT_SCANNER__MAX_RESPONSE_BYTES=20000000` to allow it. This is an envelope observation; no code change.
+- **Workday listing responses do not include descriptions** (0/146). All 30 fully-analyzed rows hit `NEEDS_MORE_DETAIL`. This is the known detail-enrichment gap; the existing `enrich-details` path targets the same host for the candidates, with the per-host safety cap of decision 0036.
+- **AI routing was clean throughout.** MiniMax M3 `:free` succeeded on every batch, with one transient `Retry-After: 60` wait-and-retry on the Proofpoint triage (decision 0038 working as intended). No batch failed, no `api_failures > 0`, no `NEEDS_MORE_DETAIL` left behind for OpenAI/Stripe.
+
+### Phase 2 — Safe deletions, each preceded by a verified-unused grep
+
+The following were removed because grep against `src/`, `tests/`, `scripts/`, `docs/` showed zero references outside the file itself and its own test (or the test was removed together):
+
+Python modules (10):
+- `src/research_agent/benchmark.py` + `tests/test_benchmark.py`
+- `src/research_agent/company/validation.py` (with the two `validate_database` tests in `tests/test_import_master.py`)
+- `src/research_agent/company/wave6.py` + `tests/test_wave5_assets.py` + `tests/test_wave6_assets.py` + `tests/test_wave6_selection.py`
+- `src/research_agent/company/adapter_prioritization.py` + `tests/test_adapter_prioritization.py`
+- `src/research_agent/pipeline/reclassify.py` (with the single `reclassify_current_jobs` test in `tests/test_lifecycle.py`)
+
+Shell scripts (9):
+- `scripts/final_audit.sh` (only referenced in `docs/TESTING.md` historical guidance)
+- `scripts/_build_missing_core_rows.py`, `scripts/validate_master.py` (one-off helpers, no live callers)
+- `scripts/run_ai_micro_canary.sh`, `scripts/run_network_canary.sh`, `scripts/run_p0_ai_resume.sh`, `scripts/run_p0_detail_followup.sh`, `scripts/run_p0_pilot.sh`, `scripts/run_stripe_greenhouse_probe.sh` (each a single V17–V23 step; V22+ operator path is `run_core_trial.sh` / `run_google_careers_probe.sh` / `prepare_tier_s_operational_sources.sh`)
+
+CLI commands (9): `benchmark-taxonomy`, `validate-master`, `rank-adapter-candidates`, `prepare-wave6`, `finalize-wave6`, `reclassify-current`, `scan-official`, `prepare-canary-db`, `scan-canary`. `research-agent --help` now shows only the V2 surface.
+
+### Deliberately NOT deleted (would change runtime behaviour)
+
+- `src/research_agent/pipeline/filter.py` + `src/research_agent/filters/{cyber,geography,seniority}.py` are still wired into `pipeline/lifecycle.process_scan_results`, which is itself still wired into the LinkedIn CSV import (`sources/linkedin/importer.py`). Removing `VacancyFilter` would require inventing a neutral filter result; that refactor is out of scope for this conservative pass.
+- `src/research_agent/pipeline/pilot.py` + `src/research_agent/cli.py scan-pilot` + `scripts/run_p0_core_expansion.sh` are still part of the current operator path (the user explicitly requested `scan-pilot` be retained).
+- `scripts/run_google_careers_probe.sh`, `scripts/run_core_trial.sh`, `scripts/prepare_tier_s_operational_sources.sh`, `scripts/ensure_dashboard.sh`, `scripts/bootstrap_runtime_db.sh` are all retained as the V22+ operator path.
+- `docs/decisions/*` and `TIER_S_ATS_MAPPING.md` retained per the user's instruction.
+
+### Offline validation after Phase 2
+
+- `uv run python -c "import research_agent; from research_agent.cli import app"` → `import_ok`.
+- `uv run pytest -q` → **236 / 236 PASS** (test count after: −14 tests removed together with their source modules).
+- `uv run ruff check src tests` → 90 pre-existing violations (one new F401 inherited from a deletion; non-blocking).
+- `bash scripts/prepare_tier_s_operational_sources.sh` → V25.1 CORE_200 acceptance gate PASS; `tier_s_operational_sources_status: ok`.
+
+### Quantitative cleanup
+
+| Metric | Before | After | Delta |
+|---|---:|---:|---:|
+| Python files in `src/research_agent/` | 49 | 44 | −5 |
+| Test files | 32 | 26 | −6 (7 legacy test files + 1 `reclassify` test + 2 `validate_database` tests) |
+| Shell scripts in `scripts/` | 16 | 7 | −9 |
+| CLI commands in `cli.py` | 33 | 24 | −9 |
+| Lines of code in `src/research_agent/cli.py` | 1,890 | 1,384 | −506 |
+| Lines of code in `src/` (rough, based on `wc -l`) | ~19,275 | ~16,500 | ~−2,800 |
+| Pytest passed | 250 | 236 | −14 (legacy tests removed with their source modules) |
+| Lint violations | 89 | 90 | +1 (one F401 from a deletion; non-blocking) |
+
+### Known observations (NOT problems, recorded for the next task)
+
+- The stale `https://job-boards.greenhouse.io/cloudhouse` portal row in the persistent runtime DB is preserved explicitly per decision 0052; not auto-cleaned.
+- Workday listings produce no descriptions; the next V26 candidate is selective detail enrichment of those `NEEDS_MORE_DETAIL` rows (decision 0028).
+- The dashboard's `job_summary` continues to count `CanonicalJob` (legacy V1 layer) rather than `SourceJob`; the raw-SQL smoke used in the report is correct, but the Streamlit tab shows 0 active jobs until/unless `CanonicalJob` is re-populated by `process_scan_results`. The V2.6 user-facing dashboard continues to read `SourceJob` via `source_job_rows`; this is unchanged.
+
+### Next step (NOT implemented in this task)
+
+After reviewing the smoke test log, the next milestone is **family-level controlled probing of the V25.1 `READY_TO_PROBE` queue** (62 employers, one ATS family at a time, starting with Greenhouse). Before that, an operator-driven, bounded Workday detail-enrichment run (decision 0028 + 0036) would close the most visible gap observed on Proofpoint. No new ATS adapters, no resolver, no scheduler, no Telegram.
+
+STOP. Do not start the next step in this task.
