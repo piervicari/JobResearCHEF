@@ -3,11 +3,12 @@
     "Teamtailor": 1
   },
   "adapter_needed_total": 1,
-  "core_200_employers": 29,
-  "core_extension_employers": 60,
-  "fingerprint_required_total": 10,
-  "hold_total": 12,
-  "matched_employers": 57,
+  "core_200_employers": 200,
+  "core_extension_employers": 26,
+  "distinct_employers": 226,
+  "fingerprint_required_total": 9,
+  "hold_total": 159,
+  "matched_employers": 196,
   "multi_source_employers": [
     "Anthropic",
     "Booz Allen Hamilton",
@@ -22,10 +23,10 @@
   ],
   "queue_counts": {
     "ADAPTER_NEEDED": 1,
-    "FINGERPRINT_REQUIRED": 10,
-    "HOLD": 12,
+    "FINGERPRINT_REQUIRED": 9,
+    "HOLD": 159,
     "READY_TO_PROBE": 62,
-    "RESOLVER_LIGHT": 4
+    "RESOLVER_LIGHT": 5
   },
   "ready_to_probe_by_ats": {
     "Ashby": 7,
@@ -41,7 +42,8 @@
     "Workday": 10
   },
   "ready_to_probe_total": 62,
-  "resolver_light_total": 4,
-  "total_operational_sources": 89,
-  "unmatched_employers": 22
+  "resolver_light_total": 5,
+  "source_less_employers": 147,
+  "total_operational_sources": 236,
+  "unmatched_employers": 30
 }

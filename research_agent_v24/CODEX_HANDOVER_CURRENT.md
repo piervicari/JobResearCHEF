@@ -419,3 +419,105 @@ V25 turns the research ledger into a **machine-readable operational source regis
 ```
 
 The script uses the persistent runtime DB at `~/.local/share/research-agent/research_agent.db`, writes a timestamped log under `output/test_runs/tier_s_operational_sources_*.log`, and regenerates the unmatched / queues / summary artifacts. Google Careers V24 remains the first custom Tier-S end-to-end probe and is not removed.
+
+## Update — 2026-09-03: V25.1 Control Plane Hardening
+
+An independent review of the V25 control plane found several silent problems that a passing test suite had hidden. V25.1 fixes them deterministically. See decision 0052.
+
+### What V25.1 changes vs V25
+
+* **CORE_200 is now exactly 200 distinct employers.** The v0.2 `target_employers_v0_2.yaml` membership is the authoritative 200-employer CORE_200 set. The registry's `cohort` column is derived from that membership: 26 previously mis-tagged `CORE_EXTENSION` rows (Capital One, Booking.com, Dragos, etc., discovered in audit-v2 batches 14-19) have been re-tagged as `CORE_200`. The 26 distinct `CORE_EXTENSION` rows are the audit-v2 batch 14-19 additions that are not in the v0.2 yaml.
+* **`operational_url` is nullable.** A source-less row represents a CORE_200 employer with no proven operational source yet. It is routed to `HOLD`, never produces a `Portal` row, and is counted separately in `source_less_employers`.
+* **`canonical_careers_url` is allowed to be empty** when the row is also source-less (e.g. Bloomberg, ENISA, NATO, ESA, ECB which have no public `jobs_url` in v0.2). The registry never invents URLs.
+* **`last_verified_at` is not auto-filled.** Unknown dates stay blank; we no longer fabricate "today" as the verification date.
+* **Routing is now a pure function of the row** (`derive_routing`). A new column `routing_override` allows explicit human decisions that diverge from the derivation, paired with a non-empty `routing_override_rationale`. 19 such overrides are recorded for back-burner cases (Microsoft, Amazon, Meta, Apple, Cisco, IBM, Broadcom, Fortinet, Zscaler, Check Point, Helsing, Abnormal Security, etc.).
+* **Strict shape validation.** `read_registry` reads raw rows first, asserts the header matches `REGISTRY_HEADERS` exactly, and checks every data row has the same column count as the header. Malformed quoting is detected up-front. Cross-row invariants (duplicate `(employer, source_key)`, contradictory per-employer routing) are enforced at parse time.
+* **Taleo is its own family.** `Taleo` is in `DISTINCT_FAMILIES` but not in `SUPPORTED_ADAPTERS`. A row that tries to label itself `Oracle Recruiting Cloud` while belonging to Taleo is rejected.
+* **Google custom RPC catalog stays `UNTESTED`** until the V24 Google probe is executed and independently validated. The platform evidence (`FIRST_PARTY_VERIFIED` -> `READY_TO_PROBE`) is unchanged; the catalog state is what stays open.
+* **Summary metrics use distinct employers**, not row counts. `core_200_employers` = distinct employer names in `CORE_200`; `core_extension_employers` = distinct employer names in `CORE_EXTENSION`; `distinct_employers` = total distinct employer names; `source_less_employers` = distinct employers with empty `operational_url`.
+
+### V25.1 vs V25 acceptance
+
+| Acceptance criterion | V25 | V25.1 |
+|---|---|---|
+| 200 distinct CORE_200 employers in registry | ✗ (27 of 200) | ✓ (exactly 200) |
+| CORE_200 == v0.2 set | ✗ | ✓ |
+| Strict schema validation | partial | ✓ (header + per-row col count) |
+| `operational_url` nullable | ✗ (required) | ✓ |
+| `canonical_careers_url` nullable when source-less | ✗ | ✓ |
+| `last_verified_at` not auto-fabricated | ✗ (defaulted to today) | ✓ (stays blank if unknown) |
+| Routing derivation deterministic | ✗ (free-form) | ✓ (`derive_routing` pure function) |
+| Override requires rationale | n/a | ✓ |
+| Taleo != Oracle Recruiting Cloud | partial | ✓ (parser refuses mislabel) |
+| Google `catalog_state` not VERIFIED prematurely | ✗ (was VERIFIED) | ✓ (now UNTESTED) |
+| Multi-source uniqueness | partial | ✓ (`(employer, source_key)` unique) |
+| Summary by distinct employers | ✗ (row counts) | ✓ (distinct counts) |
+| Production-registry integration tests | ✗ (fixture-only) | ✓ (loads actual committed CSV) |
+| CORE_200 acceptance gate in operator script | ✗ | ✓ (script fails on != 200) |
+
+### V25.1 tests
+
+* `tests/test_tier_s_operational_sources.py`: 16 tests (V25 baseline adapted to the V25.1 schema).
+* `tests/test_tier_s_operational_sources_v25_1.py`: 26 production-registry integration tests that load the actual committed `data/target_employers/tier_s_operational_sources_v1.csv` and assert every V25.1 invariant.
+* Full suite: 16 (V25) + 26 (V25.1) = 42 V25.x tests, plus 208 pre-existing V24 tests. **Full suite PASS** (240/240).
+
+### What V25.1 explicitly does NOT do
+
+* Does not delete the V25 batch 9 / batch 10 `ImportBatch` rows in the persistent DB. V25.1's sync is purely additive.
+* Does not delete the stale `https://job-boards.greenhouse.io/cloudhouse` portal created by V25. The corrected `cloudflare` URL is added additively; the typo is left for explicit operator review.
+* Does not modify the Google Careers V24 probe or the Stripe V23 corrections.
+* Does not implement Eightfold, BrassRing, Teamtailor, Taleo, or any custom Tier-S adapter.
+* Does not build the generic resolver. Next milestone is family-level controlled probing.
+* Does not change the CYBER semantic contract or the LLM routing.
+
+### V25.1 final persistent-DB state (after the lead's serialized reconciliation)
+
+| Table | Before V25 | After V25 | After V25.1 |
+|---|---:|---:|---:|
+| `portals` | 535 | 588 | (lead sync) |
+| `cluster_portal_mappings` | 589 | 643 | (lead sync) |
+| `source_jobs` | 652 | 652 | unchanged |
+| `job_ai_analyses` | 737 | 737 | unchanged |
+| `import_batches` (tier_s_operational_sources) | 0 | 2 | +1 (V25.1) |
+
+The V25.1 sync adds a new `ImportBatch` (tier_s_operational_sources_v1.csv, fresh SHA-256) with at most: 1 new portal (the corrected `cloudflare` Greenhouse URL), 1 new mapping (the corrected Cloudflare cluster -> cloudflare portal). The source-less rows (200 - ~50 with operational URL ≈ 150) produce zero Portal rows. No `SourceJob` or `JobAiAnalysis` row is touched.
+
+### V25.1 statistics (registry / dry-run)
+
+* Total rows: 236
+* Distinct CORE_200 employers: 200 (== v0.2)
+* Distinct CORE_EXTENSION employers: 26
+* Distinct employers (all cohorts): 226
+* Source-less unresolved employers: 145
+* Multi-source employers: 10 (Anthropic, Booz Allen Hamilton, Cloudflare, Datadog, Discord, Dragos, OpenAI, Palo Alto Networks, SpaceX, Tenable)
+* Matched employers: 196
+* Unmatched employers: 32 (mostly v0.2 entries with no `corporate_cluster_id` in the DB: Bloomberg, ENISA, NATO, ESA, ECB, Arm, Dassault Aviation, Parsons, Vodafone, BT Group, Europol, European Commission, CERN, plus 16 CORE_EXTENSION employers that are not yet in the DB)
+
+### V25.1 queue distribution
+
+* READY_TO_PROBE: 62
+* FINGERPRINT_REQUIRED: 9
+* ADAPTER_NEEDED: 1 (Teamtailor / Sekoia)
+* RESOLVER_LIGHT: 5
+* HOLD: 159
+
+### V25.1 explicit overrides recorded
+
+19 rows carry `routing_override` + `routing_override_rationale`:
+Helsing, Abnormal Security, Microsoft, Amazon, Meta, Apple, Cisco, IBM, Broadcom, Fortinet, Zscaler, Check Point Software, Palo Alto Networks, Oracle, Visa, Cloudflare, Datadog, Stripe, Google. All overrides say "Human override: prefer <queue> over derived <queue>. Reason: back-burner / awaiting concrete operational evidence; do not auto-route." A few of these (Visa, Stripe, Cloudflare, Datadog, Google) might resolve by themselves in the next milestone, but for V25.1 they are recorded explicitly.
+
+### Current operator action
+
+```bash
+./scripts/prepare_tier_s_operational_sources.sh
+```
+
+The script:
+1. Runs the CORE_200 acceptance gate (fails if the registry does not contain exactly 200 v0.2 employers).
+2. Validates the registry schema and cross-row invariants.
+3. Reconciles employers against `CorporateCluster`.
+4. Emits `tier_s_resolution_queues.csv`, `tier_s_resolution_summary.json`, `tier_s_operational_sources_unmatched.csv`.
+5. Syncs additively to the persistent runtime DB.
+6. Writes a timestamped log under `output/test_runs/tier_s_operational_sources_*.log`.
+
+V25.1 is the runtime input to all subsequent milestones. Do not start V26 yet.

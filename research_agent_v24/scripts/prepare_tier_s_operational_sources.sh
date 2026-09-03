@@ -44,6 +44,51 @@ log() {
     exit 1
   fi
 
+  log "===== STEP 0/5 — CORE_200 ACCEPTANCE GATE ====="
+  if ! CORE_GATE_OUT="$(uv run python - <<PY 2>&1
+import sys
+from pathlib import Path
+from collections import Counter
+import csv
+ROOT = Path("$ROOT_DIR")
+registry = ROOT / "data/target_employers" / "tier_s_operational_sources_v1.csv"
+yaml_path = ROOT / "data" / "target_employers" / "target_employers_v0_2.yaml"
+import yaml
+with yaml_path.open() as f:
+    v0 = yaml.safe_load(f)
+v0_names = {e['name'] for e in v0['employers']}
+with registry.open(encoding='utf-8-sig') as f:
+    rows = list(csv.DictReader(f))
+core_200 = {r['employer_name'] for r in rows if r['cohort'] == 'CORE_200'}
+core_ext = {r['employer_name'] for r in rows if r['cohort'] == 'CORE_EXTENSION'}
+missing = v0_names - core_200
+extra = core_200 - v0_names
+print(f"v0.2_employers: {len(v0_names)}")
+print(f"registry_distinct_core_200: {len(core_200)}")
+print(f"registry_distinct_core_extension: {len(core_ext)}")
+print(f"missing_from_core_200: {len(missing)}")
+if missing:
+    for n in sorted(missing)[:10]:
+        print(f"  - {n}")
+print(f"extra_in_core_200_not_in_v0.2: {len(extra)}")
+if extra:
+    for n in sorted(extra)[:10]:
+        print(f"  - {n}")
+if len(core_200) != 200 or missing or extra:
+    print("CORE_200_ACCEPTANCE_GATE: FAIL", file=sys.stderr)
+    sys.exit(2)
+print("CORE_200_ACCEPTANCE_GATE: PASS")
+PY
+)"; then
+    log "$CORE_GATE_OUT"
+    log "core_200_acceptance_gate: FAIL"
+    log "aborting: CORE_200 must contain exactly the 200 v0.2 employers"
+    exit 2
+  else
+    log "$CORE_GATE_OUT"
+  fi
+
+  log ""
   log "===== STEP 1/5 — VALIDATE MAPPING DATASET ====="
   RESEARCH_AGENT_DATABASE_URL="$RUNTIME_DB_URL" \
   uv run research-agent sync-tier-s-operational-sources \

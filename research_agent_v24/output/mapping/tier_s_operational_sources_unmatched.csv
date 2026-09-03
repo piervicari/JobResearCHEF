@@ -6,18 +6,26 @@ GuidePoint Security,no deterministic match: not a representative / canonical / p
 Glean,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
 Anyscale,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master); SCA (CG-F68B241445, master); SCA (CG-F68B241445, master)",Y
 Pure Storage / Everpure,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
-Veeam Software,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master); Veeam (CG-64382CACED, master); Veeam (CG-64382CACED, master)",Y
 Forter,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"FO (CG-19082866D4, master); FO (CG-19082866D4, master); Fort (CG-2787A85EB2, master); Fort (CG-2787A85EB2, master); E (CG-58E6B3A414, master)",Y
-Allianz Group,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"Allianz (CG-2DCD4CAEA8, master); Allianz (CG-2DCD4CAEA8, master); Allianz (CG-2DCD4CAEA8, parent_group); ANZ (CG-FB72D4D95F, master); ANZ (CG-FB72D4D95F, master)",Y
-Bosch Group,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"Bosch (CG-50AF7346E4, master); Bosch (CG-50AF7346E4, master); Bosch (CG-50AF7346E4, parent_group)",Y
 Rolls-Royce,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
-Porsche AG,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master); AUDI (CG-86E8418A5A, master)",Y
 OneTrust,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
 Lambda,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"MBDA (CG-CA2ED86266, master); MBDA (CG-CA2ED86266, master); MBDA (CG-CA2ED86266, parent_group)",Y
 Cerebras Systems,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
 Together AI,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
 Crusoe,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
-Trend Micro / TrendAI,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"REN (CG-4F994D2C8E, master); REN (CG-4F994D2C8E, master); E (CG-58E6B3A414, master); E (CG-58E6B3A414, master); TrendAI (CG-6AC3CFAC3C, master)",Y
 Procore,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
 Cribl,no deterministic match: not a representative / canonical / parent / VERIFIED alias,,Y
 Splunk,no deterministic match: not a representative / canonical / parent / VERIFIED alias,,Y
+Bloomberg,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
+ENISA,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master); Eni (CG-ED078A55E3, master); Eni (CG-ED078A55E3, master); Eni (CG-ED078A55E3, parent_group)",Y
+NATO,no deterministic match: not a representative / canonical / parent / VERIFIED alias,,Y
+European Space Agency,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
+European Central Bank,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
+Arm,no deterministic match: not a representative / canonical / parent / VERIFIED alias,,Y
+Dassault Aviation,no deterministic match: not a representative / canonical / parent / VERIFIED alias,,Y
+Parsons,no deterministic match: not a representative / canonical / parent / VERIFIED alias,,Y
+Vodafone,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"FO (CG-19082866D4, master); FO (CG-19082866D4, master); E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
+BT Group,no deterministic match: not a representative / canonical / parent / VERIFIED alias,,Y
+Europol,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y
+European Commission,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master); SSI (CG-9C7550CC41, master); SSI (CG-9C7550CC41, master); MM (CG-B8D09B4D85, master)",Y
+CERN,no deterministic match: not a representative / canonical / parent / VERIFIED alias,"E (CG-58E6B3A414, master); E (CG-58E6B3A414, master)",Y

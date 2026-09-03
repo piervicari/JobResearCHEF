@@ -82,3 +82,4 @@ The legacy `scan-official` / reclassification path still implements deterministi
 - [0049 — Google Careers uses its anonymous structured batchexecute RPC](0049-google-careers-anonymous-structured-rpc-adapter.md)
 - [0050 — Google full-catalog network budget is probe-scoped, not global](0050-google-full-catalog-budget-is-probe-scoped-not-global.md)
 - [0051 — Operational Source Control Plane (V25)](0051-operational-source-control-plane.md)
+- [0052 — Tier-S Operational Source Control Plane hardening (V25.1)](0052-tier-s-control-plane-hardening.md)
