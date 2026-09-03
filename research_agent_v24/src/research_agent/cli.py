@@ -45,6 +45,15 @@ from research_agent.company.registry_changes import (
     render_registry_change_report,
     write_registry_change_json,
 )
+from research_agent.company.tier_s_operational_sources import (
+    build_resolution_summary,
+    reconcile_clusters,
+    render_resolution_queues_csv,
+    render_terminal_summary,
+    sync_operational_sources,
+    write_resolution_summary_json,
+    write_unmatched_csv,
+)
 from research_agent.company.validation import (
     render_markdown_report,
     validate_database,
@@ -235,6 +244,78 @@ def apply_runtime_registry_changes_command(
         "runtime_registry_change: "
         + ("already_applied" if result.already_applied else "applied")
     )
+
+
+@app.command("sync-tier-s-operational-sources")
+def sync_tier_s_operational_sources_command(
+    registry_path: Annotated[
+        Path,
+        typer.Argument(
+            exists=True,
+            dir_okay=False,
+            help="Structured operational source registry CSV (data/target_employers/tier_s_operational_sources_v1.csv).",
+        ),
+    ],
+    unmatched_output: Annotated[
+        Path,
+        typer.Option(help="Where to write the unmatched-employers CSV."),
+    ],
+    queues_output: Annotated[
+        Path,
+        typer.Option(help="Where to write the resolution queues CSV (sorted by resolution_path)."),
+    ],
+    summary_output: Annotated[
+        Path,
+        typer.Option(help="Where to write the machine-readable resolution summary JSON."),
+    ],
+    source_version: Annotated[
+        str, typer.Option(help="Version label recorded on the immutable sync batch.")
+    ] = "tier_s_v1",
+    skip_sync: Annotated[
+        bool,
+        typer.Option(help="Only reconcile and emit queues/summary; do not mutate the DB."),
+    ] = False,
+    database_url: Annotated[
+        str | None, typer.Option(help="Override the configured database URL.")
+    ] = None,
+) -> None:
+    """Translate the Tier-S research ledger into runtime Portal / ClusterPortalMapping state.
+
+    The sync is additive, idempotent and offline. Existing operational sources are
+    never disabled or deleted; the same operational URL deduplicates against the
+    existing `Portal` table; `SourceJob` and `JobAiAnalysis` rows are not touched.
+    """
+
+    engine = _engine(database_url)
+    from research_agent.company.tier_s_operational_sources import read_registry
+
+    rows = read_registry(registry_path)
+    cluster_mapping, unmatched, _ = reconcile_clusters(engine, rows)
+    write_unmatched_csv(unmatched, unmatched_output)
+    summary = build_resolution_summary(rows, cluster_mapping=cluster_mapping)
+    render_resolution_queues_csv(
+        sorted(rows, key=lambda r: (r.resolution_path, r.cohort, r.employer_name, r.source_key)),
+        queues_output,
+    )
+    write_resolution_summary_json(summary, summary_output)
+    if not skip_sync:
+        report = sync_operational_sources(
+            engine,
+            registry_path,
+            cluster_mapping=cluster_mapping,
+            source_version=source_version,
+        )
+        typer.echo(
+            "tier_s_sync: "
+            + ("already_applied" if report.already_applied else "applied")
+            + f" batch={report.import_batch_id} "
+            f"created_portals={report.created_portals} reused_portals={report.reused_portals} "
+            f"created_mappings={report.created_mappings} updated_mappings={report.updated_mappings}"
+        )
+    typer.echo(render_terminal_summary(summary))
+    typer.echo(f"unmatched_csv: {unmatched_output}")
+    typer.echo(f"queues_csv: {queues_output}")
+    typer.echo(f"summary_json: {summary_output}")
 
 
 @app.command("import-company-aliases")

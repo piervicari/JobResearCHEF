@@ -1,0 +1,47 @@
+{
+  "adapter_needed_by_platform": {
+    "Teamtailor": 1
+  },
+  "adapter_needed_total": 1,
+  "core_200_employers": 29,
+  "core_extension_employers": 60,
+  "fingerprint_required_total": 10,
+  "hold_total": 12,
+  "matched_employers": 57,
+  "multi_source_employers": [
+    "Anthropic",
+    "Booz Allen Hamilton",
+    "Cloudflare",
+    "Datadog",
+    "Discord",
+    "Dragos",
+    "OpenAI",
+    "Palo Alto Networks",
+    "SpaceX",
+    "Tenable"
+  ],
+  "queue_counts": {
+    "ADAPTER_NEEDED": 1,
+    "FINGERPRINT_REQUIRED": 10,
+    "HOLD": 12,
+    "READY_TO_PROBE": 62,
+    "RESOLVER_LIGHT": 4
+  },
+  "ready_to_probe_by_ats": {
+    "Ashby": 7,
+    "Avature": 1,
+    "Custom Google RPC": 1,
+    "Greenhouse": 29,
+    "Lever": 2,
+    "Oracle Recruiting Cloud": 2,
+    "Phenom": 1,
+    "Radancy": 3,
+    "SmartRecruiters": 4,
+    "SuccessFactors RMK": 2,
+    "Workday": 10
+  },
+  "ready_to_probe_total": 62,
+  "resolver_light_total": 4,
+  "total_operational_sources": 89,
+  "unmatched_employers": 22
+}

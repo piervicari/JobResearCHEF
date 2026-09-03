@@ -379,3 +379,43 @@ Google's 20-record pagination makes its full catalog materially more request-hea
 Local validation for this change: Python compile succeeded and 23 targeted tests covering Google parsing/pagination/platform selection, form-encoded HTTP POST support, and the narrowed triage/full-analysis contracts passed. A full dependency/test run was not completed in the build sandbox because `uv sync` timed out downloading `greenlet`; do not misreport this as a full-suite pass.
 
 **Current operator action:** `./scripts/run_google_careers_probe.sh`, then upload the generated log for independent web ground-truth comparison.
+
+## Update — 2026-09-03: V25 Operational Source Control Plane
+
+The `TIER_S_ATS_MAPPING.md` ledger reached the point where the **research mapping is materially ahead of the execution layer**. The ledger has accumulated 19+ batches and audit-v2 closure passes A-F covering ≥225 employers. The strategic conclusion is that a generic AI resolver is no longer the right default: most Tier-S employers already fall into supported ATS families (Greenhouse/Ashby/Workday alone cover ≥90 audit-v2 employers). A growing list of cases also shows the model `Employer -> exactly one ATS` is wrong: SpaceX has a main board + an international board; Discord, Coalition, Pure Storage/Everpure and Alphabet follow the same pattern.
+
+V25 turns the research ledger into a **machine-readable operational source registry** (`data/target_employers/tier_s_operational_sources_v1.csv`) and exposes an idempotent, additive, offline sync into `Portal` + `ClusterPortalMapping` via the new `tier_s_operational_sources` module. V25 is the milestone produced by decision 0051.
+
+### What V25 changes vs V24
+
+* **Research ledger vs runtime registry.** `TIER_S_ATS_MAPPING.md` is now the **audit trail** only. The CSV is the runtime input. No Markdown parser is added to the execution path.
+* **Corporate cluster can hold many operational sources.** SpaceX, Discord, Coalition etc. are first-class multi-source cases. The `ClusterPortalMapping` schema already supported this; the new sync uses it without forcing a migration.
+* **Audit-v2 evidence governs routing.** Legacy `VERIFIED` from Batches 1-6 does not pass the v2 gate. `PROBABLE` -> `FINGERPRINT_REQUIRED`; `UNVERIFIED` -> `HOLD`; only `FIRST_PARTY_VERIFIED`/`TECHNICALLY_VERIFIED` with an existing adapter and a non-`UNTESTED` catalog state land in `READY_TO_PROBE`.
+* **Platform vs catalog split.** A row can be `TECHNICALLY_VERIFIED` at platform level but `PARITY_PENDING` for catalog completeness; that is a single cheap probe away from `READY_TO_PROBE`, not a route change.
+* **Idempotent additive sync.** Repeated runs produce the same state; no `SourceJob` or `JobAiAnalysis` row is touched; lifecycle never advances; the existing `apply-registry-changes` workflow is not extended.
+* **Five resolution queues.** `READY_TO_PROBE`, `FINGERPRINT_REQUIRED`, `ADAPTER_NEEDED`, `RESOLVER_LIGHT`, `HOLD`. Output: `output/mapping/tier_s_resolution_queues.csv` + `tier_s_resolution_summary.json` + `tier_s_operational_sources_unmatched.csv`.
+
+### What V25 explicitly does NOT do
+
+* Does not implement Eightfold, BrassRing, Teamtailor, Taleo, Microsoft, Amazon, Meta, Apple or any custom Tier-S adapter.
+* Does not build the generic resolver. The next milestone is family-level controlled probing of the `READY_TO_PROBE` queue.
+* Does not continue the census. The CORE_200 is frozen; new rows must be `CORE_EXTENSION` and pass audit-v2.
+* Does not modify the CYBER semantic contract, the LLM routing, batching or detail-enrichment policy.
+* Does not introduce Alembic. The existing schema is already sufficient.
+
+### Operational milestones going forward
+
+* **V24 (frozen):** Stripe PASS, Google RPC adapter + probe ready.
+* **V25 (this milestone):** Tier-S research ledger is executable as a runtime registry. Five resolution queues, multi-source support, additive sync.
+* **V26 candidate (NOT IMPLEMENTED HERE):** family-level controlled probing of the `READY_TO_PROBE` queue, one ATS family at a time, starting with Greenhouse.
+* **P1 (deferred):** precision/recall gates, real-job golden set.
+* **P2 (deferred):** internship/program historical intelligence.
+* **P3 (deferred):** scheduler/Telegram; later AI/SWE domain expansion.
+
+### Current operator action
+
+```bash
+./scripts/prepare_tier_s_operational_sources.sh
+```
+
+The script uses the persistent runtime DB at `~/.local/share/research-agent/research_agent.db`, writes a timestamped log under `output/test_runs/tier_s_operational_sources_*.log`, and regenerates the unmatched / queues / summary artifacts. Google Careers V24 remains the first custom Tier-S end-to-end probe and is not removed.
