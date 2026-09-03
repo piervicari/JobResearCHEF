@@ -1,0 +1,7 @@
+Alias,Corporate Cluster ID,Status,Provenance,Evidence Reference,Reason
+Amazon Web Services,CG-1E17FD881E,VERIFIED,manual review of master v1.5,master-v1.5:CG-1E17FD881E:Amazon Web Services (AWS),Normalized trading name is explicitly present in the cluster evidence
+Johnson and Johnson,CG-2E3CAF15E7,VERIFIED,manual review of master v1.5,master-v1.5:CG-2E3CAF15E7:Johnson & Johnson,Spelled-out conjunction is a reviewed variant of the canonical employer
+Pricewaterhouse Coopers,CG-C3A0759193,VERIFIED,manual review of master v1.5,master-v1.5:CG-C3A0759193:PricewaterhouseCoopers,Spacing variant is supported by the canonical employer evidence
+Ernst and Young,CG-44B3BCE647,VERIFIED,manual review of master v1.5,master-v1.5:CG-44B3BCE647:Ernst & Young,Spelled-out conjunction is a reviewed variant of the canonical employer
+AWS,CG-1E17FD881E,PROPOSED,fuzzy/manual candidate,,Short acronym remains proposed until independently reviewed
+J&J,CG-2E3CAF15E7,PROPOSED,fuzzy/manual candidate,,Short acronym remains proposed until independently reviewed

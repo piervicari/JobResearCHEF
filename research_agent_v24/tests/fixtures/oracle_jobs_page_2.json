@@ -1,0 +1,17 @@
+{
+  "items": [{
+    "Offset": 1,
+    "Limit": 1,
+    "TotalJobsCount": 2,
+    "requisitionList": [{
+      "Id": "1002",
+      "Title": "Cybersecurity Intern",
+      "PostedDate": "2026-08-21",
+      "PrimaryLocationCountry": "DE",
+      "PrimaryLocation": "Berlin, Germany",
+      "ShortDescriptionStr": "Assist incident response",
+      "WorkplaceType": "On-site",
+      "JobType": "Intern"
+    }]
+  }]
+}

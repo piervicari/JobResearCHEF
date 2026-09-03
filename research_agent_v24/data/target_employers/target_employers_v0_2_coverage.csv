@@ -1,0 +1,201 @@
+name,tier,primary_category,dataset_canonical_employer,corporate_cluster_id,portal_status,portal_id,jobs_url,scan_enabled,portal_health,last_successful_scan_at,covered_brands,monitoring_scope
+Google,S,global_tech_cloud_ai,Google,CG-C65DC3B9A9,resolved_scannable,384,https://www.google.com/about/careers/applications/jobs/results,True,UNKNOWN,,Wiz; Mandiant; Google Cloud Security,core
+Microsoft,S,global_tech_cloud_ai,Microsoft,CG-64814A3B7F,resolved_scannable,187,https://jobs.careers.microsoft.com/global/en/search,True,HEALTHY,2026-08-31 15:02:08.218774,GitHub,core
+Amazon,S,global_tech_cloud_ai,Amazon,CG-1E17FD881E,resolved_scannable,291,https://www.amazon.jobs/en/search,True,UNKNOWN,,AWS,core
+Apple,S,global_tech_cloud_ai,Apple,CG-D0BE2DC421,resolved_scannable,175,https://jobs.apple.com/en-us/search,True,HEALTHY,2026-08-31 15:02:05.349583,,core
+Meta,S,global_tech_cloud_ai,Meta,CG-CB03049115,resolved_scannable,424,https://www.metacareers.com/jobs/,True,UNKNOWN,,,core
+NVIDIA,S,global_tech_cloud_ai,NVIDIA,CG-05F5439F98,resolved_scannable,443,https://www.nvidia.com/en-us/about-nvidia/careers/,True,UNKNOWN,,,core
+OpenAI,S,global_tech_cloud_ai,OpenAI,CG-7D3BBB5CBB,present_unresolved,,,False,,,,core
+Anthropic,S,global_tech_cloud_ai,,,missing_to_resolve,,,False,,,,core
+Cloudflare,S,global_tech_cloud_ai,Cloudflare,CG-F036F57906,resolved_scannable,341,https://www.cloudflare.com/careers/jobs/,True,UNKNOWN,,,core
+Cisco,S,global_tech_cloud_ai,Cisco,CG-7AF78C911D,resolved_scannable,189,https://jobs.cisco.com/jobs/SearchJobs/,True,UNKNOWN,,Splunk,core
+IBM,S,global_tech_cloud_ai,IBM,CG-D3AC7A4EF1,resolved_scannable,395,https://www.ibm.com/careers/search,True,UNKNOWN,,Red Hat,core
+Oracle,S,global_tech_cloud_ai,Oracle,CG-431364B645,resolved_scannable,447,https://www.oracle.com/careers/,True,UNKNOWN,,,core
+Palantir Technologies,S,global_tech_cloud_ai,Palantir Technologies,CG-1F09F61ED6,resolved_scannable,448,https://www.palantir.com/careers/,True,UNKNOWN,,,core
+Broadcom,S,global_tech_cloud_ai,Broadcom,CG-6081F87907,resolved_scannable,327,https://www.broadcom.com/company/careers,True,UNKNOWN,,,core
+Palo Alto Networks,S,cybersecurity_vendor,Palo Alto Networks,CG-710F91B65A,resolved_scannable,223,https://jobs.paloaltonetworks.com/en/search_jobs,True,HEALTHY,2026-08-31 19:52:51.893575,CyberArk,core
+CrowdStrike,S,cybersecurity_vendor,CrowdStrike,CG-CEC06F879A,resolved_scannable,138,https://crowdstrike.wd5.myworkdayjobs.com/crowdstrikecareers,True,UNKNOWN,,,core
+Fortinet,S,cybersecurity_vendor,Fortinet,CG-D73D4A8B6A,resolved_scannable,375,https://www.fortinet.com/corporate/careers,True,UNKNOWN,,,core
+Zscaler,S,cybersecurity_vendor,Zscaler,CG-62C559B42E,resolved_scannable,509,https://www.zscaler.com/careers/search,True,UNKNOWN,,,core
+Okta,S,cybersecurity_vendor,Okta,CG-0004CE55D3,resolved_scannable,446,https://www.okta.com/company/careers/job-listing/,True,UNKNOWN,,,core
+Check Point Software,S,cybersecurity_vendor,Check Point Software,CG-5C528EBC85,resolved_not_scannable,43,https://careers.checkpoint.com/,False,DEGRADED,,,core
+SentinelOne,S,cybersecurity_vendor,SentinelOne,CG-56303A94B3,resolved_scannable,473,https://www.sentinelone.com/jobs/,True,UNKNOWN,,,core
+Netskope,S,cybersecurity_vendor,Netskope,CG-DE21FCE046,resolved_scannable,434,https://www.netskope.com/company/careers,True,UNKNOWN,,,core
+Proofpoint,S,cybersecurity_vendor,Proofpoint,CG-9CA85DBA9E,resolved_scannable,265,https://proofpoint.wd5.myworkdayjobs.com/proofpointcareers,True,HEALTHY,2026-08-31 09:07:48.354453,,core
+Tenable,S,cybersecurity_vendor,Tenable,CG-AA4B65F605,resolved_scannable,493,https://www.tenable.com/careers,True,UNKNOWN,,,core
+Rapid7,S,cybersecurity_vendor,Rapid7,CG-D9132F0D0E,resolved_scannable,89,https://careers.rapid7.com/jobs/search,True,UNKNOWN,,,core
+Rubrik,S,cybersecurity_vendor,Rubrik,CG-1EA1115B70,resolved_scannable,465,https://www.rubrik.com/company/careers,True,UNKNOWN,,,core
+Snyk,S,cybersecurity_vendor,Snyk,CG-97F1F34CF3,resolved_scannable,275,https://snyk.io/careers/all-jobs/,True,HEALTHY,2026-08-31 15:01:59.688339,,core
+Darktrace,S,cybersecurity_vendor,Darktrace,CG-55BE6B30E5,resolved_scannable,354,https://www.darktrace.com/careers,True,UNKNOWN,,,core
+JPMorgan Chase,S,finance_payments_markets,JPMorgan Chase,CG-369AF0453D,resolved_scannable,68,https://careers.jpmorgan.com/,True,HEALTHY,2026-08-31 14:31:32.356268,,core
+Goldman Sachs,S,finance_payments_markets,Goldman Sachs,CG-13B9767F73,resolved_scannable,157,https://higher.gs.com/,True,HEALTHY,2026-08-31 15:02:02.088725,,core
+Morgan Stanley,S,finance_payments_markets,Morgan Stanley,CG-1D8734AD81,resolved_scannable,428,https://www.morganstanley.com/people-opportunities/apply-contact,True,UNKNOWN,,,core
+Citigroup,S,finance_payments_markets,Citigroup,CG-FD061ADF6F,resolved_scannable,190,https://jobs.citi.com/,True,HEALTHY,2026-08-31 15:01:56.457729,,core
+Bank of America,S,finance_payments_markets,Bank of America,CG-338FE083ED,resolved_scannable,31,https://careers.bankofamerica.com/en-us/job-search,True,HEALTHY,2026-08-31 09:38:09.814112,,core
+Visa,S,finance_payments_markets,Visa,CG-68111B2D77,resolved_scannable,137,https://corporate.visa.com/en/careers.html,True,HEALTHY,2026-08-31 15:01:54.881123,,core
+Mastercard,S,finance_payments_markets,Mastercard,CG-C19E33E7A9,resolved_scannable,76,https://careers.mastercard.com/us/en/search-results/,True,UNKNOWN,,Recorded Future,core
+Stripe,S,finance_payments_markets,Stripe,CG-2FCB5A43A4,resolved_scannable,276,https://stripe.com/careers/search,True,HEALTHY,2026-08-31 15:01:59.683808,,core
+Bloomberg,S,finance_payments_markets,,,missing_to_resolve,,,False,,,,core
+BlackRock,S,finance_payments_markets,BlackRock,CG-2B44A3EB35,resolved_scannable,36,https://careers.blackrock.com/en/search-jobs,True,HEALTHY,2026-08-31 19:54:40.962633,,core
+Deutsche Bank,S,finance_payments_markets,Deutsche Bank,CG-45EE2F0FC4,resolved_scannable,45,https://careers.db.com/professionals/search-roles/,True,HEALTHY,2026-08-31 14:31:22.569482,,core
+UBS,S,finance_payments_markets,UBS,CG-4D3B07ABB6,resolved_scannable,498,https://www.ubs.com/global/en/careers.html,True,UNKNOWN,,,core
+Barclays,S,finance_payments_markets,Barclays Bank,CG-4C16132B2C,resolved_scannable,271,https://search.jobs.barclays/,True,HEALTHY,2026-08-31 15:02:00.225746,,core
+HSBC,S,finance_payments_markets,HSBC Bank,CG-616DA28709,resolved_scannable,8,https://apply.careers.hsbc.com/search/,True,HEALTHY,2026-08-31 15:01:47.818315,,core
+Lockheed Martin,S,aerospace_defense_space,Lockheed Martin,CG-71D04FE648,resolved_scannable,415,https://www.lockheedmartin.com/careers/opportunities,True,UNKNOWN,,,core
+RTX,S,aerospace_defense_space,RTX,CG-F7AF09EAD5,resolved_scannable,95,https://careers.rtx.com/global/en/search-results,True,UNKNOWN,,,core
+Northrop Grumman,S,aerospace_defense_space,Northrop Grumman,CG-E589C97513,resolved_scannable,439,https://www.northropgrumman.com/jobs-search,True,UNKNOWN,,,core
+BAE Systems,S,aerospace_defense_space,BAE Systems,CG-2E8F622606,resolved_scannable,244,https://jobsearch.baesystems.com/,True,UNKNOWN,,,core
+Boeing,S,aerospace_defense_space,Boeing,CG-0E449AA646,resolved_scannable,182,https://jobs.boeing.com/search-jobs,True,HEALTHY,2026-08-31 15:01:57.706019,,core
+General Dynamics,S,aerospace_defense_space,General Dynamics,CG-CF43E886A4,resolved_scannable,378,https://www.gd.com/careers,True,UNKNOWN,,,core
+Airbus,S,aerospace_defense_space,Airbus,CG-4D2E5FDA0F,resolved_scannable,5,https://ag.wd3.myworkdayjobs.com/Airbus,True,HEALTHY,2026-08-31 15:02:26.598558,,core
+Thales,S,aerospace_defense_space,Thales,CG-58A73FDDC8,resolved_scannable,277,https://thales.wd3.myworkdayjobs.com/Careers,True,UNKNOWN,,,core
+Leonardo,S,aerospace_defense_space,Leonardo,CG-7610BAE85F,resolved_scannable,247,https://leonardocompany.wd3.myworkdayjobs.com/LeonardoCareerSite,True,UNKNOWN,,,core
+L3Harris,S,aerospace_defense_space,L3Harris,CG-FE01B1C59A,resolved_scannable,70,https://careers.l3harris.com/en/search_jobs,True,HEALTHY,2026-08-31 15:01:50.613056,,core
+Rheinmetall,S,aerospace_defense_space,Rheinmetall,CG-275853A231,resolved_scannable,461,https://www.rheinmetall.com/en/career/vacancies,True,UNKNOWN,,,core
+Saab,S,aerospace_defense_space,Saab,CG-82B5B75769,resolved_scannable,467,https://www.saab.com/career/job-opportunities,True,UNKNOWN,,,core
+SpaceX,S,aerospace_defense_space,SpaceX,CG-07DB55ED85,resolved_scannable,481,https://www.spacex.com/careers/,True,UNKNOWN,,,core
+Tesla,S,automotive_industrial,Tesla,CG-1156DEC907,resolved_scannable,495,https://www.tesla.com/careers/search,True,UNKNOWN,,,core
+BMW,S,automotive_industrial,BMW,CG-62A2A1EF85,resolved_scannable,322,https://www.bmwgroup.jobs/,True,UNKNOWN,,,core
+Mercedes-Benz,S,automotive_industrial,Mercedes-Benz,CG-C577A51F04,resolved_scannable,217,https://jobs.mercedes-benz.com/,True,HEALTHY,2026-08-31 15:01:57.441834,,core
+Volkswagen,S,automotive_industrial,Volkswagen,CG-86E8418A5A,resolved_scannable,237,https://jobs.volkswagen-group.com/go/All-jobs/,True,UNKNOWN,,,core
+Porsche,S,automotive_industrial,Porsche,CG-86E8418A5A,resolved_scannable,237,https://jobs.volkswagen-group.com/go/All-jobs/,True,UNKNOWN,,,core
+Ferrari,S,automotive_industrial,Ferrari,CG-5BC1824930,resolved_scannable,203,https://jobs.ferrari.com/,True,HEALTHY,2026-08-31 09:00:23.378035,,core
+Bosch,S,automotive_industrial,Bosch,CG-50AF7346E4,resolved_scannable,326,https://www.bosch.com/careers/,True,UNKNOWN,,,core
+Siemens,S,automotive_industrial,Siemens,CG-651F5D4C18,resolved_scannable,231,https://jobs.siemens.com/en_US/externaljobs/SearchJobs/,True,HEALTHY,2026-08-31 15:02:47.315702,,core
+Schneider Electric,S,automotive_industrial,Schneider Electric,CG-417702EE11,resolved_scannable,97,https://careers.se.com/Defaultlandingpage/jobs/locations,True,UNKNOWN,,,core
+ENISA,S,public_international,,,missing_to_resolve,,,False,,,,core
+NATO,S,public_international,,,missing_to_resolve,,,False,,,,core
+European Space Agency,S,public_international,,,missing_to_resolve,,,False,,,,core
+European Central Bank,S,public_international,,,missing_to_resolve,,,False,,,,core
+GitHub,S,global_tech_cloud_ai,GitHub,CG-64B2B6D12B,resolved_scannable,382,https://www.github.careers/careers-home/jobs,True,UNKNOWN,,,core
+GitLab,S,global_tech_cloud_ai,GitLab,CG-322F31631D,resolved_scannable,3,https://about.gitlab.com/jobs/,True,HEALTHY,2026-08-31 09:38:08.825624,,core
+Red Hat,S,global_tech_cloud_ai,Red Hat,CG-3C767C41AF,present_unresolved,,,False,,,,core
+SAP,S,global_tech_cloud_ai,SAP,CG-F4603BD4AE,resolved_scannable,229,https://jobs.sap.com/,True,UNKNOWN,,,core
+Salesforce,S,global_tech_cloud_ai,Salesforce,CG-D77B13FADA,resolved_scannable,96,https://careers.salesforce.com/en/jobs/,True,HEALTHY,2026-08-31 14:31:30.551773,,core
+ServiceNow,S,global_tech_cloud_ai,ServiceNow,CG-3992469ADB,resolved_not_scannable,99,https://careers.servicenow.com/jobs,False,DEGRADED,,,core
+Dell Technologies,S,global_tech_cloud_ai,Dell Technologies,CG-643256E66B,resolved_scannable,194,https://jobs.dell.com/en/search-jobs,True,HEALTHY,2026-08-31 15:02:04.968540,,core
+Hewlett Packard Enterprise,S,global_tech_cloud_ai,Hewlett Packard Enterprise,CG-1C08E12FCC,resolved_scannable,62,https://careers.hpe.com/us/en/search-results,True,HEALTHY,2026-08-31 14:31:25.978148,,core
+Intel,S,global_tech_cloud_ai,Intel,CG-EECDDD10D7,resolved_scannable,521,https://intel.wd1.myworkdayjobs.com/External,True,UNKNOWN,,,core
+AMD,S,global_tech_cloud_ai,AMD,CG-1EA0B794E1,present_unresolved,,,False,,,,core
+Arm,S,global_tech_cloud_ai,,,missing_to_resolve,,,False,,,,core
+Qualcomm,S,global_tech_cloud_ai,Qualcomm,CG-77BC8E7456,resolved_scannable,456,https://www.qualcomm.com/company/careers,True,UNKNOWN,,,core
+Atlassian,S,global_tech_cloud_ai,Atlassian,CG-5AEA57BF09,resolved_scannable,304,https://www.atlassian.com/company/careers,True,UNKNOWN,,,core
+Datadog,S,global_tech_cloud_ai,Datadog,CG-8BAB8F900C,resolved_scannable,44,https://careers.datadoghq.com/all-jobs/,True,HEALTHY,2026-08-31 14:31:22.220014,,core
+Elastic,S,global_tech_cloud_ai,Elastic,CG-988EB49809,resolved_scannable,363,https://www.elastic.co/careers,True,UNKNOWN,,,core
+Snowflake,S,global_tech_cloud_ai,Snowflake,CG-B0C5516F28,resolved_scannable,101,https://careers.snowflake.com/us/en/search-results,True,UNKNOWN,,,core
+Databricks,S,global_tech_cloud_ai,,,missing_to_resolve,,,False,,,,core
+Akamai,S,global_tech_cloud_ai,Akamai,CG-36B7393762,resolved_scannable,288,https://www.akamai.com/careers,True,UNKNOWN,,,core
+F5,S,global_tech_cloud_ai,F5,CG-547CD2BA3A,present_unresolved,,,False,,,,core
+Veeam,S,cybersecurity_vendor,Veeam,CG-64382CACED,present_unresolved,,,False,,,,core
+Sophos,S,cybersecurity_vendor,Sophos,CG-D5007DB708,resolved_scannable,480,https://www.sophos.com/en-us/company/careers,True,UNKNOWN,,,core
+Trend Micro,S,cybersecurity_vendor,Trend Micro,CG-D864934644,resolved_scannable,496,https://www.trendmicro.com/en/about/careers.html,True,UNKNOWN,,,core
+Illumio,S,cybersecurity_vendor,Illumio,CG-87DEFD60E0,resolved_scannable,397,https://www.illumio.com/company/careers,True,UNKNOWN,,,core
+Arctic Wolf,S,cybersecurity_vendor,Arctic Wolf,CG-44B5A3C0F1,resolved_scannable,10,https://arcticwolf.com/company/careers/,True,HEALTHY,2026-08-31 09:38:09.552645,,core
+Abnormal Security,S,cybersecurity_vendor,Abnormal Security,CG-5ACF005D98,resolved_scannable,1,https://abnormal.ai/careers/open-roles,True,HEALTHY,2026-08-31 09:38:08.515913,,core
+Vanta,S,cybersecurity_vendor,Vanta,CG-3E09ECD21F,present_unresolved,,,False,,,,core
+Cato Networks,S,cybersecurity_vendor,Cato Networks,CG-1B649F25AD,resolved_scannable,337,https://www.catonetworks.com/careers/,True,UNKNOWN,,,core
+Orca Security,S,cybersecurity_vendor,Orca Security,CG-11763A16EB,resolved_not_scannable,259,https://orca.security/about/careers/,False,DEGRADED,2026-08-31 14:35:17.631422,,core
+Aqua Security,S,cybersecurity_vendor,Aqua Security,CG-94D6BD7E03,resolved_scannable,298,https://www.aquasec.com/careers/,True,UNKNOWN,,,core
+Sysdig,S,cybersecurity_vendor,Sysdig,CG-8C57AA1754,resolved_scannable,487,https://www.sysdig.com/careers/open-positions,True,UNKNOWN,,,core
+HackerOne,S,cybersecurity_vendor,HackerOne,CG-9A53EF1C60,resolved_scannable,388,https://www.hackerone.com/careers,True,UNKNOWN,,,core
+Bugcrowd,S,cybersecurity_vendor,Bugcrowd,CG-3A88FDD332,resolved_scannable,328,https://www.bugcrowd.com/about/careers/,True,UNKNOWN,,,core
+NCC Group,S,cybersecurity_vendor,NCC Group,CG-028F8AB9E2,resolved_scannable,433,https://www.nccgroupplc.com/careers/,True,UNKNOWN,,,core
+Recorded Future,S,cybersecurity_vendor,Recorded Future,CG-4EB57340A0,resolved_scannable,457,https://www.recordedfuture.com/work-with-us/jobs,True,UNKNOWN,,,core
+ESET,S,cybersecurity_vendor,ESET,CG-49A48FDC2E,resolved_scannable,370,https://www.eset.com/int/about/careers/,True,UNKNOWN,,,core
+Bitdefender,S,cybersecurity_vendor,Bitdefender,CG-BA242807A8,resolved_scannable,320,https://www.bitdefender.com/en-us/company/careers,True,UNKNOWN,,,core
+American Express,S,finance_payments_markets,American Express,CG-0794FE834D,resolved_scannable,292,https://www.americanexpress.com/en-us/careers/,True,UNKNOWN,,,core
+PayPal,S,finance_payments_markets,PayPal,CG-0B4E4886EB,resolved_scannable,514,https://paypal.wd1.myworkdayjobs.com/jobs,True,HEALTHY,2026-08-31 14:31:31.076296,,core
+Block,S,finance_payments_markets,Block,CG-0214B4B355,resolved_scannable,15,https://block.xyz/careers/jobs,True,HEALTHY,2026-08-31 09:38:09.433581,,core
+Adyen,S,finance_payments_markets,Adyen,CG-852120E028,resolved_scannable,21,https://careers.adyen.com/vacancies,True,HEALTHY,2026-08-31 09:38:09.133680,,core
+Wise,S,finance_payments_markets,Wise,CG-CB129D1D3B,resolved_scannable,282,https://wise.jobs/jobs,True,HEALTHY,2026-08-31 15:02:00.775960,,core
+Revolut,S,finance_payments_markets,Revolut,CG-10A23080E5,resolved_scannable,460,https://www.revolut.com/careers/,True,UNKNOWN,,,core
+Nasdaq,S,finance_payments_markets,Nasdaq,CG-61C1A187B4,resolved_scannable,431,https://www.nasdaq.com/about/careers,True,UNKNOWN,,,core
+London Stock Exchange Group,S,finance_payments_markets,London Stock Exchange Group,CG-F2CF1CA3CD,resolved_scannable,416,https://www.lseg.com/en/careers,True,UNKNOWN,,,core
+Deutsche Börse,S,finance_payments_markets,Deutsche Börse,CG-F0421B49FD,resolved_scannable,47,https://careers.deutsche-boerse.com/,True,HEALTHY,2026-08-31 14:31:23.474308,,core
+CME Group,S,finance_payments_markets,CME Group,CG-EAE50268EB,resolved_scannable,342,https://www.cmegroup.com/careers.html,True,UNKNOWN,,,core
+Intercontinental Exchange,S,finance_payments_markets,Intercontinental Exchange,CG-DF03A33805,resolved_scannable,64,https://careers.ice.com/,True,HEALTHY,2026-08-31 14:31:28.903883,,core
+Euronext,S,finance_payments_markets,Euronext,CG-9E81863C6B,resolved_scannable,371,https://www.euronext.com/en/about/careers/open-positions,True,UNKNOWN,,,core
+SWIFT,S,finance_payments_markets,Swift,CG-49DAB5697B,present_unresolved,,,False,,,,core
+ING,S,finance_payments_markets,ING,CG-D6D989ED83,resolved_scannable,66,https://careers.ing.com/search-jobs,True,HEALTHY,2026-08-31 14:31:28.141545,,core
+Santander,S,finance_payments_markets,Santander,CG-263594BA73,resolved_scannable,471,https://www.santander.com/en/careers,True,UNKNOWN,,,core
+BBVA,S,finance_payments_markets,BBVA,CG-02CD9140F4,resolved_scannable,32,https://careers.bbva.com/,True,HEALTHY,2026-08-31 09:38:10.631182,,core
+BNP Paribas,S,finance_payments_markets,BNP Paribas,CG-FF07ED39BF,resolved_not_scannable,150,https://group.bnpparibas/en/careers,False,DEGRADED,,,core
+Société Générale,S,finance_payments_markets,Société Générale,CG-EA38E6216E,resolved_scannable,102,https://careers.societegenerale.com/en/search,True,HEALTHY,2026-08-31 14:31:27.138167,,core
+Crédit Agricole,S,finance_payments_markets,Crédit Agricole,CG-AC5E6D08CF,resolved_scannable,350,https://www.credit-agricole.com/en/candidate,True,UNKNOWN,,,core
+UniCredit,S,finance_payments_markets,UniCredit,CG-456F45FA17,resolved_scannable,500,https://www.unicreditgroup.eu/en/careers.html,True,UNKNOWN,,,core
+Intesa Sanpaolo,S,finance_payments_markets,Intesa Sanpaolo,CG-2257193AF6,resolved_scannable,208,https://jobs.intesasanpaolo.com/,True,UNKNOWN,,,core
+NatWest,S,finance_payments_markets,NatWest Bank,CG-B697BD7A68,resolved_not_scannable,219,https://jobs.natwestgroup.com/search/jobs,False,DEGRADED,,,core
+Lloyds Banking Group,S,finance_payments_markets,Lloyds Banking Group,CG-EBC8716D3A,resolved_scannable,414,https://www.lloydsbankinggroup.com/careers/job-search.html,True,UNKNOWN,,,core
+Standard Chartered,S,finance_payments_markets,Standard Chartered,CG-5E1599D54B,resolved_scannable,472,https://www.sc.com/en/global-careers/,True,UNKNOWN,,,core
+Macquarie Group,S,finance_payments_markets,Macquarie Bank,CG-7C8418DE14,resolved_scannable,417,https://www.macquarie.com/au/en/careers.html,True,UNKNOWN,,,core
+QinetiQ,S,aerospace_defense_space,QinetiQ,CG-09478C27B0,resolved_scannable,87,https://careers.qinetiq.com/,True,UNKNOWN,,,core
+Kongsberg,S,aerospace_defense_space,Kongsberg Gruppen,CG-BE179A0629,resolved_scannable,410,https://www.kongsberg.com/careers/vacancies/,True,UNKNOWN,,,core
+Safran,S,aerospace_defense_space,Safran,CG-781EF1EB47,resolved_scannable,468,https://www.safran-group.com/jobs,True,UNKNOWN,,,core
+Dassault Aviation,S,aerospace_defense_space,,,missing_to_resolve,,,False,,,,core
+MBDA,S,aerospace_defense_space,MBDA,CG-CA2ED86266,resolved_scannable,419,https://www.mbda-systems.com/careers,True,UNKNOWN,,,core
+Naval Group,S,aerospace_defense_space,NAVAL GROUP,CG-5CB69DAC2F,resolved_scannable,432,https://www.naval-group.com/en/talents,True,UNKNOWN,,,core
+Fincantieri,S,aerospace_defense_space,FINCANTIERI,CG-A0F97995DC,resolved_scannable,373,https://www.fincantieri.com/it/persone/lavora-con-noi/posizioni-aperte,True,UNKNOWN,,,core
+Anduril,S,aerospace_defense_space,Anduril,CG-98199FE204,resolved_scannable,294,https://www.anduril.com/careers,True,UNKNOWN,,,core
+Shield AI,S,aerospace_defense_space,Shield AI,CG-A32127FA50,resolved_not_scannable,274,https://shield.ai/careers/,False,DEGRADED,,,core
+Rolls-Royce,S,aerospace_defense_space,,,missing_to_resolve,,,False,,,,core
+Kratos Defense & Security Solutions,S,aerospace_defense_space,Kratos Defense & Security Solutions,CG-27E7AFCF5E,resolved_scannable,528,https://www.kratosdefense.com/careers/open-roles,True,UNKNOWN,,,core
+Parsons,S,aerospace_defense_space,,,missing_to_resolve,,,False,,,,core
+Audi,S,automotive_industrial,AUDI,CG-86E8418A5A,resolved_scannable,237,https://jobs.volkswagen-group.com/go/All-jobs/,True,UNKNOWN,,,core
+Toyota,S,automotive_industrial,Toyota,CG-D851607621,present_unresolved,,,False,,,,core
+Ford,S,automotive_industrial,Ford,CG-D6EDD79FD6,present_unresolved,,,False,,,,core
+General Motors,S,automotive_industrial,General Motors,CG-F204FCDC94,resolved_not_scannable,270,https://search-careers.gm.com/en/jobs/,False,DEGRADED,,,core
+Stellantis,S,automotive_industrial,Stellantis,CG-0427F23177,resolved_scannable,107,https://careers.stellantis.com/,True,HEALTHY,2026-08-31 14:31:26.272581,,core
+Volvo Cars,S,automotive_industrial,Volvo Cars,CG-BCD46C3ACC,resolved_scannable,238,https://jobs.volvocars.com/,True,UNKNOWN,,,core
+Renault Group,S,automotive_industrial,Renault Group,CG-3A4B41C558,resolved_scannable,458,https://www.renaultgroup.com/en/careers/,True,UNKNOWN,,,core
+Hyundai,S,automotive_industrial,Hyundai,CG-1B510335C7,present_unresolved,,,False,,,,core
+Continental,S,automotive_industrial,Continental,CG-62B3D8F719,resolved_scannable,191,https://jobs.continental.com/en/,True,HEALTHY,2026-08-31 15:01:56.931802,,core
+ZF,S,automotive_industrial,ZF,CG-A2DFB80737,resolved_scannable,242,https://jobs.zf.com/viewalljobs/,True,UNKNOWN,,,core
+Aptiv,S,automotive_industrial,Aptiv,CG-1551ECE576,resolved_scannable,297,https://www.aptiv.com/en/jobs/search/open-positions,True,UNKNOWN,,,core
+ABB,S,automotive_industrial,ABB,CG-C64D3FCDE2,resolved_scannable,18,https://careers.abb/global/en/career-opportunities,True,HEALTHY,2026-08-31 15:02:25.129003,,core
+Honeywell,S,automotive_industrial,Honeywell,CG-14AD0ACA26,resolved_scannable,158,https://ibqbjb.fa.ocs.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1,True,UNKNOWN,,,core
+Ericsson,S,telecom_networking,Ericsson,CG-5B947E69C3,resolved_not_scannable,202,https://jobs.ericsson.com/careers,False,DEGRADED,,,core
+Nokia,S,telecom_networking,Nokia,CG-D61DB83635,resolved_scannable,438,https://www.nokia.com/careers/,True,UNKNOWN,,,core
+Vodafone,S,telecom_networking,,,missing_to_resolve,,,False,,,,core
+Deutsche Telekom,S,telecom_networking,Deutsche Telekom,CG-29C4AE9969,resolved_scannable,112,https://careers.telekom.com/en,True,HEALTHY,2026-08-31 14:31:26.676433,,core
+Orange,S,telecom_networking,Orange,CG-EF0EBBB772,present_unresolved,,,False,,,,core
+Telefónica,S,telecom_networking,Telefónica,CG-6B0BF45BB4,resolved_scannable,233,https://jobs.telefonica.com/,True,UNKNOWN,,,core
+BT Group,S,telecom_networking,,,missing_to_resolve,,,False,,,,core
+Verizon,S,telecom_networking,Verizon,CG-6CA2F5414A,resolved_not_scannable,255,https://mycareer.verizon.com/,False,DEGRADED,,,core
+AT&T,S,telecom_networking,AT&T,CG-B0D2B650FD,resolved_scannable,305,https://www.att.jobs/search-jobs,True,UNKNOWN,,,core
+T-Mobile,S,telecom_networking,T-Mobile US,CG-A438D8F386,present_unresolved,,,False,,,,core
+Shell,S,energy_critical_infrastructure,Shell,CG-EC122F54CF,resolved_scannable,273,https://shell.wd3.myworkdayjobs.com/shellcareers,True,UNKNOWN,,,core
+BP,S,energy_critical_infrastructure,BP,CG-0691A664B2,resolved_scannable,38,https://careers.bp.com/,True,HEALTHY,2026-08-31 14:31:23.201369,,core
+TotalEnergies,S,energy_critical_infrastructure,TotalEnergies,CG-6802E366E5,resolved_scannable,114,https://careers.totalenergies.com/en,True,HEALTHY,2026-08-31 15:01:53.662009,,core
+Equinor,S,energy_critical_infrastructure,Equinor,CG-296E8AF76C,resolved_scannable,369,https://www.equinor.com/careers,True,UNKNOWN,,,core
+Eni,S,energy_critical_infrastructure,Eni,CG-ED078A55E3,resolved_scannable,367,https://www.eni.com/en-IT/careers/job-opportunities.html,True,UNKNOWN,,,core
+Enel,S,energy_critical_infrastructure,Enel,CG-4B7DF26F31,resolved_scannable,366,https://www.enel.com/careers,True,UNKNOWN,,,core
+EDF,S,energy_critical_infrastructure,EDF,CG-1013B67428,resolved_scannable,362,https://www.edf.fr/edf-recrute,True,UNKNOWN,,,core
+Iberdrola,S,energy_critical_infrastructure,Iberdrola,CG-3F933CDA09,resolved_scannable,394,https://www.iberdrola.com/careers/careers-iberdrola,True,UNKNOWN,,,core
+National Grid,S,energy_critical_infrastructure,National Grid,CG-70554C5713,resolved_scannable,172,https://jobs-ats.nationalgrid.com/,True,UNKNOWN,,,core
+RWE,S,energy_critical_infrastructure,RWE,CG-3B1466F04E,resolved_scannable,466,https://www.rwe.com/en/rwe-careers-portal/,True,UNKNOWN,,,core
+Accenture,S,consulting_security_services,Accenture,CG-4EF5847CA9,resolved_scannable,285,https://www.accenture.com/us-en/careers/jobsearch,True,UNKNOWN,,,core
+Capgemini,S,consulting_security_services,Capgemini,CG-9315EAB5A7,resolved_scannable,186,https://jobs.capgemini.com/,True,HEALTHY,2026-08-31 15:01:57.458158,,core
+Europol,S,public_international,,,missing_to_resolve,,,False,,,,core
+European Commission,S,public_international,,,missing_to_resolve,,,False,,,,core
+Deloitte,S,consulting_security_services,Deloitte,CG-51278FFA03,resolved_scannable,9,https://applyglobal.deloitte.com/careers,True,HEALTHY,2026-08-31 09:38:09.212442,,core
+EY,S,consulting_security_services,EY Consulting,CG-44B3BCE647,resolved_scannable,52,https://careers.ey.com/,True,HEALTHY,2026-08-31 15:02:21.890343,,core
+PwC,S,consulting_security_services,PWC,CG-C3A0759193,resolved_scannable,173,https://jobs-it.pwc.com/it/en/,True,HEALTHY,2026-08-31 09:14:51.827074,,core
+KPMG,S,consulting_security_services,KPMG,CG-7187734F76,resolved_scannable,69,https://careers.kpmg.it/,True,HEALTHY,2026-08-31 15:02:23.129793,,core
+Reply,S,consulting_security_services,Reply,CG-A5DFD1E2A1,present_unresolved,,,False,,,,core
+CGI,S,consulting_security_services,CGI,CG-27B4D0F8EE,resolved_not_scannable,517,https://cgi.njoyn.com/CORP/xweb/xweb.asp?CLID=21001&lang=1&page=JobListing,False,HEALTHY,2026-08-31 14:53:58.831951,,core
+DXC Technology,S,consulting_security_services,DXC Technology,CG-7DB4D0352B,resolved_scannable,49,https://careers.dxc.com/,True,HEALTHY,2026-08-31 14:31:22.315764,,core
+NTT DATA,S,consulting_security_services,NTT DATA,CG-6FEA5C3CC5,resolved_scannable,442,https://www.nttdata.com/global/en/careers,True,UNKNOWN,,,core
+Sopra Steria,S,consulting_security_services,Sopra Steria,CG-218C1E0C1D,resolved_scannable,103,https://careers.soprasteria.com/jobs,True,HEALTHY,2026-08-31 14:31:26.601552,,core
+WithSecure,S,cybersecurity_vendor,WithSecure,CG-56ADB43BA5,present_unresolved,,,False,,,,core
+F-Secure,S,cybersecurity_vendor,F-Secure,CG-CC6D43CF64,present_unresolved,,,False,,,,core
+Armis,S,cybersecurity_vendor,Armis,CG-0644AB85BC,resolved_scannable,301,https://www.armis.com/armis-careers/,True,UNKNOWN,,,core
+Claroty,S,cybersecurity_vendor,Claroty,CG-462931D663,resolved_scannable,133,https://claroty.com/careers/,True,HEALTHY,2026-08-31 15:01:54.392715,,core
+Trellix,S,cybersecurity_vendor,Trellix,CG-E96EEE84BF,resolved_scannable,535,https://trellix.wd1.myworkdayjobs.com/EnterpriseCareers,True,UNKNOWN,,,core
+Gen Digital,S,cybersecurity_vendor,Gen Digital,CG-8AB778057D,present_unresolved,,,False,,,,core
+Rabobank,S,finance_payments_markets,Rabobank,CG-F713AA4A9D,resolved_scannable,267,https://rabobank.jobs/en/jobs/,True,HEALTHY,2026-08-31 15:02:00.269779,,core
+Commonwealth Bank of Australia,S,finance_payments_markets,Commonwealth Bank of Australia,CG-3337A2EF23,resolved_scannable,345,https://www.commbank.com.au/about-us/careers.html,True,UNKNOWN,,,core
+CERN,S,public_international,,,missing_to_resolve,,,False,,,,core
+GE Aerospace,S,industrial_technology,GE Aerospace,CG-45EA604F6E,present_unresolved,,,False,,,,core
+Rockwell Automation,S,industrial_technology,Rockwell Automation,CG-CDC65D3C16,resolved_scannable,464,https://www.rockwellautomation.com/en-us/company/careers.html,True,UNKNOWN,,,core
+Emerson,S,industrial_technology,Emerson,CG-3182B54D9F,resolved_scannable,365,https://www.emerson.com/en/corporate/careers/career-opportunities,True,UNKNOWN,,,core
+Johnson Controls,S,industrial_technology,Johnson Controls,CG-2072E6CD8E,resolved_scannable,210,https://jobs.johnsoncontrols.com/,True,HEALTHY,2026-08-31 15:01:58.900688,,core

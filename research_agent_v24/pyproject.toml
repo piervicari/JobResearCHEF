@@ -1,0 +1,47 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "research-agent-pier"
+version = "0.1.0"
+description = "Local-first cybersecurity junior and internship job research agent"
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+  "httpx>=0.28.1",
+  "pydantic>=2.11",
+  "pydantic-settings>=2.10",
+  "pyyaml>=6.0.2",
+  "selectolax>=0.3.33",
+  "sqlalchemy>=2.0.43",
+  "tenacity>=9.1",
+  "typer>=0.16",
+]
+
+[project.optional-dependencies]
+dashboard = ["streamlit>=1.49"]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.4",
+  "pytest-cov>=6.2",
+  "ruff>=0.12",
+]
+
+[project.scripts]
+research-agent = "research_agent.cli:app"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/research_agent"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

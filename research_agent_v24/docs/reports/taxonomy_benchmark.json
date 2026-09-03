@@ -1,0 +1,132 @@
+{
+  "generated_at": "2026-08-31T20:20:58.846301+00:00",
+  "dataset": "/Users/pierfrancescovicari/Documents/research_agent/data/benchmarks/taxonomy_v1.csv",
+  "cases": 212,
+  "dimensions": {
+    "cyber": {
+      "cases": 212,
+      "correct": 212,
+      "accuracy": 1.0,
+      "include_precision": 1.0,
+      "include_recall": 1.0,
+      "confusion": {
+        "INCLUDE": {
+          "INCLUDE": 163,
+          "REVIEW": 0,
+          "EXCLUDE": 0
+        },
+        "REVIEW": {
+          "INCLUDE": 0,
+          "REVIEW": 0,
+          "EXCLUDE": 0
+        },
+        "EXCLUDE": {
+          "INCLUDE": 0,
+          "REVIEW": 0,
+          "EXCLUDE": 49
+        }
+      }
+    },
+    "seniority": {
+      "cases": 212,
+      "correct": 208,
+      "accuracy": 0.9811320754716981,
+      "include_precision": 1.0,
+      "include_recall": 0.9779005524861878,
+      "confusion": {
+        "INCLUDE": {
+          "INCLUDE": 177,
+          "REVIEW": 0,
+          "EXCLUDE": 4
+        },
+        "REVIEW": {
+          "INCLUDE": 0,
+          "REVIEW": 7,
+          "EXCLUDE": 0
+        },
+        "EXCLUDE": {
+          "INCLUDE": 0,
+          "REVIEW": 0,
+          "EXCLUDE": 24
+        }
+      }
+    },
+    "geography": {
+      "cases": 212,
+      "correct": 212,
+      "accuracy": 1.0,
+      "include_precision": 1.0,
+      "include_recall": 1.0,
+      "confusion": {
+        "INCLUDE": {
+          "INCLUDE": 172,
+          "REVIEW": 0,
+          "EXCLUDE": 0
+        },
+        "REVIEW": {
+          "INCLUDE": 0,
+          "REVIEW": 19,
+          "EXCLUDE": 0
+        },
+        "EXCLUDE": {
+          "INCLUDE": 0,
+          "REVIEW": 0,
+          "EXCLUDE": 21
+        }
+      }
+    },
+    "final": {
+      "cases": 212,
+      "correct": 212,
+      "accuracy": 1.0,
+      "include_precision": 1.0,
+      "include_recall": 1.0,
+      "confusion": {
+        "INCLUDE": {
+          "INCLUDE": 92,
+          "REVIEW": 0,
+          "EXCLUDE": 0
+        },
+        "REVIEW": {
+          "INCLUDE": 0,
+          "REVIEW": 26,
+          "EXCLUDE": 0
+        },
+        "EXCLUDE": {
+          "INCLUDE": 0,
+          "REVIEW": 0,
+          "EXCLUDE": 94
+        }
+      }
+    }
+  },
+  "mismatches": [
+    {
+      "case_id": "B020",
+      "dimension": "seniority",
+      "expected": "INCLUDE",
+      "actual": "EXCLUDE"
+    },
+    {
+      "case_id": "B168",
+      "dimension": "seniority",
+      "expected": "INCLUDE",
+      "actual": "EXCLUDE"
+    },
+    {
+      "case_id": "B179",
+      "dimension": "seniority",
+      "expected": "INCLUDE",
+      "actual": "EXCLUDE"
+    },
+    {
+      "case_id": "B180",
+      "dimension": "seniority",
+      "expected": "INCLUDE",
+      "actual": "EXCLUDE"
+    }
+  ],
+  "minimum_component_accuracy": 0.95,
+  "minimum_final_accuracy": 0.95,
+  "passed": true
+}

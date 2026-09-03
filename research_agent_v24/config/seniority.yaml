@@ -1,0 +1,36 @@
+include_terms:
+  - internship
+  - intern
+  - stage
+  - trainee
+  - graduate
+  - new grad
+  - entry level
+  - entry-level
+  - junior
+  - apprentice
+  - apprenticeship
+  - working student
+  - thesis
+  - student
+
+exclude_terms:
+  - senior
+  - staff
+  - principal
+  - lead
+  - manager
+  - director
+  - head
+  - vice president
+  - vp
+  - ciso
+  - distinguished
+  - fellow
+
+ambiguous_policy: review
+max_early_career_years: 3
+experience_conflict_policy: review
+ordinal_level_1_policy: include
+ordinal_level_2_policy: review
+ordinal_level_3_plus_policy: exclude

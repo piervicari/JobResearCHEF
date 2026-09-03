@@ -1,0 +1,17 @@
+{
+  "limit": 100,
+  "offset": 0,
+  "totalFound": 1,
+  "content": [
+    {
+      "id": "sr-101",
+      "uuid": "00000000-0000-0000-0000-000000000101",
+      "name": "Information Security Intern",
+      "company": {"identifier": "Example", "name": "Example Ltd"},
+      "releasedDate": "2026-08-22T08:00:00Z",
+      "location": {"country": "IT", "region": "Lombardy", "city": "Milan", "remote": true},
+      "typeOfEmployment": {"id": "intern", "label": "Internship"},
+      "ref": "https://api.smartrecruiters.com/v1/companies/Example/postings/sr-101"
+    }
+  ]
+}

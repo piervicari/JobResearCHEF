@@ -1,0 +1,29 @@
+.DS_Store
+.env
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+__pycache__/
+*.py[cod]
+.venv/
+*.egg-info/
+
+# Runtime state: source datasets and validation reports remain versioned.
+data/*.db
+data/*.db-*
+data/cache/*
+data/raw/*
+data/exports/*
+data/backups/*
+!data/cache/.gitkeep
+!data/raw/.gitkeep
+!data/exports/.gitkeep
+!data/backups/.gitkeep
+data/canary/*
+!data/canary/.gitkeep
+data/pilot/*.db
+data/pilot/*.db-*
+
+# Local test-run reports
+output/test_runs/

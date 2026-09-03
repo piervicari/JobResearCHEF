@@ -1,0 +1,17 @@
+{
+  "items": [{
+    "Offset": 0,
+    "Limit": 1,
+    "TotalJobsCount": 2,
+    "requisitionList": [{
+      "Id": "1001",
+      "Title": "Junior Security Analyst",
+      "PostedDate": "2026-08-20",
+      "PrimaryLocationCountry": "IT",
+      "PrimaryLocation": "Rome, Italy",
+      "ShortDescriptionStr": "Support security monitoring",
+      "WorkplaceType": "Hybrid",
+      "JobType": "Regular"
+    }]
+  }]
+}

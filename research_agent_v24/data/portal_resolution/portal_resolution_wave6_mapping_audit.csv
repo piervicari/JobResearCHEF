@@ -1,0 +1,101 @@
+﻿Corporate Cluster ID,Selection Rank,Representative Employer,Resolution Outcome,Unique Selection Check,Prior Mapping Check,Evidence Completeness Check,Registry Action,Audit Result,Audit Notes
+CG-2C8F607B00,1,Charter Communications,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-EECDDD10D7,2,Intel,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-B7F4192DF6,3,Cummins,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-5FEE3E2296,4,Huntington Ingalls Industries,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-6ED5E17232,5,Nucor,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-845D62A600,6,Textron,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-B9F43C30F5,7,Truist Financial,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-D1D9B9355F,8,AIR,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-B3DEB52441,9,EID,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-623D9F9489,10,Bavak Security Group,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-45F451786C,11,Cyber Defense Technologies,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-22FC6FCBDD,12,Cybernet Systems,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-0CADC74426,13,DATAGROUP Defense IT Services,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-ECF8355D1B,14,Defense Cybersecurity Group,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-6567D3209E,15,Demcon defense and security systems,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-39E42201D0,16,Maltego Technologies,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-626A564DFC,17,Modirum Security Technologies,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-0593F30A87,18,State Security Networks Group,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-2B5AF07632,19,Texas Tech University Critical Infrastructure Security Institute,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-47D3689EEB,20,Watchcom Security Group,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-1EC558A60B,21,GO,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-7E93C5BFB7,22,Airis Security Technologies,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-8163A0A8F4,23,123 Cyber,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-2BDBFDC4B9,24,Achray Cybersecurity,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-C5865635EC,25,Acropolis Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-456D989B65,26,Aegis Infosec Solutions,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-56E19B6470,27,BeOneSec Cybersecurity Solutions,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-E32F5D1B85,28,Beryllium InfoSec,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-8502A24996,29,BMIT Cybersecurity,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-28492B0440,30,Captium Security & Defence,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-84BDAB16C0,31,Cervus Defence and Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-1115663E06,32,Clarified Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-3739B397B8,33,CoreTech Security Services,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-BB0E9C180B,34,Crown Cyber Defence,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-1A62E14708,35,CryptoMill Cybersecurity Solutions,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-F89E4CA49D,36,CSA Cyber,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-B4B587C0E2,37,Cyber Security d.o.o,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-DADD76E812,38,Cyber Smart Defence,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-1A088F504D,39,CyberArrange Security Solutions j.d.o.o,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-B472B60D00,40,CyberCX,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-BA94260EB6,41,CyberLok Security Solutions,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-6778066D46,42,Cybernetica,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-AD64B41617,43,CyberNINES,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-0EC12E9DE8,44,CyberOps Pty,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-4123FBFB33,45,CyberRx,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-108FB79FFC,46,Cybersec Investments,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-20F5B092A1,47,CyberSecurity & Technology Consultancy,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-7850536535,48,CyberSift,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-D2E108D544,49,Cyberstar,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-3C6D85CC33,50,Dirks Defence & Security & . KG,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-A20F15B492,51,DNV Cyber,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-23BB58B0FA,52,EGIDA SECURITY SOLUTIONS d.o.o,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-EC9A970805,53,EPICOM,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-B9612B643C,54,FRANCE CYBER MARITIME,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-E04A0199FE,55,genua,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-6AC39C04D1,56,Heimdal Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-AD0730520B,57,IDEMIA - National Security Solutions,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-A24176378C,58,"International Institute For African Defense, Security and Governance",DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-00629437B4,59,Into Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-0189C9341E,60,itWatch,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-59F0AD98E4,61,JK Defence & Security Products,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-AC95761A01,62,Knowit Cybersecurity & Law,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-27E7AFCF5E,63,Kratos Defense & Security Solutions,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-DAC0E16311,64,Laverty Cyber,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-0E5C59B4DA,65,M. Hatter Strategic Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-15818FB487,66,Meerkat Cyber,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-9D09EA8C18,67,National Security Capital,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-E0CBF727B9,68,Netsecurity,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-06E7CB9259,69,Nexer Cybersecurity,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-EF569AC6D4,70,Nord Security,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-4885ED5EE1,71,NRD Cyber Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-B695D410CB,72,ObjectSecurity,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-E8223BC889,73,Orange Cyberdefense Norway,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-90E474B793,74,Orange Cyberdefense Sweden,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-1B633C733E,75,Peak InfoSec,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-04D7DCB400,76,Possible Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-FF13FAD363,77,Prism Infosec,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-379DEB53FE,78,RMI Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-B9DDDCB992,79,secunet Security Networks,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-B6BCBB98A5,80,Security Compass,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-C9DEA1A29A,81,"Security Media, s.r.o",DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-F8C59539E3,82,SIA Cyber Circle,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-341E629621,83,Silverskin Information Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-DD22BA2510,84,SSH Communications Security,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-1C7C8FD427,85,ST Security a.s,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-977CE366A2,86,The Intelligence and Security Associates,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-5AB1887023,87,Triad InfoSec,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-DB98408240,88,Vepe Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-839B1F9E73,89,Viking Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-894D6E5856,90,WhySecurity,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-353391C4F6,91,Wider Security,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-B6840442CB,92,APS Bank,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-73F8152A18,93,Armmo Defense Technologies,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-A940B2BEDA,94,Avon Protection Systems,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-B43F46414F,95,Bank of Valletta,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-0D8F60366A,96,Beagle Technology Group,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-079B35AB0D,97,Between Group,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-346990DDF8,98,BMIT Technologies,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.
+CG-6AC7E933E6,99,Citadele banka,RESOLVED,PASS,PASS,PASS,ADD,PASS,Complete official endpoint evidence; versioned ADD emitted.
+CG-B8445B4240,100,CPI TMD Technologies,DEFERRED,PASS,PASS,PASS,NONE,PASS,Deferral reason recorded; no endpoint or mapping forced.

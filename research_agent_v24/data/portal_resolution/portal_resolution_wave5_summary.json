@@ -1,0 +1,45 @@
+{
+  "wave": 5,
+  "verified_date": "2026-08-30",
+  "input_master": "master_company_universe_v1_4_portal_resolution_wave4.csv",
+  "target_clusters_considered": 150,
+  "new_resolved_clusters": 141,
+  "new_master_records_covered": 142,
+  "cumulative_resolved_clusters": 575,
+  "cumulative_resolved_records": 1263,
+  "master_total_records": 12503,
+  "cumulative_record_coverage_pct": 10.1,
+  "priority_clusters_deferred_count": 9,
+  "priority_clusters_deferred": {
+    "Keep Security": "Ambiguous seed / no unique active first-party employer-careers mapping established.",
+    "Permiso": "Active company confirmed, but no sufficiently reliable first-party careers endpoint located in this pass.",
+    "Australian Settlements": "No unique first-party employer careers portal established; avoid matching generic settlement-job results.",
+    "Bank of China Australia": "Official local corporate site verified, but no Australia-specific first-party hiring endpoint located.",
+    "Cairns Bank": "Seed name remains ambiguous for employer resolution; generic location-based job results are unsafe.",
+    "Aioi Nissay Dowa Insurance Australia": "Australian entity exists, but the located official recruiting site is Japan-focused rather than an Australia hiring portal.",
+    "ANZ Lenders Mortgage Insurance": "Legal insurance entity does not expose a distinct recruitment surface; avoid treating it as a standalone employer.",
+    "Defence Service Homes Insurance Scheme": "Government insurance scheme rather than a standalone employer; should be reclassified before portal scanning.",
+    "Hallmark General Insurance": "Legal-entity/brand ownership is insufficiently clear for a safe recruitment portal mapping."
+  },
+  "wave_focus": [
+    "global cybersecurity vendors and acquisition/parent normalization",
+    "high-value Australian mining/resources employers",
+    "Australian banks and insurers",
+    "large global US technology/financial/industrial employers"
+  ],
+  "notable_parent_normalizations": {
+    "Astrix Security": "Cisco",
+    "Lacework": "Fortinet",
+    "Noname Security": "Akamai",
+    "Protect AI": "Palo Alto Networks",
+    "Red Canary": "Zscaler",
+    "Traceable AI": "Harness",
+    "Vulcan Cyber": "Tenable",
+    "Suncorp Bank": "ANZ Group",
+    "Heritage and People's Choice": "People First Bank",
+    "Auswide Bank": "MyState Limited",
+    "AAI": "Suncorp Group",
+    "IAG New Zealand": "IAG",
+    "Insurance Australia": "IAG"
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "checks": [
+    {
+      "actual": 12503,
+      "expected": 12503,
+      "metric": "master_rows",
+      "passed": true
+    },
+    {
+      "actual": 12503,
+      "expected": 12503,
+      "metric": "unique_record_ids",
+      "passed": true
+    },
+    {
+      "actual": 11798,
+      "expected": 11798,
+      "metric": "corporate_clusters",
+      "passed": true
+    },
+    {
+      "actual": 1263,
+      "expected": 1263,
+      "metric": "resolved_rows",
+      "passed": true
+    },
+    {
+      "actual": 575,
+      "expected": 575,
+      "metric": "resolved_clusters",
+      "passed": true
+    },
+    {
+      "actual": 510,
+      "expected": 510,
+      "metric": "unique_resolved_jobs_urls",
+      "passed": true
+    }
+  ],
+  "current_database_metrics": {
+    "cluster_portal_mappings": 589,
+    "corporate_clusters": 11798,
+    "master_rows": 12503,
+    "resolved_clusters": 589,
+    "resolved_rows": 1277,
+    "unique_record_ids": 12503,
+    "unique_resolved_jobs_urls": 524
+  },
+  "database_metrics": {
+    "cluster_portal_mappings": 575,
+    "corporate_clusters": 11798,
+    "master_rows": 12503,
+    "resolved_clusters": 575,
+    "resolved_rows": 1263,
+    "unique_record_ids": 12503,
+    "unique_resolved_jobs_urls": 510
+  },
+  "import_batch_id": 1,
+  "passed": true,
+  "portal_metadata_conflicts": 6,
+  "source_checksum_valid": true,
+  "source_sha256": "bae44ad9ab0a5800bec884b43fc236506d9da3ea51f72477830e5023fa81e7df"
+}

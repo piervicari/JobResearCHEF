@@ -1,0 +1,364 @@
+RESEARCH AGENT P0 FIRST CORE EXPANSION
+started_at: 2026-09-02T17:25:32+02:00
+database_url: sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db
+cohort_file: data/pilot/p0_core_expansion_cohort_v0_1.yaml
+ai_limit: 120
+batch_size: 10
+report_file: output/test_runs/p0_core_expansion_20260902-172532.log
+
+===== PERSISTENT SECRETS =====
++ uv run research-agent bootstrap-secrets
+persistent_env: /Users/pierfrancescovicari/.config/research-agent/.env
+status: already_configured
+secrets_printed: false
+exit_code: 0
+
+===== RUNTIME DB =====
+database_url: sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db
+bootstrap_import: skipped (persistent runtime DB already prepared)
+
+===== SEMANTIC CLEANUP DRY RUN =====
++ uv run research-agent requeue-semantic-cleanup --database-url sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db --limit 100 --min-description-chars 1000 --dry-run
+AI SEMANTIC CLEANUP — zero network and zero LLM requests
+selected_jobs: 2 limit=100 min_description_chars=1000
+policy: only NEEDS_MORE_DETAIL rows that already contain a substantive description are considered inconsistent with the current binary-decision contract
+job_id=3 company='Detectify' title='Senior Cloud Engineer' description_chars=4562 status=NEEDS_MORE_DETAIL
+job_id=4 company='Detectify' title='Staff Engineer Agentic Profile' description_chars=5883 status=NEEDS_MORE_DETAIL
+requeued_jobs: 0 (dry-run)
+exit_code: 0
+
+===== SEMANTIC CLEANUP APPLY =====
++ uv run research-agent requeue-semantic-cleanup --database-url sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db --limit 100 --min-description-chars 1000
+AI SEMANTIC CLEANUP — zero network and zero LLM requests
+selected_jobs: 2 limit=100 min_description_chars=1000
+policy: only NEEDS_MORE_DETAIL rows that already contain a substantive description are considered inconsistent with the current binary-decision contract
+job_id=3 company='Detectify' title='Senior Cloud Engineer' description_chars=4562 status=NEEDS_MORE_DETAIL
+job_id=4 company='Detectify' title='Staff Engineer Agentic Profile' description_chars=5883 status=NEEDS_MORE_DETAIL
+requeued_jobs: 2
+exit_code: 0
+
+===== CORE NETWORK BATCH A DRY RUN =====
++ uv run research-agent scan-pilot --database-url sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db --portal-id 265 --portal-id 275 --portal-id 10 --portal-id 1 --portal-id 133 --dry-run
+P0 PILOT DRY RUN — zero network and zero LLM requests
+budget: concurrency=1 requests<=3/portal pages<=1 jobs<=10/portal retries=0 wait=10s
+portal_id=265 host=proofpoint.wd5.myworkdayjobs.com url=https://proofpoint.wd5.myworkdayjobs.com/proofpointcareers ats=Workday
+portal_id=275 host=snyk.io url=https://snyk.io/careers/all-jobs/ ats=Custom / branded JS portal
+portal_id=10 host=arcticwolf.com url=https://arcticwolf.com/company/careers/ ats=Custom / backend unverified
+portal_id=1 host=abnormal.ai url=https://abnormal.ai/careers/open-roles ats=Custom first-party job board
+portal_id=133 host=claroty.com url=https://claroty.com/careers/ ats=Custom / backend unverified
+exit_code: 0
+
+===== CORE NETWORK BATCH A LIVE =====
++ uv run research-agent scan-pilot --database-url sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db --portal-id 265 --portal-id 275 --portal-id 10 --portal-id 1 --portal-id 133
+pilot_portal_1/5: 265 host=proofpoint.wd5.myworkdayjobs.com
+2026-09-02 17:25:38,174 INFO httpx HTTP Request: GET https://proofpoint.wd5.myworkdayjobs.com/proofpointcareers "HTTP/1.1 200 OK"
+2026-09-02 17:25:48,575 INFO httpx HTTP Request: POST https://proofpoint.wd5.myworkdayjobs.com/wday/cxs/proofpoint/proofpointcareers/jobs "HTTP/1.1 200 OK"
+result: status=SUCCESS http=200 requests=2 retries=0 jobs=10 adapter=workday discovery=JOBS_FOUND
+persisted: new=10 updated=0 pending_ai=12
+pilot_portal_2/5: 275 host=snyk.io
+2026-09-02 17:25:59,135 INFO httpx HTTP Request: GET https://snyk.io/robots.txt "HTTP/1.1 200 OK"
+2026-09-02 17:26:09,304 INFO httpx HTTP Request: GET https://snyk.io/careers/all-jobs/ "HTTP/1.1 200 OK"
+result: status=SUCCESS http=200 requests=2 retries=0 jobs=0 adapter=official_html discovery=EMPTY_INCOMPLETE
+persisted: new=0 updated=0 pending_ai=12
+pilot_portal_3/5: 10 host=arcticwolf.com
+2026-09-02 17:26:20,556 INFO httpx HTTP Request: GET https://arcticwolf.com/robots.txt "HTTP/1.1 200 OK"
+2026-09-02 17:26:30,546 INFO httpx HTTP Request: GET https://arcticwolf.com/company/careers/ "HTTP/1.1 200 OK"
+result: status=SUCCESS http=200 requests=2 retries=0 jobs=0 adapter=official_html discovery=EMPTY_INCOMPLETE
+persisted: new=0 updated=0 pending_ai=12
+pilot_portal_4/5: 1 host=abnormal.ai
+2026-09-02 17:26:41,443 INFO httpx HTTP Request: GET https://abnormal.ai/robots.txt "HTTP/1.1 200 OK"
+2026-09-02 17:26:51,610 INFO httpx HTTP Request: GET https://abnormal.ai/careers/open-roles "HTTP/1.1 200 OK"
+result: status=SUCCESS http=200 requests=2 retries=0 jobs=0 adapter=official_html discovery=EMPTY_INCOMPLETE
+persisted: new=0 updated=0 pending_ai=12
+pilot_portal_5/5: 133 host=claroty.com
+2026-09-02 17:27:02,354 INFO httpx HTTP Request: GET https://claroty.com/robots.txt "HTTP/1.1 200 OK"
+2026-09-02 17:27:12,367 INFO httpx HTTP Request: GET https://claroty.com/careers/ "HTTP/1.1 200 OK"
+result: status=SUCCESS http=200 requests=2 retries=0 jobs=0 adapter=official_html discovery=EMPTY_INCOMPLETE
+persisted: new=0 updated=0 pending_ai=12
+pilot_total_requests: 10
+pilot_total_jobs_observed: 10
+pilot_total_new_source_jobs: 10
+semantic_processing: NOT_RUN_BY_SCAN_PILOT
+exit_code: 0
+
+===== CORE NETWORK BATCH B DRY RUN =====
++ uv run research-agent scan-pilot --database-url sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db --portal-id 276 --portal-id 137 --portal-id 5 --portal-id 44 --portal-id 3 --dry-run
+P0 PILOT DRY RUN — zero network and zero LLM requests
+budget: concurrency=1 requests<=3/portal pages<=1 jobs<=10/portal retries=0 wait=10s
+portal_id=276 host=stripe.com url=https://stripe.com/careers/search ats=Custom Stripe Careers
+portal_id=137 host=corporate.visa.com url=https://corporate.visa.com/en/careers.html ats=Greenhouse-integrated signal (gh_jid) / backend not fully asserted
+portal_id=5 host=ag.wd3.myworkdayjobs.com url=https://ag.wd3.myworkdayjobs.com/Airbus ats=Workday
+portal_id=44 host=careers.datadoghq.com url=https://careers.datadoghq.com/all-jobs/ ats=Custom first-party portal
+portal_id=3 host=about.gitlab.com url=https://about.gitlab.com/jobs/ ats=Custom first-party portal
+exit_code: 0
+
+===== CORE NETWORK BATCH B LIVE =====
++ uv run research-agent scan-pilot --database-url sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db --portal-id 276 --portal-id 137 --portal-id 5 --portal-id 44 --portal-id 3
+pilot_portal_1/5: 276 host=stripe.com
+2026-09-02 17:27:14,202 INFO httpx HTTP Request: GET https://stripe.com/robots.txt "HTTP/1.1 200 OK"
+2026-09-02 17:27:24,111 INFO httpx HTTP Request: GET https://stripe.com/careers/search "HTTP/1.1 200 OK"
+result: status=SUCCESS http=200 requests=2 retries=0 jobs=0 adapter=official_html discovery=EMPTY_INCOMPLETE
+persisted: new=0 updated=0 pending_ai=12
+pilot_portal_2/5: 137 host=corporate.visa.com
+2026-09-02 17:27:34,765 INFO httpx HTTP Request: GET https://corporate.visa.com/robots.txt "HTTP/1.1 200 OK"
+2026-09-02 17:27:44,853 INFO httpx HTTP Request: GET https://corporate.visa.com/en/careers.html "HTTP/1.1 200 OK"
+result: status=SUCCESS http=200 requests=2 retries=0 jobs=1 adapter=official_html discovery=JOBS_FOUND
+persisted: new=1 updated=0 pending_ai=13
+pilot_portal_3/5: 5 host=ag.wd3.myworkdayjobs.com
+2026-09-02 17:27:55,770 INFO httpx HTTP Request: GET https://ag.wd3.myworkdayjobs.com/Airbus "HTTP/1.1 200 OK"
+2026-09-02 17:28:06,261 INFO httpx HTTP Request: POST https://ag.wd3.myworkdayjobs.com/wday/cxs/ag/Airbus/jobs "HTTP/1.1 200 OK"
+result: status=SUCCESS http=200 requests=2 retries=0 jobs=10 adapter=workday discovery=JOBS_FOUND
+persisted: new=10 updated=0 pending_ai=23
+pilot_portal_4/5: 44 host=careers.datadoghq.com
+2026-09-02 17:28:16,867 INFO httpx HTTP Request: GET https://careers.datadoghq.com/robots.txt "HTTP/1.1 200 OK"
+2026-09-02 17:28:26,826 INFO httpx HTTP Request: GET https://careers.datadoghq.com/all-jobs/ "HTTP/1.1 200 OK"
+result: status=SUCCESS http=200 requests=2 retries=0 jobs=0 adapter=official_html discovery=EMPTY_INCOMPLETE
+persisted: new=0 updated=0 pending_ai=23
+pilot_portal_5/5: 3 host=about.gitlab.com
+2026-09-02 17:28:37,649 INFO httpx HTTP Request: GET https://about.gitlab.com/robots.txt "HTTP/1.1 200 OK"
+2026-09-02 17:28:47,673 INFO httpx HTTP Request: GET https://about.gitlab.com/jobs/ "HTTP/1.1 200 OK"
+result: status=SUCCESS http=200 requests=2 retries=0 jobs=3 adapter=official_html discovery=JOBS_FOUND
+persisted: new=3 updated=0 pending_ai=26
+pilot_total_requests: 10
+pilot_total_jobs_observed: 14
+pilot_total_new_source_jobs: 14
+semantic_processing: NOT_RUN_BY_SCAN_PILOT
+exit_code: 0
+
+===== AI QUEUE DRY RUN =====
++ uv run research-agent analyze-pending --database-url sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db --limit 120 --batch-size 10 --dry-run
+AI DRY RUN — zero LLM requests and zero career-site requests
+selected_jobs: 26
+batch_size: 10
+planned_requests: 3
+missing_company: 0
+route: job_analysis
+difficulty: medium
+fallback_chain:
+  1. openrouter/minimax/minimax-m3:free thinking=medium transient_retries=1 timeout=300.0s output=json_object
+  2. openrouter/minimax/minimax-m2.7:free thinking=medium transient_retries=0 timeout=300.0s output=json_object
+  3. google/gemini-3.6-flash thinking=high transient_retries=0 timeout=300.0s output=json_schema
+job_id=3 company='Detectify' title='Senior Cloud Engineer' location='Stockholm, SE' description_chars=4562
+job_id=4 company='Detectify' title='Staff Engineer Agentic Profile' location='Stockholm, SE' description_chars=5883
+job_id=37 company='Proofpoint' title='AI Engineer' location='India' description_chars=0
+job_id=38 company='Proofpoint' title='SRE II' location='Hyderabad, India' description_chars=0
+job_id=39 company='Proofpoint' title='Machine Learning Engineer' location='3 Locations' description_chars=0
+job_id=40 company='Proofpoint' title='Sr. Named Account Manager - India West' location='India' description_chars=0
+job_id=41 company='Proofpoint' title='Sr. Renewal Account Manager (Brazilian Portuguese Speaking)' location='7 Locations' description_chars=0
+job_id=42 company='Proofpoint' title='Senior Program Manager' location='Cordoba, Argentina' description_chars=0
+job_id=43 company='Proofpoint' title='Senior Applied AI Engineer' location='2 Locations' description_chars=0
+job_id=44 company='Proofpoint' title='Business Development Representative' location='Bengaluru, India - Remote' description_chars=0
+... 16 more selected jobs
+exit_code: 0
+
+===== AI LIVE =====
++ uv run research-agent analyze-pending --database-url sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db --limit 120 --batch-size 10
+AI LIVE RUN — selected_jobs=26 batch_size=10 route=job_analysis; career-site requests=0
+[17:28:48] BATCH 1/3 START jobs=10 ids=[3, 4, 37, 38, 39, 40, 41, 42, 43, 44]
+[17:28:48] LLM START provider=openrouter model=minimax/minimax-m3:free thinking=medium fallback=0 attempt=1 timeout=300.0s
+2026-09-02 17:28:51,019 INFO httpx HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+[17:28:57] LLM RESULT provider=openrouter model=minimax/minimax-m3:free status=success latency=8.65s http= error=
+[17:28:57] BATCH 1 SUCCESS jobs=10 model=openrouter/minimax/minimax-m3:free
+[17:28:57] BATCH 2/3 START jobs=10 ids=[45, 46, 47, 48, 49, 50, 51, 52, 53, 54]
+[17:28:57] LLM START provider=openrouter model=minimax/minimax-m3:free thinking=medium fallback=0 attempt=1 timeout=300.0s
+2026-09-02 17:29:00,896 INFO httpx HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+[17:29:05] LLM RESULT provider=openrouter model=minimax/minimax-m3:free status=success latency=8.117s http= error=
+[17:29:05] BATCH 2 SUCCESS jobs=10 model=openrouter/minimax/minimax-m3:free
+[17:29:05] BATCH 3/3 START jobs=6 ids=[55, 56, 57, 58, 59, 60]
+[17:29:05] LLM START provider=openrouter model=minimax/minimax-m3:free thinking=medium fallback=0 attempt=1 timeout=300.0s
+2026-09-02 17:29:07,166 INFO httpx HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+[17:29:08] LLM RESULT provider=openrouter model=minimax/minimax-m3:free status=success latency=2.809s http= error=
+[17:29:08] BATCH 3 SUCCESS jobs=6 model=openrouter/minimax/minimax-m3:free
+selected_jobs: 26
+batches_attempted: 3
+batches_succeeded: 3
+api_failures: 0
+analyzed_jobs: 26
+cyber_jobs: 0
+non_cyber_jobs: 12
+needs_more_detail_jobs: 14
+still_pending_jobs: 0
+routing_telemetry:
+  provider=openrouter model=minimax/minimax-m3:free thinking=medium status=success fallback_index=0 same_attempt=1 http=None wait=None error=''
+  provider=openrouter model=minimax/minimax-m3:free thinking=medium status=success fallback_index=0 same_attempt=1 http=None wait=None error=''
+  provider=openrouter model=minimax/minimax-m3:free thinking=medium status=success fallback_index=0 same_attempt=1 http=None wait=None error=''
+exit_code: 0
+
+===== LATEST CYBER FULL =====
++ uv run research-agent show-ai-results --database-url sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db --status CYBER --limit 200 --full
+AI RESULTS — local database only; zero external requests
+rows: 4
+job_id=13 company='Horizon3.ai' title='Senior Engineering Manager, Rapid Response' ai_status=CYBER cyber=True needs_detail=False role_family='Offensive Security' seniority='Senior Manager' specializations=['Vulnerability Research', 'Exploit Development', 'Penetration Testing'] model='google/gemini-3.6-flash' detail_chars=0 source_chars=4970
+  years_experience_min=3.0 years_experience_max=None
+  skills_required=['Python', 'Vulnerability Analysis', 'PostgreSQL', 'Neo4j', 'Git']
+  skills_preferred=['C', 'C++', 'Rust', 'Assembly', 'Docker', 'Kubernetes', 'AWS', 'SQL', 'Exploit Development', 'Reverse Engineering']
+  degree_requirement=None
+  certifications=['OSCP']
+  short_reason='Leads an attack engineering team conducting vulnerability research, exploit development, and offensive security automation.'
+job_id=25 company='Safe Security' title='Principal Engineer - AI' ai_status=CYBER cyber=True needs_detail=False role_family='AI/ML Security Engineering' seniority='Principal' specializations=['AI/ML security', 'CRQ (Cyber Risk Quantification)', 'CTEM (Continuous Threat Exposure Management)', 'TPRM (Third-Party Risk Management)', 'LLM orchestration', 'RAG pipelines', 'agentic AI workflows'] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=3026
+  years_experience_min=None years_experience_max=None
+  skills_required=['AI system architecture', 'LLM orchestration', 'RAG pipelines', 'agentic workflow design', 'production-grade AI infrastructure']
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Principal AI Engineer building the AI systems that power cybersecurity products (CRQ, CTEM, TPRM), directly applied to cyber risk at the intersection of AI and cybersecurity.'
+job_id=1 company='Detectify' title='Cyber Security Solutions Engineer' ai_status=CYBER cyber=True needs_detail=False role_family='Security Engineering' seniority='Mid-Senior' specializations=['Application Security', 'Attack Surface Management', 'Vulnerability Management', 'Solution Engineering', 'DevSecOps'] model='openrouter/minimax/minimax-m3:free' detail_chars=5864 source_chars=0
+  years_experience_min=2.0 years_experience_max=None
+  skills_required=['Technical evaluations and PoCs', 'Demos and finding validation', 'Vulnerability findings translation', 'SDLC/DevSecOps integration', 'AI tools for sales/research', 'Customer-facing communication']
+  skills_preferred=['Additional European languages', 'AI tools proficiency', 'Knowledge of CVEs, attack techniques, compliance frameworks (SOC 2, ISO 27001, NIST CSF, PCI DSS)']
+  degree_requirement=None
+  certifications=[]
+  short_reason='Cyber Security Solutions Engineer role focused on selling and integrating application security / attack surface tooling; responsibilities include vulnerability validation, DevSecOps integration, compliance frameworks, and security advisory.'
+job_id=36 company='Wazuh' title='Threat Intelligence analyst' ai_status=CYBER cyber=True needs_detail=False role_family='Threat Intelligence / Detection Engineering' seniority=None specializations=['Cyber Threat Intelligence', 'SIEM/Detection Engineering', 'Vulnerability Management', 'Security Hardening'] model='openrouter/minimax/minimax-m3:free [json_repair=google/gemini-3.5-flash-lite]' detail_chars=3969 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=['Modern C++ (C++17-C++20)', 'Git/GitHub', 'Docker', 'VirtualBox', 'CVE knowledge', 'SOC/SIEM experience', 'Security hardening', 'Decoders and rules development', 'Linux/Windows/macOS desktop development', 'Basic networking']
+  skills_preferred=['Wazuh XDR+SIEM', 'Elasticsearch/OpenSearch']
+  degree_requirement=None
+  certifications=[]
+  short_reason='Cyber Threat Intelligence role developing detection rules/decoders for an XDR+SIEM, reviewing CVEs, building hardening policies (CIS), and enhancing threat detection — substantive cybersecurity work.'
+exit_code: 0
+
+===== LATEST NEEDS MORE DETAIL FULL =====
++ uv run research-agent show-ai-results --database-url sqlite:////Users/pierfrancescovicari/.local/share/research-agent/research_agent.db --status NEEDS_MORE_DETAIL --limit 200 --full
+AI RESULTS — local database only; zero external requests
+rows: 19
+job_id=28 company='Wazuh' title='View position Remote - Full-time Ambassador Program Coordinator' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; ambiguous title (Ambassador Program Coordinator) at a security vendor cannot be classified.'
+job_id=29 company='Wazuh' title='View position Remote - Full-time Legal, Compliance & Collections Specialist' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; Legal/Compliance/Collections role at a security vendor could involve GRC but lacks detail.'
+job_id=30 company='Wazuh' title='View position Remote - Full-time Education Program Coordinator' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; Education Program Coordinator is likely non-technical and unclassifiable without detail.'
+job_id=31 company='Wazuh' title='DevOps Engineer' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='google/gemini-3.6-flash' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason="Title 'DevOps Engineer' is ambiguous without a job description to confirm cybersecurity duties."
+job_id=34 company='Wazuh' title='Wazuh Trainer' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='google/gemini-3.6-flash' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Title involves training on a cybersecurity platform (Wazuh), but lacks a description to confirm technical security responsibilities.'
+job_id=37 company='Proofpoint' title='AI Engineer' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; unable to determine if role involves cybersecurity responsibilities.'
+job_id=38 company='Proofpoint' title='SRE II' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; unable to determine if role involves cybersecurity responsibilities.'
+job_id=39 company='Proofpoint' title='Machine Learning Engineer' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; unable to determine if role involves cybersecurity responsibilities.'
+job_id=42 company='Proofpoint' title='Senior Program Manager' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority='Senior' specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; unable to determine if role involves cybersecurity responsibilities.'
+job_id=43 company='Proofpoint' title='Senior Applied AI Engineer' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority='Senior' specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; unable to determine if role involves cybersecurity responsibilities.'
+job_id=45 company='Proofpoint' title='Software Engineer' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; insufficient detail to classify.'
+job_id=46 company='Proofpoint' title='Staff Software Engineer' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; insufficient detail to classify.'
+job_id=47 company='Visa' title='Find open job roles' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Generic job search landing page with no specific role or description.'
+job_id=55 company='Airbus' title='Praktikum im Bereich Quality - Final Assembly Line' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason=None
+job_id=56 company='Airbus' title='Ingénieur Développement Logiciel (F/H)' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason=None
+job_id=57 company='Airbus' title='Ajusteur Composite (H/F)' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason=None
+job_id=58 company='GitLab' title='See open positions' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason=None
+job_id=59 company='GitLab' title='Learn more about our accommodations and accessibility.' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason=None
+job_id=60 company='GitLab' title='Edit this page' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason=None
+exit_code: 0
+
+finished_at: 2026-09-02T17:29:09+02:00
+ai_exit_code: 0
+cyber_results_exit_code: 0
+needs_results_exit_code: 0
+REPORT READY: output/test_runs/p0_core_expansion_20260902-172532.log

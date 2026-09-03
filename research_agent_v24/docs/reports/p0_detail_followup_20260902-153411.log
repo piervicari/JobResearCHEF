@@ -1,0 +1,256 @@
+RESEARCH AGENT P0 SELECTIVE DETAIL FOLLOW-UP
+started_at: 2026-09-02T15:34:11+02:00
+database_url: sqlite:///data/pilot/research_agent_pilot.db
+detail_limit: 5
+report_file: output/test_runs/p0_detail_followup_20260902-153411.log
+
+===== PERSISTENT SECRETS =====
++ uv run research-agent bootstrap-secrets
+persistent_env: /Users/pierfrancescovicari/.config/research-agent/.env
+status: already_configured
+secrets_printed: false
+exit_code: 0
+
+===== IMPORT LATEST PILOT DB =====
++ ./scripts/bootstrap_latest_pilot_db.sh
+pilot_db_imported_from: /Users/pierfrancescovicari/Downloads/research_agent 7/data/pilot/research_agent_pilot.db
+pilot_db_destination: /Users/pierfrancescovicari/Downloads/research_agent 10/data/pilot/research_agent_pilot.db
+schema_migration: ok
+exit_code: 0
+
+===== CURRENT CYBER =====
++ uv run research-agent show-ai-results --database-url sqlite:///data/pilot/research_agent_pilot.db --status CYBER --limit 100 --full
+AI RESULTS — local database only; zero external requests
+rows: 4
+job_id=1 company='Detectify' title='Cyber Security Solutions Engineer' ai_status=CYBER cyber=True needs_detail=False role_family='Sales Security / Solutions Architecture' seniority=None specializations=['Solutions Architecture'] model='google/gemini-3.6-flash' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Title explicitly indicates a Cyber Security Solutions Engineer position.'
+job_id=13 company='Horizon3.ai' title='Senior Engineering Manager, Rapid Response' ai_status=CYBER cyber=True needs_detail=False role_family='Offensive Security' seniority='Senior Manager' specializations=['Vulnerability Research', 'Exploit Development', 'Penetration Testing'] model='google/gemini-3.6-flash' detail_chars=0 source_chars=4970
+  years_experience_min=3.0 years_experience_max=None
+  skills_required=['Python', 'Vulnerability Analysis', 'PostgreSQL', 'Neo4j', 'Git']
+  skills_preferred=['C', 'C++', 'Rust', 'Assembly', 'Docker', 'Kubernetes', 'AWS', 'SQL', 'Exploit Development', 'Reverse Engineering']
+  degree_requirement=None
+  certifications=['OSCP']
+  short_reason='Leads an attack engineering team conducting vulnerability research, exploit development, and offensive security automation.'
+job_id=25 company='Safe Security' title='Principal Engineer - AI' ai_status=CYBER cyber=True needs_detail=False role_family='AI/ML Security Engineering' seniority='Principal' specializations=['AI/ML security', 'CRQ (Cyber Risk Quantification)', 'CTEM (Continuous Threat Exposure Management)', 'TPRM (Third-Party Risk Management)', 'LLM orchestration', 'RAG pipelines', 'agentic AI workflows'] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=3026
+  years_experience_min=None years_experience_max=None
+  skills_required=['AI system architecture', 'LLM orchestration', 'RAG pipelines', 'agentic workflow design', 'production-grade AI infrastructure']
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Principal AI Engineer building the AI systems that power cybersecurity products (CRQ, CTEM, TPRM), directly applied to cyber risk at the intersection of AI and cybersecurity.'
+job_id=36 company='Wazuh' title='Threat Intelligence analyst' ai_status=CYBER cyber=True needs_detail=False role_family='Threat Intelligence & Research' seniority=None specializations=['Threat Intelligence'] model='google/gemini-3.6-flash' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Threat Intelligence Analyst is a core cybersecurity role focused on threat analysis and intelligence.'
+exit_code: 0
+
+===== DETAIL DRY RUN =====
++ uv run research-agent enrich-details --database-url sqlite:///data/pilot/research_agent_pilot.db --limit 5 --dry-run
+DETAIL ENRICHMENT DRY RUN — zero network and zero LLM requests
+selected_jobs: 5 limit=5 min_description_chars=500
+policy: official_html only; same-host detail URLs; CYBER first; then NEEDS_MORE_DETAIL
+job_id=1 status=CYBER company='Detectify' title='Cyber Security Solutions Engineer' description_chars=0 url=https://careers.detectify.com/jobs/8297914-cyber-security-solutions-engineer
+job_id=36 status=CYBER company='Wazuh' title='Threat Intelligence analyst' description_chars=0 url=https://wazuh.com/job/senior-software-engineer-cti/
+job_id=3 status=NEEDS_MORE_DETAIL company='Detectify' title='Senior Cloud Engineer' description_chars=0 url=https://careers.detectify.com/jobs/8144584-senior-cloud-engineer
+job_id=4 status=NEEDS_MORE_DETAIL company='Detectify' title='Staff Engineer Agentic Profile' description_chars=0 url=https://careers.detectify.com/jobs/8144515-staff-engineer-agentic-profile
+job_id=27 status=NEEDS_MORE_DETAIL company='Wazuh' title='View position Remote - Full-time Business Development Account Manager' description_chars=0 url=https://wazuh.com/job/business-development-account-manager-manager/
+exit_code: 0
+
+===== DETAIL LIVE =====
++ uv run research-agent enrich-details --database-url sqlite:///data/pilot/research_agent_pilot.db --limit 5
+DETAIL START 1/5 job_id=1 status=CYBER company='Detectify' title='Cyber Security Solutions Engineer'
+2026-09-02 15:34:16,395 INFO httpx HTTP Request: GET https://careers.detectify.com/robots.txt "HTTP/1.1 200 OK"
+2026-09-02 15:34:26,643 INFO httpx HTTP Request: GET https://careers.detectify.com/jobs/8297914-cyber-security-solutions-engineer "HTTP/1.1 200 OK"
+DETAIL RESULT job_id=1 status=updated description_chars=5864 parser=json_ld_jobposting location='Stockholm, SE'
+DETAIL START 2/5 job_id=36 status=CYBER company='Wazuh' title='Threat Intelligence analyst'
+2026-09-02 15:34:36,904 INFO httpx HTTP Request: GET https://wazuh.com/robots.txt "HTTP/1.1 200 OK"
+2026-09-02 15:34:48,178 INFO httpx HTTP Request: GET https://wazuh.com/job/senior-software-engineer-cti/ "HTTP/1.1 200 OK"
+DETAIL ERROR job_id=36 error=AccessChallengeError: Access challenge detected at https://wazuh.com/job/senior-software-engineer-cti/: access challenge
+DETAIL START 3/5 job_id=3 status=NEEDS_MORE_DETAIL company='Detectify' title='Senior Cloud Engineer'
+2026-09-02 15:34:58,329 INFO httpx HTTP Request: GET https://careers.detectify.com/jobs/8144584-senior-cloud-engineer "HTTP/1.1 200 OK"
+DETAIL RESULT job_id=3 status=updated description_chars=4562 parser=json_ld_jobposting location='Stockholm, SE'
+DETAIL START 4/5 job_id=4 status=NEEDS_MORE_DETAIL company='Detectify' title='Staff Engineer Agentic Profile'
+2026-09-02 15:35:08,942 INFO httpx HTTP Request: GET https://careers.detectify.com/jobs/8144515-staff-engineer-agentic-profile "HTTP/1.1 200 OK"
+DETAIL RESULT job_id=4 status=updated description_chars=5883 parser=json_ld_jobposting location='Stockholm, SE'
+DETAIL START 5/5 job_id=27 status=NEEDS_MORE_DETAIL company='Wazuh' title='View position Remote - Full-time Business Development Account Manager'
+DETAIL ERROR job_id=27 error=HostCircuitOpenError: Host circuit is open for wazuh.com: access challenge
+selected_jobs: 5
+requests: 5
+fetched_jobs: 3
+updated_jobs: 3
+unchanged_jobs: 0
+failed_jobs: 2
+pending_ai_after: 3
+exit_code: 0
+
+===== AI REANALYSIS DRY RUN =====
++ uv run research-agent analyze-pending --database-url sqlite:///data/pilot/research_agent_pilot.db --limit 5 --batch-size 5 --dry-run
+AI DRY RUN — zero LLM requests and zero career-site requests
+selected_jobs: 3
+batch_size: 5
+planned_requests: 1
+missing_company: 0
+route: job_analysis
+difficulty: medium
+fallback_chain:
+  1. google/gemini-3.6-flash thinking=high transient_retries=0 timeout=300.0s output=json_schema
+  2. openrouter/minimax/minimax-m3:free thinking=medium transient_retries=0 timeout=300.0s output=json_object
+job_id=1 company='Detectify' title='Cyber Security Solutions Engineer' location='Stockholm, SE' description_chars=5864
+job_id=3 company='Detectify' title='Senior Cloud Engineer' location='Stockholm, SE' description_chars=4562
+job_id=4 company='Detectify' title='Staff Engineer Agentic Profile' location='Stockholm, SE' description_chars=5883
+exit_code: 0
+
+===== AI REANALYSIS LIVE =====
++ uv run research-agent analyze-pending --database-url sqlite:///data/pilot/research_agent_pilot.db --limit 5 --batch-size 5
+AI LIVE RUN — selected_jobs=3 batch_size=5 route=job_analysis; career-site requests=0
+[15:35:20] BATCH 1/1 START jobs=3 ids=[1, 3, 4]
+[15:35:20] LLM START provider=google model=gemini-3.6-flash thinking=high fallback=0 attempt=1 timeout=300.0s
+[15:35:35] LLM WAIT provider=google model=gemini-3.6-flash elapsed=15.0s timeout=300.0s
+[15:35:50] LLM WAIT provider=google model=gemini-3.6-flash elapsed=30.0s timeout=300.0s
+[15:36:05] LLM WAIT provider=google model=gemini-3.6-flash elapsed=45.0s timeout=300.0s
+[15:36:20] LLM WAIT provider=google model=gemini-3.6-flash elapsed=60.0s timeout=300.0s
+[15:36:35] LLM WAIT provider=google model=gemini-3.6-flash elapsed=75.0s timeout=300.0s
+[15:36:50] LLM WAIT provider=google model=gemini-3.6-flash elapsed=90.0s timeout=300.0s
+[15:37:05] LLM WAIT provider=google model=gemini-3.6-flash elapsed=105.0s timeout=300.0s
+[15:37:20] LLM WAIT provider=google model=gemini-3.6-flash elapsed=120.0s timeout=300.0s
+[15:37:35] LLM WAIT provider=google model=gemini-3.6-flash elapsed=135.0s timeout=300.0s
+[15:37:50] LLM WAIT provider=google model=gemini-3.6-flash elapsed=150.0s timeout=300.0s
+[15:38:05] LLM WAIT provider=google model=gemini-3.6-flash elapsed=165.0s timeout=300.0s
+[15:38:20] LLM WAIT provider=google model=gemini-3.6-flash elapsed=180.0s timeout=300.0s
+[15:38:35] LLM WAIT provider=google model=gemini-3.6-flash elapsed=195.0s timeout=300.0s
+[15:38:50] LLM WAIT provider=google model=gemini-3.6-flash elapsed=210.1s timeout=300.0s
+[15:39:05] LLM WAIT provider=google model=gemini-3.6-flash elapsed=225.1s timeout=300.0s
+[15:39:20] LLM WAIT provider=google model=gemini-3.6-flash elapsed=240.1s timeout=300.0s
+[15:39:35] LLM WAIT provider=google model=gemini-3.6-flash elapsed=255.1s timeout=300.0s
+[15:39:50] LLM WAIT provider=google model=gemini-3.6-flash elapsed=270.1s timeout=300.0s
+[15:40:05] LLM WAIT provider=google model=gemini-3.6-flash elapsed=285.1s timeout=300.0s
+[15:40:20] LLM WAIT provider=google model=gemini-3.6-flash elapsed=300.1s timeout=300.0s
+[15:40:20] LLM RESULT provider=google model=gemini-3.6-flash status=failed latency=300.2s http= error=ProviderTransientError: The read operation timed out
+[15:40:20] LLM START provider=openrouter model=minimax/minimax-m3:free thinking=medium fallback=1 attempt=1 timeout=300.0s
+2026-09-02 15:40:21,704 INFO httpx HTTP Request: POST https://openrouter.ai/api/v1/chat/completions "HTTP/1.1 200 OK"
+[15:40:24] LLM RESULT provider=openrouter model=minimax/minimax-m3:free status=success latency=4.412s http= error=
+[15:40:24] BATCH 1 SUCCESS jobs=3 model=openrouter/minimax/minimax-m3:free
+selected_jobs: 3
+batches_attempted: 1
+batches_succeeded: 1
+api_failures: 0
+analyzed_jobs: 3
+cyber_jobs: 1
+non_cyber_jobs: 0
+needs_more_detail_jobs: 2
+still_pending_jobs: 0
+routing_telemetry:
+  provider=google model=gemini-3.6-flash thinking=high status=failed fallback_index=0 same_attempt=1 http=None wait=None error='ProviderTransientError: The read operation timed out'
+  provider=openrouter model=minimax/minimax-m3:free thinking=medium status=success fallback_index=1 same_attempt=1 http=None wait=None error=''
+exit_code: 0
+
+===== LATEST CYBER FULL =====
++ uv run research-agent show-ai-results --database-url sqlite:///data/pilot/research_agent_pilot.db --status CYBER --limit 100 --full
+AI RESULTS — local database only; zero external requests
+rows: 4
+job_id=13 company='Horizon3.ai' title='Senior Engineering Manager, Rapid Response' ai_status=CYBER cyber=True needs_detail=False role_family='Offensive Security' seniority='Senior Manager' specializations=['Vulnerability Research', 'Exploit Development', 'Penetration Testing'] model='google/gemini-3.6-flash' detail_chars=0 source_chars=4970
+  years_experience_min=3.0 years_experience_max=None
+  skills_required=['Python', 'Vulnerability Analysis', 'PostgreSQL', 'Neo4j', 'Git']
+  skills_preferred=['C', 'C++', 'Rust', 'Assembly', 'Docker', 'Kubernetes', 'AWS', 'SQL', 'Exploit Development', 'Reverse Engineering']
+  degree_requirement=None
+  certifications=['OSCP']
+  short_reason='Leads an attack engineering team conducting vulnerability research, exploit development, and offensive security automation.'
+job_id=25 company='Safe Security' title='Principal Engineer - AI' ai_status=CYBER cyber=True needs_detail=False role_family='AI/ML Security Engineering' seniority='Principal' specializations=['AI/ML security', 'CRQ (Cyber Risk Quantification)', 'CTEM (Continuous Threat Exposure Management)', 'TPRM (Third-Party Risk Management)', 'LLM orchestration', 'RAG pipelines', 'agentic AI workflows'] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=3026
+  years_experience_min=None years_experience_max=None
+  skills_required=['AI system architecture', 'LLM orchestration', 'RAG pipelines', 'agentic workflow design', 'production-grade AI infrastructure']
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Principal AI Engineer building the AI systems that power cybersecurity products (CRQ, CTEM, TPRM), directly applied to cyber risk at the intersection of AI and cybersecurity.'
+job_id=36 company='Wazuh' title='Threat Intelligence analyst' ai_status=CYBER cyber=True needs_detail=False role_family='Threat Intelligence & Research' seniority=None specializations=['Threat Intelligence'] model='google/gemini-3.6-flash' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Threat Intelligence Analyst is a core cybersecurity role focused on threat analysis and intelligence.'
+job_id=1 company='Detectify' title='Cyber Security Solutions Engineer' ai_status=CYBER cyber=True needs_detail=False role_family='Security Engineering' seniority='Mid-Senior' specializations=['Application Security', 'Attack Surface Management', 'Vulnerability Management', 'Solution Engineering', 'DevSecOps'] model='openrouter/minimax/minimax-m3:free' detail_chars=5864 source_chars=0
+  years_experience_min=2.0 years_experience_max=None
+  skills_required=['Technical evaluations and PoCs', 'Demos and finding validation', 'Vulnerability findings translation', 'SDLC/DevSecOps integration', 'AI tools for sales/research', 'Customer-facing communication']
+  skills_preferred=['Additional European languages', 'AI tools proficiency', 'Knowledge of CVEs, attack techniques, compliance frameworks (SOC 2, ISO 27001, NIST CSF, PCI DSS)']
+  degree_requirement=None
+  certifications=[]
+  short_reason='Cyber Security Solutions Engineer role focused on selling and integrating application security / attack surface tooling; responsibilities include vulnerability validation, DevSecOps integration, compliance frameworks, and security advisory.'
+exit_code: 0
+
+===== LATEST NEEDS MORE DETAIL =====
++ uv run research-agent show-ai-results --database-url sqlite:///data/pilot/research_agent_pilot.db --status NEEDS_MORE_DETAIL --limit 100 --full
+AI RESULTS — local database only; zero external requests
+rows: 8
+job_id=27 company='Wazuh' title='View position Remote - Full-time Business Development Account Manager' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; cannot determine if the role involves cybersecurity responsibilities.'
+job_id=28 company='Wazuh' title='View position Remote - Full-time Ambassador Program Coordinator' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; ambiguous title (Ambassador Program Coordinator) at a security vendor cannot be classified.'
+job_id=29 company='Wazuh' title='View position Remote - Full-time Legal, Compliance & Collections Specialist' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; Legal/Compliance/Collections role at a security vendor could involve GRC but lacks detail.'
+job_id=30 company='Wazuh' title='View position Remote - Full-time Education Program Coordinator' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='No description provided; Education Program Coordinator is likely non-technical and unclassifiable without detail.'
+job_id=31 company='Wazuh' title='DevOps Engineer' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='google/gemini-3.6-flash' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason="Title 'DevOps Engineer' is ambiguous without a job description to confirm cybersecurity duties."
+job_id=34 company='Wazuh' title='Wazuh Trainer' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority=None specializations=[] model='google/gemini-3.6-flash' detail_chars=0 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=[]
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Title involves training on a cybersecurity platform (Wazuh), but lacks a description to confirm technical security responsibilities.'
+job_id=3 company='Detectify' title='Senior Cloud Engineer' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority='Senior' specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=4562 source_chars=0
+  years_experience_min=7.0 years_experience_max=None
+  skills_required=['AWS', 'Terraform', 'Kubernetes', 'CI/CD pipelines', 'Multi-account AWS environments']
+  skills_preferred=['Agentic/AI workflows', 'Security background', 'Compliance experience']
+  degree_requirement=None
+  certifications=[]
+  short_reason='Senior Cloud Engineer role is primarily a cloud/DevOps engineering position; security is mentioned only as a nice-to-have background, not a core responsibility.'
+job_id=4 company='Detectify' title='Staff Engineer Agentic Profile' ai_status=NEEDS_MORE_DETAIL cyber=None needs_detail=True role_family=None seniority='Staff' specializations=[] model='openrouter/minimax/minimax-m3:free' detail_chars=5883 source_chars=0
+  years_experience_min=None years_experience_max=None
+  skills_required=['Distributed systems architecture', 'Multi-agent system orchestration', 'MCP design', 'Agentic workflows', 'Observability and resilience']
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Staff Engineer role at a cybersecurity company but responsibilities are focused on AI agentic engineering and distributed systems; security context is incidental, not a core function of the role.'
+exit_code: 0
+
+finished_at: 2026-09-02T15:40:25+02:00
+detail_exit_code: 0
+ai_exit_code: 0
+cyber_results_exit_code: 0
+needs_results_exit_code: 0
+REPORT READY: output/test_runs/p0_detail_followup_20260902-153411.log

@@ -1,0 +1,238 @@
+categories:
+  general_security:
+    - cybersecurity
+    - cyber security
+    - information security
+    - infosec
+    - security engineer
+    - security engineering
+    - security analyst
+    - security architecture
+    - security assurance
+    - security testing
+    - security program
+    - security solutions engineer
+    - security solutions architect
+    - ciso
+    - security fellow
+  security_operations:
+    - security operations
+    - soc analyst
+    - security monitoring
+    - detection engineering
+    - threat detection
+    - siem
+    - soar
+    - blue team
+    - security controls
+  incident_response_forensics:
+    - incident response
+    - incident responder
+    - dfir
+    - digital forensics
+    - malware analysis
+    - malware research
+  threat_intelligence:
+    - threat intelligence
+    - cyber threat intelligence
+    - threat hunting
+    - threat hunter
+    - threat analyst
+  application_product_security:
+    - application security
+    - appsec
+    - product security
+    - software security
+    - secure software
+    - security code review
+    - software engineer security
+  cloud_devsecops:
+    - cloud security
+    - devsecops
+    - container security
+    - kubernetes security
+  vulnerability_offensive:
+    - vulnerability management
+    - vulnerability research
+    - penetration testing
+    - penetration tester
+    - pentest
+    - offensive security
+    - red team
+    - ethical hacking
+    - ethical hacker
+    - exploit development
+  identity_access:
+    - identity security
+    - identity and access management
+    - identity access management
+    - privileged access management
+    - identity governance
+    - access governance
+    - zero trust
+  governance_risk_compliance:
+    - cyber risk
+    - cybersecurity risk
+    - information security risk
+    - it risk
+    - technology risk
+    - security compliance
+    - security governance
+    - security audit
+    - third party cyber risk
+    - third party security risk
+  research_cryptography:
+    - security research
+    - security researcher
+    - cryptography
+    - cryptographic engineering
+    - cryptographic engineer
+    - public key infrastructure
+    - research engineer security
+  network_endpoint:
+    - network security
+    - endpoint security
+    - email security
+    - web security
+    - firewall security
+  ot_ics_industrial:
+    - ot security
+    - ics security
+    - industrial cybersecurity
+    - industrial cyber security
+    - operational technology security
+    - scada security
+  automotive_embedded_iot:
+    - automotive cybersecurity
+    - automotive cyber security
+    - vehicle security
+    - embedded security
+    - iot security
+    - hardware security
+  privacy_security:
+    - privacy engineering
+    - privacy engineer
+    - privacy security
+
+contextual_terms:
+  - term: iam
+    category: identity_access
+    context_markers: [security, identity, access, cyber]
+  - term: pam
+    category: identity_access
+    context_markers: [security, identity, privileged, access, cyber]
+  - term: iga
+    category: identity_access
+    context_markers: [security, identity, governance, access, cyber]
+  - term: grc
+    category: governance_risk_compliance
+    context_markers: [security, cyber, technology, information]
+  - term: governance
+    category: governance_risk_compliance
+    context_markers: [security, cyber, technology risk, information security]
+  - term: risk
+    category: governance_risk_compliance
+    context_markers: [security, cyber, technology, information technology, third party]
+  - term: compliance
+    category: governance_risk_compliance
+    context_markers: [security, cyber, technology, information]
+  - term: audit
+    category: governance_risk_compliance
+    context_markers: [security, cyber, technology, information systems]
+  - term: pki
+    category: research_cryptography
+    context_markers: [security, cryptography, certificate, identity]
+  - term: reverse engineering
+    category: incident_response_forensics
+    context_markers: [security, malware, vulnerability, cyber]
+  - term: privacy
+    category: privacy_security
+    context_markers: [engineering, security, technical, technology]
+
+negative_title_phrases:
+  - physical security
+  - security guard
+  - security officer
+  - loss prevention
+  - health and safety
+  - food safety
+  - trust and safety
+
+negative_override_terms:
+  - cybersecurity
+  - cyber security
+  - information security
+  - infosec
+  - application security
+  - cloud security
+  - product security
+
+always_excluded_title_functions:
+  - customer success
+  - sales
+  - account executive
+  - business development
+  - marketing
+  - recruiter
+  - recruiting coordinator
+  - talent acquisition
+  - human resources
+  - hrbp
+  - payroll
+  - compensation
+  - accounts receivable
+  - legal counsel
+  - product counsel
+  - writer
+  - executive assistant
+  - general application
+  - general internship application
+  - talent community
+
+description_only_title_markers:
+  - internship
+  - intern
+  - stage
+  - trainee
+  - graduate
+  - new grad
+  - entry level
+  - entry-level
+  - junior
+  - apprentice
+  - apprenticeship
+  - working student
+  - thesis
+  - student
+
+generic_title_exclusions:
+  - software engineer
+  - frontend engineer
+  - front end engineer
+  - backend engineer
+  - back end engineer
+  - full stack engineer
+  - mobile engineer
+  - data engineer
+  - qa engineer
+  - product manager
+
+description_only_title_exclusions:
+  - customer success
+  - sales
+  - account executive
+  - business development
+  - marketing
+  - recruiter
+  - talent acquisition
+  - human resources
+  - finance
+  - legal counsel
+  - project manager
+  - program manager
+  - office manager
+  - executive assistant
+  - ai engineer
+  - machine learning engineer
+  - data scientist
+  - solutions architect

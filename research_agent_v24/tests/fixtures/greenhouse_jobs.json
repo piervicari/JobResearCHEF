@@ -1,0 +1,15 @@
+{
+  "jobs": [
+    {
+      "id": 101,
+      "internal_job_id": 201,
+      "title": "Junior Security Analyst",
+      "updated_at": "2026-08-20T10:00:00Z",
+      "requisition_id": "SEC-101",
+      "location": {"name": "Milan, Italy"},
+      "absolute_url": "https://job-boards.greenhouse.io/example/jobs/101",
+      "content": "<p>Join the incident response team.</p>"
+    }
+  ],
+  "meta": {"total": 1}
+}

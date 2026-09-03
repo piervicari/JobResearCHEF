@@ -1,0 +1,114 @@
+RESEARCH AGENT AI MICRO-CANARY
+started_at: 2026-09-02T13:43:48+02:00
+project_root: /Users/pierfrancescovicari/Downloads/research_agent 6
+database_url: sqlite:///data/canary/research_agent_canary.db
+limit: 5
+batch_size: 5
+report_file: output/test_runs/ai_micro_canary_20260902-134348.log
+
+===== LLM PREFLIGHT =====
++ uv run research-agent llm-preflight
+LLM PREFLIGHT — zero external requests
+google_key_present: true
+openrouter_key_present: true
+route: job_analysis
+difficulty: medium
+fallback_chain:
+  1. google/gemini-3.6-flash thinking=high transient_retries=0 timeout=300.0s output=json_schema
+  2. openrouter/minimax/minimax-m3:free thinking=medium transient_retries=0 timeout=300.0s output=json_object
+exit_code: 0
+
+===== RESET CANARY DB =====
++ uv run research-agent prepare-canary-db --replace
+canary_db: /Users/pierfrancescovicari/Downloads/research_agent 6/data/canary/research_agent_canary.db
+sha256: c262a686921fa260ddb98adf203de429e5231b736bf7dc14790afff81cdb9562
+integrity_check: ok
+exit_code: 0
+
+===== AI DRY RUN =====
++ uv run research-agent analyze-pending --database-url sqlite:///data/canary/research_agent_canary.db --limit 5 --batch-size 5 --dry-run
+AI DRY RUN — zero LLM requests and zero career-site requests
+selected_jobs: 5
+batch_size: 5
+planned_requests: 1
+missing_company: 0
+route: job_analysis
+difficulty: medium
+fallback_chain:
+  1. google/gemini-3.6-flash thinking=high transient_retries=0 timeout=300.0s output=json_schema
+  2. openrouter/minimax/minimax-m3:free thinking=medium transient_retries=0 timeout=300.0s output=json_object
+job_id=1 company='Apiiro' title='AI Engineer' location='Tel Aviv-Yafo, Tel Aviv District, Israel' description_chars=3812
+job_id=2 company='Apiiro' title='AI Research Engineer, Security' location='Tel Aviv-Yafo, Tel Aviv District, Israel' description_chars=3292
+job_id=3 company='Apiiro' title='Customer Success Manager' location='United States - Remote' description_chars=4326
+job_id=4 company='Apiiro' title='Customer Success Manager (EMEA)' location='London - Remote' description_chars=4358
+job_id=5 company='Apiiro' title='Director of Sales' location='East Coast, Remote' description_chars=3743
+exit_code: 0
+
+===== AI LIVE RUN =====
++ uv run research-agent analyze-pending --database-url sqlite:///data/canary/research_agent_canary.db --limit 5 --batch-size 5
+AI LIVE RUN — selected_jobs=5 batch_size=5 route=job_analysis; career-site requests=0
+[13:43:52] BATCH 1/1 START jobs=5 ids=[1, 2, 3, 4, 5]
+[13:43:52] LLM START provider=google model=gemini-3.6-flash thinking=high fallback=0 attempt=1 timeout=300.0s
+[13:44:07] LLM WAIT provider=google model=gemini-3.6-flash elapsed=15.0s timeout=300.0s
+[13:44:22] LLM WAIT provider=google model=gemini-3.6-flash elapsed=30.0s timeout=300.0s
+2026-09-02 13:44:23,698 INFO httpx HTTP Request: POST https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent "HTTP/1.1 200 OK"
+[13:44:23] LLM RESULT provider=google model=gemini-3.6-flash status=success latency=31.306s http= error=
+[13:44:23] BATCH 1 SUCCESS jobs=5 model=google/gemini-3.6-flash
+selected_jobs: 5
+batches_attempted: 1
+batches_succeeded: 1
+api_failures: 0
+analyzed_jobs: 5
+cyber_jobs: 1
+non_cyber_jobs: 4
+needs_more_detail_jobs: 0
+still_pending_jobs: 5784
+routing_telemetry:
+  provider=google model=gemini-3.6-flash thinking=high status=success fallback_index=0 same_attempt=1 http=None wait=None error=''
+exit_code: 0
+
+===== AI RESULTS =====
++ uv run research-agent show-ai-results --database-url sqlite:///data/canary/research_agent_canary.db --limit 5 --full
+AI RESULTS — local database only; zero external requests
+rows: 5
+job_id=1 company='Apiiro' title='AI Engineer' ai_status=NON_CYBER cyber=False needs_detail=False role_family=None seniority='Senior' specializations=[] model='google/gemini-3.6-flash'
+  years_experience_min=5.0 years_experience_max=None
+  skills_required=['Python', 'C#', 'LLMs', 'AI agents', 'Generative AI', 'Backend Software Engineering']
+  skills_preferred=['Multi-agent architectures', 'Agentic evaluation frameworks']
+  degree_requirement="Bachelor's"
+  certifications=[]
+  short_reason='Role focuses on generic backend and AI engineering capabilities without material cybersecurity responsibilities.'
+job_id=2 company='Apiiro' title='AI Research Engineer, Security' ai_status=CYBER cyber=True needs_detail=False role_family='Application Security' seniority='Senior' specializations=['Application Security', 'Security Research', 'AI/ML Security'] model='google/gemini-3.6-flash'
+  years_experience_min=5.0 years_experience_max=None
+  skills_required=['Application Security', 'Code Security', 'Attack Patterns', 'Detection Methods', 'Remediation', 'LLMs', 'AI Agents']
+  skills_preferred=[]
+  degree_requirement=None
+  certifications=[]
+  short_reason='Role involves application security research, analyzing code security attack patterns, and designing AI security detection and remediation capabilities.'
+job_id=3 company='Apiiro' title='Customer Success Manager' ai_status=NON_CYBER cyber=False needs_detail=False role_family=None seniority='Senior' specializations=[] model='google/gemini-3.6-flash'
+  years_experience_min=5.0 years_experience_max=None
+  skills_required=['Customer Success', 'Account Management', 'Enterprise Accounts', 'SDLC']
+  skills_preferred=['SAST', 'SCA', 'DAST', 'Secrets Detection', 'AppSec Tooling']
+  degree_requirement=None
+  certifications=[]
+  short_reason='Customer success role focused on account management and software adoption rather than cybersecurity execution.'
+job_id=4 company='Apiiro' title='Customer Success Manager (EMEA)' ai_status=NON_CYBER cyber=False needs_detail=False role_family=None seniority='Senior' specializations=[] model='google/gemini-3.6-flash'
+  years_experience_min=5.0 years_experience_max=None
+  skills_required=['Customer Success', 'Account Management', 'Enterprise Accounts', 'SDLC']
+  skills_preferred=['SAST', 'SCA', 'DAST', 'Secrets Detection', 'AppSec Tooling']
+  degree_requirement=None
+  certifications=[]
+  short_reason='Customer success role focused on account management and client retention in EMEA.'
+job_id=5 company='Apiiro' title='Director of Sales' ai_status=NON_CYBER cyber=False needs_detail=False role_family=None seniority='Director' specializations=[] model='google/gemini-3.6-flash'
+  years_experience_min=6.0 years_experience_max=None
+  skills_required=['Enterprise Sales', 'Pipeline Management', 'Account Strategy', 'Executive Stakeholder Management']
+  skills_preferred=[]
+  degree_requirement="Bachelor's"
+  certifications=[]
+  short_reason='Enterprise sales role focused on revenue generation and client acquisition.'
+exit_code: 0
+
+finished_at: 2026-09-02T13:44:24+02:00
+live_exit_code: 0
+results_exit_code: 0
+REPORT READY: output/test_runs/ai_micro_canary_20260902-134348.log

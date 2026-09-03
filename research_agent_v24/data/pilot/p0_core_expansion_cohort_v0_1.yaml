@@ -1,0 +1,55 @@
+version: 0.1
+purpose: >-
+  First controlled expansion after P0 technical validation. Ten curated core employers,
+  deliberately excluding the highest-risk must-not-lose portals while covering security,
+  tech, finance and aerospace career stacks. This is not a ranking.
+network_policy:
+  batches: 2
+  portals_per_batch: 5
+  concurrency: 1
+  max_requests_per_portal: 3
+  max_pages_per_portal: 1
+  max_jobs_per_portal: 10
+  retries: 0
+  inter_portal_wait_seconds: 10
+portals:
+  - portal_id: 265
+    employer: Proofpoint
+    group: security_vendors
+    reason: core cybersecurity vendor; healthy verified Workday portal
+  - portal_id: 275
+    employer: Snyk
+    group: security_vendors
+    reason: core developer-security vendor; healthy official careers portal
+  - portal_id: 10
+    employer: Arctic Wolf
+    group: security_vendors
+    reason: core cybersecurity vendor; healthy official careers portal
+  - portal_id: 1
+    employer: Abnormal Security
+    group: security_vendors
+    reason: core cybersecurity vendor; healthy first-party careers portal
+  - portal_id: 133
+    employer: Claroty
+    group: security_vendors
+    reason: core OT/ICS cybersecurity vendor; healthy official careers portal
+  - portal_id: 276
+    employer: Stripe
+    group: cross_sector
+    reason: high-value payments/technology employer; healthy first-party careers portal
+  - portal_id: 137
+    employer: Visa
+    group: cross_sector
+    reason: high-value payments/security employer; healthy official careers portal
+  - portal_id: 5
+    employer: Airbus
+    group: cross_sector
+    reason: aerospace/defense-adjacent core employer; healthy verified Workday portal
+  - portal_id: 44
+    employer: Datadog
+    group: cross_sector
+    reason: cloud/observability core employer with security roles; healthy first-party portal
+  - portal_id: 3
+    employer: GitLab
+    group: cross_sector
+    reason: global developer platform with security roles; healthy first-party portal

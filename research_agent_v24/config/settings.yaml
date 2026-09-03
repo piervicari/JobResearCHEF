@@ -1,0 +1,173 @@
+database_url: sqlite:///data/research_agent.db
+log_level: INFO
+
+scanner:
+  global_concurrency: 8
+  per_domain_concurrency: 1
+  per_domain_min_interval_seconds: 1.0
+  request_timeout_seconds: 20
+  max_retries: 2
+  backoff_base_seconds: 1.0
+  backoff_max_seconds: 30.0
+  max_retry_after_seconds: 60.0
+  jitter_seconds: 0.5
+  max_response_bytes: 10000000
+  max_redirects: 10
+  max_requests_per_host_per_run: 30
+  max_requests_per_run: 500
+  max_pages_per_portal: 30
+  max_jobs_per_portal: 500
+  bulk_catalog_max_jobs_per_portal: 5000
+  host_cooldown_hours: 24
+  allow_private_networks: false
+  allow_https_to_http_redirects: false
+  run_timeout_seconds: 1800
+  gate_max_failure_rate: 0.10
+  gate_max_retry_rate: 0.20
+  gate_max_http_429: 0
+  gate_max_unexpected_empty_complete: 0
+  cache_directory: data/cache/http
+  closure_missed_successful_runs: 2
+  user_agent: research-agent-pier/0.2
+  operator_contact: ""
+
+llm:
+  # Primary Google routes + explicit OpenRouter fallback, copied only in routing
+  # behavior from the user's News Assistant. Model choices are Research-Agent-specific.
+  google_base_url: https://generativelanguage.googleapis.com/v1beta/models
+  google_api_key_env: GEMINI_API_KEY
+  openrouter_base_url: https://openrouter.ai/api/v1
+  openrouter_api_key_env: OPENROUTER_API_KEY
+  # Free-provider calls may be slow under load; allow up to five minutes per attempt.
+  request_timeout_seconds: 300
+  batch_size: 10
+  # Free routes are request-limited more than token-limited. Triage returns only
+  # job_id + candidate flag, so 100 jobs/call is the initial operating point.
+  triage_batch_size: 100
+  triage_max_jobs_per_run: 2000
+  triage_prompt_version: cyber-triage-v2
+  triage_schema_version: job-triage-v1
+  max_jobs_per_run: 50
+  max_description_chars: 20000
+  prompt_version: cyber-job-v4
+  schema_version: job-analysis-v1
+  http_referer: ""
+  app_title: Research Agent PIER
+  # Safety guard: OpenRouter routes may only use explicit :free models.
+  openrouter_free_only: true
+  schema_micro_repair: true
+  progress_heartbeat_seconds: 15
+  debug_dir: output/debug/llm_invalid
+
+  # Difficulty catalogue (2026-09-02, model selection informed by Artificial Analysis).
+  # EASY: mechanical JSON repair / very light semantic checks.
+  # MEDIUM: normal full cyber job classification + extraction.
+  # HARD: ambiguous semantic adjudication and future internship-program synthesis.
+  task_difficulty:
+    json_repair: easy
+    job_light_classification: easy
+    job_analysis: medium
+    ambiguous_job_review: hard
+    internship_program_research: hard
+
+  routing:
+    job_light_classification:
+      - provider: openrouter
+        model: minimax/minimax-m3:free
+        structured_output: json_object
+        thinking: medium
+        transient_retries: 1
+        retry_wait_seconds: 30
+        max_retry_wait_seconds: 90
+        request_timeout_seconds: 300
+      - provider: openrouter
+        model: minimax/minimax-m2.7:free
+        structured_output: json_object
+        thinking: medium
+        transient_retries: 0
+        request_timeout_seconds: 300
+      - provider: google
+        model: gemini-3.5-flash-lite
+        thinking: medium
+        transient_retries: 0
+        request_timeout_seconds: 300
+
+    job_analysis:
+      # P0 operational route (2026-09-02): prefer the fast free MiniMax path observed
+      # in our own job-analysis runs. A shared-pool 429 is retried exactly once only
+      # when OpenRouter supplies Retry-After; then we degrade to another free model.
+      - provider: openrouter
+        model: minimax/minimax-m3:free
+        structured_output: json_object
+        thinking: medium
+        transient_retries: 1
+        retry_wait_seconds: 30
+        max_retry_wait_seconds: 90
+        request_timeout_seconds: 300
+      - provider: openrouter
+        model: minimax/minimax-m2.7:free
+        structured_output: json_object
+        thinking: medium
+        transient_retries: 0
+        request_timeout_seconds: 300
+      - provider: google
+        model: gemini-3.6-flash
+        thinking: high
+        transient_retries: 0
+        request_timeout_seconds: 300
+
+    ambiguous_job_review:
+      - provider: openrouter
+        model: minimax/minimax-m3:free
+        structured_output: json_object
+        thinking: medium
+        transient_retries: 1
+        retry_wait_seconds: 30
+        max_retry_wait_seconds: 90
+        request_timeout_seconds: 300
+      - provider: openrouter
+        model: minimax/minimax-m2.7:free
+        structured_output: json_object
+        thinking: medium
+        transient_retries: 0
+        request_timeout_seconds: 300
+      - provider: google
+        model: gemini-3.6-flash
+        thinking: high
+        transient_retries: 0
+        request_timeout_seconds: 300
+
+    internship_program_research:
+      - provider: openrouter
+        model: minimax/minimax-m3:free
+        structured_output: json_object
+        thinking: medium
+        transient_retries: 1
+        retry_wait_seconds: 30
+        max_retry_wait_seconds: 90
+        request_timeout_seconds: 300
+      - provider: openrouter
+        model: minimax/minimax-m2.7:free
+        structured_output: json_object
+        thinking: medium
+        transient_retries: 0
+        request_timeout_seconds: 300
+      - provider: google
+        model: gemini-3.6-flash
+        thinking: high
+        transient_retries: 0
+        request_timeout_seconds: 300
+
+  repair_route:
+    provider: google
+    model: gemini-3.5-flash-lite
+    thinking: minimal
+    request_timeout_seconds: 300
+
+master_acceptance:
+  rows: 12503
+  unique_record_ids: 12503
+  corporate_clusters: 11798
+  resolved_clusters: 575
+  resolved_rows: 1263
+  unique_resolved_jobs_urls: 510

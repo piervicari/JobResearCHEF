@@ -1,0 +1,2 @@
+Action,Corporate Cluster ID,Old Jobs Search URL,Resolved Corporate Website,Resolved Careers Landing URL,Resolved Jobs Search URL,Portal Scope,ATS Family,ATS Confidence,Portal Resolution Status,Portal Verification URL,Portal Verified Date,Resolution Parent Override,Resolution Wave,Reason
+UPDATE,CG-EXAMPLE,https://old.example.com/jobs,https://www.example.com,https://www.example.com/careers,https://jobs.example.com/search,Global,Example ATS,Verified,VERIFIED,https://www.example.com/careers,2026-08-31,,W6,Example only - replace with reviewed evidence

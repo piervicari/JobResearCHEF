@@ -1,0 +1,26 @@
+{
+  "active_portals": 524,
+  "cumulative_resolved_clusters": 589,
+  "cumulative_resolved_records": 1277,
+  "cumulative_unique_resolved_jobs_urls": 524,
+  "deferred_clusters": 85,
+  "new_master_records_covered": 15,
+  "new_resolved_clusters": 15,
+  "prior_master_immutable": true,
+  "prior_synchronized_master": "master_company_universe_v1_9_registry_corrections_run26.csv",
+  "prior_synchronized_master_sha256": "4b9a6c3b1ae459ac70f8fd9d1178a61b947f6aea16b8b50a7208ffc6a332b120",
+  "registry_import_batch_id": 7,
+  "selected_clusters": 100,
+  "selection_scoring_version": "wave6-deterministic-v1",
+  "synchronized_master": "master_company_universe_v1_10_portal_resolution_wave6.csv",
+  "synchronized_master_sha256": "eb2cccac992b800eb8fac9082e494bb3f9680ecef11a00b877f85b321ad77879",
+  "validation": {
+    "deferred_without_forced_mapping": true,
+    "exact_selection_count": true,
+    "prior_wave_immutable": true,
+    "resolved_evidence_complete": true,
+    "unique_clusters": true
+  },
+  "verified_date": "2026-08-31",
+  "wave": 6
+}

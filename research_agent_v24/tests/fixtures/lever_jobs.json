@@ -1,0 +1,15 @@
+[
+  {
+    "id": "lever-101",
+    "text": "Security Engineering Intern",
+    "categories": {
+      "location": "London, UK",
+      "allLocations": ["London, UK", "Remote - UK"],
+      "commitment": "Intern"
+    },
+    "descriptionPlain": "Work on cloud security controls.",
+    "hostedUrl": "https://jobs.lever.co/example/lever-101",
+    "applyUrl": "https://jobs.lever.co/example/lever-101/apply",
+    "workplaceType": "hybrid"
+  }
+]

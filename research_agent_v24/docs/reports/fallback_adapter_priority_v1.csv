@@ -1,0 +1,359 @@
+rank,portal_id,company,jobs_url,host,ats_family,total_score,employer_value_score,likely_yield_score,shared_contract_score,observed_contract_score,cluster_records,observed_jobs,active_review_jobs,same_family_fallbacks,health_state,contract_evidence
+1,66,ING,https://careers.ing.com/search-jobs,careers.ing.com,Custom / branded portal,72,33,3,20,16,14,15,0,76,HEALTHY,successful public response observed
+2,471,Banco Santander,https://www.santander.com/en/careers,www.santander.com,Custom / branded portal,65,45,0,20,0,20,0,0,76,UNKNOWN,public contract not yet observed
+3,179,AXA,https://jobs.axa.com/careers-home/,jobs.axa.com,Branded portal; backend vendor unverified,63,45,0,2,16,27,1,0,2,HEALTHY,successful public response observed
+4,271,Barclays Bank | Barclays Bank Ireland | Barclays Bank Ireland France | Barclays Corporate | Barclays Investment Bank | Barclays Merchant Services | Barclays Private Bank | Barclays Trade and Working Capital UK & Ireland | Barclays Wealth and Investment Management,https://search.jobs.barclays/,search.jobs.barclays,Custom / branded portal,61,23,2,20,16,9,10,0,76,HEALTHY,successful public response observed
+5,102,BRD Groupe Société Générale,https://careers.societegenerale.com/en/search,careers.societegenerale.com,Custom / branded portal,58,21,1,20,16,8,9,0,76,HEALTHY,successful public response observed
+6,22,Allianz,https://careers.allianz.com/global/en/search-results,careers.allianz.com,Branded portal; backend vendor unverified,58,45,0,2,11,26,0,0,2,HEALTHY,successful public response observed
+7,45,Deutsche Bank,https://careers.db.com/professionals/search-roles/,careers.db.com,Custom / branded portal,56,25,0,20,11,10,0,0,76,HEALTHY,successful public response observed
+8,68,J.P. Morgan Australia and New Zealand,https://careers.jpmorgan.com/,careers.jpmorgan.com,Custom / branded portal,54,23,0,20,11,9,0,0,76,HEALTHY,successful public response observed
+9,280,Wazuh,https://wazuh.com/careers/,wazuh.com,Custom / backend unverified,52,7,9,20,16,1,28,1,148,HEALTHY,successful public response observed
+10,103,Sopra Steria,https://careers.soprasteria.com/jobs,careers.soprasteria.com,Custom / branded portal,52,15,1,20,16,5,6,0,76,HEALTHY,successful public response observed
+11,107,Banque Stellantis France,https://careers.stellantis.com/,careers.stellantis.com,Custom / branded portal,52,21,0,20,11,8,0,0,76,HEALTHY,successful public response observed
+12,282,Banca Widiba - Wise Dialog Bank,https://wise.jobs/jobs,wise.jobs,Custom / branded portal,51,13,2,20,16,4,12,0,76,HEALTHY,successful public response observed
+13,118,Vattenfall,https://careers.vattenfall.com/jobs,careers.vattenfall.com,Custom / branded portal,51,13,2,20,16,4,12,0,76,HEALTHY,successful public response observed
+14,513,Equinix,https://careers.equinix.com/jobs/search,careers.equinix.com,Custom / branded portal,50,7,7,20,16,1,39,0,76,HEALTHY,successful public response observed
+15,31,Bank of America,https://careers.bankofamerica.com/en-us/job-search,careers.bankofamerica.com,Custom / branded portal,50,19,0,20,11,7,0,0,76,HEALTHY,successful public response observed
+16,92,Rivian,https://careers.rivian.com/careers-home/jobs/categories,careers.rivian.com,Custom / branded portal,49,7,6,20,16,1,32,0,76,HEALTHY,successful public response observed
+17,267,Rabobank | Rabobank Australia,https://rabobank.jobs/en/jobs/,rabobank.jobs,Custom first-party portal,49,9,4,20,16,2,21,0,31,HEALTHY,successful public response observed
+18,53,FedEx,https://careers.fedex.com/jobs,careers.fedex.com,Custom / branded portal,48,7,5,20,16,1,27,0,76,HEALTHY,successful public response observed
+19,114,Total Energies Gas & Power,https://careers.totalenergies.com/en,careers.totalenergies.com,Custom / branded portal,48,17,0,20,11,6,0,0,76,HEALTHY,successful public response observed
+20,515,AbbVie,https://careers.abbvie.com/en/jobs?lang=en-US,careers.abbvie.com,Custom / branded portal,47,9,2,20,16,2,11,0,76,HEALTHY,successful public response observed
+21,154,Banco BPM | Banco BPM Invest Societa' di Gestione del Risparmio | BANCO BPM VITA,https://gruppo.bancobpm.it/persone-e-valori/lavora-con-noi/,gruppo.bancobpm.it,Custom / backend unverified,47,11,0,20,16,3,1,0,148,HEALTHY,successful public response observed
+22,510,TransRe Europe . Zurich Branch,https://www.zurich.com/careers,www.zurich.com,Custom / branded portal,47,27,0,20,0,11,0,0,76,UNKNOWN,public contract not yet observed
+23,241,Zalando,https://jobs.zalando.com/en/jobs,jobs.zalando.com,Custom first-party job board,46,7,3,20,16,1,15,0,22,HEALTHY,successful public response observed
+24,59,GE Vernova,https://careers.gevernova.com/,careers.gevernova.com,Custom / branded portal,45,7,2,20,16,1,10,0,76,HEALTHY,successful public response observed
+25,285,Accenture,https://www.accenture.com/us-en/careers/jobsearch,www.accenture.com,Custom / branded portal,45,25,0,20,0,10,0,0,76,UNKNOWN,public contract not yet observed
+26,340,Chubb,https://www.chubb.com/content/chubb-sites/chubb-com/emea/careers/job-search/index.html,www.chubb.com,Custom / branded portal,45,25,0,20,0,10,0,0,76,UNKNOWN,public contract not yet observed
+27,190,Citi Romania,https://jobs.citi.com/,jobs.citi.com,Custom portal + Eightfold Match Me,45,33,0,1,11,14,0,0,1,HEALTHY,successful public response observed
+28,516,Fortescue,https://careers.fortescue.com/en,careers.fortescue.com,Custom / branded portal,44,7,1,20,16,1,8,0,76,HEALTHY,successful public response observed
+29,379,ASSICURAZIONI GENERALI SOCIETA' PER AZIONI,https://www.generali.com/people-and-careers/work-with-us,www.generali.com,Federated / local ATSs,44,43,0,1,0,19,0,0,1,UNKNOWN,public contract not yet observed
+30,51,Etsy,https://careers.etsy.com/,careers.etsy.com,Custom first-party portal,43,7,0,20,16,1,4,0,31,HEALTHY,successful public response observed
+31,49,DXC Technology,https://careers.dxc.com/,careers.dxc.com,Custom / branded portal,43,7,0,20,16,1,3,0,76,HEALTHY,successful public response observed
+32,3,GitLab,https://about.gitlab.com/jobs/,about.gitlab.com,Custom first-party portal,43,7,0,20,16,1,3,0,31,HEALTHY,successful public response observed
+33,184,Booking.com,https://jobs.booking.com/booking/jobs,jobs.booking.com,Custom first-party portal,43,7,0,20,16,1,2,0,31,HEALTHY,successful public response observed
+34,512,Centrica,https://www.lifeatcentrica.com/jobs/,www.lifeatcentrica.com,Custom / branded portal,43,7,0,20,16,1,2,0,76,HEALTHY,successful public response observed
+35,105,SSE,https://careers.sse.com/,careers.sse.com,Custom / branded portal,43,7,0,20,16,1,1,0,76,HEALTHY,successful public response observed
+36,115,Trellix,https://careers.trellix.com/,careers.trellix.com,Custom / branded portal,43,7,0,20,16,1,1,0,76,HEALTHY,successful public response observed
+37,126,Zoom,https://careers.zoom.us/home,careers.zoom.us,Custom / branded portal,43,7,0,20,16,1,1,0,76,HEALTHY,successful public response observed
+38,9,Deloitte,https://applyglobal.deloitte.com/careers,applyglobal.deloitte.com,Multiple / branded portals,43,31,0,1,11,13,0,0,1,HEALTHY,successful public response observed
+39,94,Rolls-Royce North America | Rolls-Royce Solutions | Rolls-Royce Solutions France,https://careers.rolls-royce.com/jobs,careers.rolls-royce.com,Custom first-party portal,42,11,0,20,11,3,0,0,31,HEALTHY,successful public response observed
+40,437,Nationale-Nederlanden Bank,https://www.nn-careers.com/en/vacancies,www.nn-careers.com,Custom / branded portal,41,21,0,20,0,8,0,0,76,UNKNOWN,public contract not yet observed
+41,467,Saab,https://www.saab.com/career/job-opportunities,www.saab.com,Custom / branded portal,41,21,0,20,0,8,0,0,76,UNKNOWN,public contract not yet observed
+42,38,Aker BP,https://careers.bp.com/,careers.bp.com,Custom / backend unverified,40,9,0,20,11,2,0,0,148,HEALTHY,successful public response observed
+43,174,AON,https://jobs.aon.com/jobs,jobs.aon.com,Custom / branded portal,40,9,0,20,11,2,0,0,76,HEALTHY,successful public response observed
+44,128,Banca Transilvania,https://cariere.bancatransilvania.ro/,cariere.bancatransilvania.ro,Custom / branded portal,40,9,0,20,11,2,0,0,76,HEALTHY,successful public response observed
+45,197,DNV,https://jobs.dnv.com/,jobs.dnv.com,Custom / branded portal,40,9,0,20,11,2,0,0,76,HEALTHY,successful public response observed
+46,143,Infosys,https://digitalcareers.infosys.com/,digitalcareers.infosys.com,Custom / branded portal,40,9,0,20,11,2,0,0,76,HEALTHY,successful public response observed
+47,250,Lufthansa | Lufthansa Technik,https://lufthansagroup.careers/en,lufthansagroup.careers,Custom / branded portal,40,9,0,20,11,2,0,0,76,HEALTHY,successful public response observed
+48,375,Fortinet | Lacework,https://www.fortinet.com/corporate/careers,www.fortinet.com,Custom / branded portal,39,19,0,20,0,7,0,0,76,UNKNOWN,public contract not yet observed
+49,410,Kongsberg Defence,https://www.kongsberg.com/careers/vacancies/,www.kongsberg.com,Custom / branded portal,39,19,0,20,0,7,0,0,76,UNKNOWN,public contract not yet observed
+50,438,Nokia | Nokia Canada | Nokia Finland | Nokia Hungary | Nokia Solutions and Networks | Nokia Solutions and Networks Italia | Nokia Solutions and Networks Nederland,https://www.nokia.com/careers/,www.nokia.com,Custom / backend unverified,39,19,0,20,0,7,0,0,148,UNKNOWN,public contract not yet observed
+51,1,Abnormal Security,https://abnormal.ai/careers/open-roles,abnormal.ai,Custom first-party job board,38,7,0,20,11,1,0,0,22,HEALTHY,successful public response observed
+52,21,Adyen,https://careers.adyen.com/vacancies,careers.adyen.com,Custom first-party portal,38,7,0,20,11,1,0,0,31,HEALTHY,successful public response observed
+53,4,Aembit,https://aembit.io/careers/,aembit.io,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+54,135,Amplifon,https://corporate.amplifon.com/en/careers,corporate.amplifon.com,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+55,11,Anglo American Australia,https://australia.angloamerican.com/work-with-us,australia.angloamerican.com,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+56,10,Arctic Wolf,https://arcticwolf.com/company/careers/,arcticwolf.com,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+57,12,Avant Insurance,https://avant.org.au/careers-at-avant,avant.org.au,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+58,29,Aviva,https://careers.aviva.co.uk/,careers.aviva.co.uk,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+59,32,BBVA,https://careers.bbva.com/,careers.bbva.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+60,14,Blackpoint Cyber,https://blackpointcyber.com/company/careers/,blackpointcyber.com,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+61,15,Block,https://block.xyz/careers/jobs,block.xyz,Custom first-party portal,38,7,0,20,11,1,0,0,31,HEALTHY,successful public response observed
+62,37,Booz Allen Hamilton,https://careers.boozallen.com/jobs,careers.boozallen.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+63,33,Boston Consulting Group,https://careers.bcg.com/global/en/search-results,careers.bcg.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+64,40,CACI,https://careers.caci.com/global/en/search-results,careers.caci.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+65,264,Campari,https://people.camparigroup.com/global/it/home,people.camparigroup.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+66,133,Claroty,https://claroty.com/careers/,claroty.com,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+67,192,Danaher,https://jobs.danaher.com/global/en/search-results,jobs.danaher.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+68,44,Datadog,https://careers.datadoghq.com/all-jobs/,careers.datadoghq.com,Custom first-party portal,38,7,0,20,11,1,0,0,31,HEALTHY,successful public response observed
+69,142,Deutsche Bahn,https://db.jobs/en-en,db.jobs,Custom first-party portal,38,7,0,20,11,1,0,0,31,HEALTHY,successful public response observed
+70,47,Deutsche Börse,https://careers.deutsche-boerse.com/,careers.deutsche-boerse.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+71,112,Deutsche Telekom,https://careers.telekom.com/en,careers.telekom.com,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+72,48,DHL Group,https://careers.dhl.com/global/en/search-results,careers.dhl.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+73,199,eBay,https://jobs.ebayinc.com/us/en/search-results,jobs.ebayinc.com,Custom first-party job board,38,7,0,20,11,1,0,0,22,HEALTHY,successful public response observed
+74,55,FIS,https://careers.fisglobal.com/us/en/search-results,careers.fisglobal.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+75,54,Fiserv,https://careers.fiserv.com/us/en/search-results,careers.fiserv.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+76,148,Flashpoint,https://flashpoint.io/about-us/careers/,flashpoint.io,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+77,58,GE Healthcare,https://careers.gehealthcare.com/global/en/search-results,careers.gehealthcare.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+78,205,Global Payments,https://jobs.globalpayments.com/jobs,jobs.globalpayments.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+79,16,H&M,https://career.hm.com/,career.hm.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+80,64,Intercontinental Exchange,https://careers.ice.com/,careers.ice.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+81,129,Italgas,https://carriere.italgas.it/,carriere.italgas.it,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+82,210,Johnson Controls,https://jobs.johnsoncontrols.com/,jobs.johnsoncontrols.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+83,211,KPN,https://jobs.kpn.com/en/,jobs.kpn.com,Custom first-party portal,38,7,0,20,11,1,0,0,31,HEALTHY,successful public response observed
+84,212,Kuehne+Nagel,https://jobs.kuehne-nagel.com/global/en/search-results,jobs.kuehne-nagel.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+85,249,Lucid Motors,https://lucidmotors.com/careers,lucidmotors.com,Custom first-party portal,38,7,0,20,11,1,0,0,31,HEALTHY,successful public response observed
+86,74,Marsh McLennan,https://careers.marsh.com/global/en/search-results,careers.marsh.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+87,252,Material Security,https://material.security/careers,material.security,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+88,253,MDA Space,https://mda.space/en/careers/,mda.space,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+89,254,Monzo,https://monzo.com/careers,monzo.com,Custom first-party portal,38,7,0,20,11,1,0,0,31,HEALTHY,successful public response observed
+90,256,MyState Bank,https://mystate.com.au/about-us/careers/,mystate.com.au,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+91,75,Oliver Wyman,https://careers.marshmclennan.com/global/en/oliver-wyman,careers.marshmclennan.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+92,82,OVHcloud,https://careers.ovhcloud.com/,careers.ovhcloud.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+93,261,Panther Labs,https://panther.com/company/careers,panther.com,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+94,88,QTS Data Centers,https://careers.qtsdatacenters.com/us/en/search-results,careers.qtsdatacenters.com,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+95,139,Resilience,https://cyberresilience.com/careers/,cyberresilience.com,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+96,269,Salt Security,https://salt.security/careers,salt.security,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+97,272,Semgrep,https://semgrep.dev/about/careers/,semgrep.dev,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+98,98,Serco,https://careers.serco.com/gb/en/search-results,careers.serco.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+99,109,Stryker,https://careers.stryker.com/,careers.stryker.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+100,111,Take-Two Interactive,https://careers.take2games.com/jobs,careers.take2games.com,Custom first-party job board,38,7,0,20,11,1,0,0,22,HEALTHY,successful public response observed
+101,136,Target,https://corporate.target.com/careers/job-search,corporate.target.com,Custom first-party job board,38,7,0,20,11,1,0,0,22,HEALTHY,successful public response observed
+102,149,Teleport,https://goteleport.com/careers/,goteleport.com,Custom / backend unverified,38,7,0,20,11,1,0,0,148,HEALTHY,successful public response observed
+103,120,Vodafone Romania,https://careers.vodafone.com/,careers.vodafone.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+104,121,Walmart,https://careers.walmart.com/,careers.walmart.com,Custom first-party job board,38,7,0,20,11,1,0,0,22,HEALTHY,successful public response observed
+105,122,Warner Bros. Discovery,https://careers.wbd.com/global/en/search-results,careers.wbd.com,Custom / branded portal,38,7,0,20,11,1,0,0,76,HEALTHY,successful public response observed
+106,326,Bosch,https://www.bosch.com/careers/,www.bosch.com,Custom / backend unverified,37,17,0,20,0,6,0,0,148,UNKNOWN,public contract not yet observed
+107,468,Safran,https://www.safran-group.com/jobs,www.safran-group.com,Custom / backend unverified,37,17,0,20,0,6,0,0,148,UNKNOWN,public contract not yet observed
+108,178,Atos,https://jobs.atos.net/,jobs.atos.net,Atos: SuccessFactors-style; Eviden: branded portal,35,23,0,1,11,9,0,0,1,HEALTHY,successful public response observed
+109,421,Mediobanca | Mediobanca - Banca di Credito Finanziario | Mediobanca France | Mediobanca Premier | Mediobanca SGR,https://www.mediobanca.com/en/work-with-us/open-positions.html,www.mediobanca.com,Custom first-party job board,35,15,0,20,0,5,0,0,22,UNKNOWN,public contract not yet observed
+110,187,Microsoft,https://jobs.careers.microsoft.com/global/en/search,jobs.careers.microsoft.com,Custom Microsoft Careers,35,23,0,1,11,9,0,0,1,HEALTHY,successful public response observed
+111,191,AUMOVIO,https://jobs.continental.com/en/,jobs.continental.com,Continental + Aumovio first-party portals / backend unverified,33,21,0,1,11,8,0,0,1,HEALTHY,successful public response observed
+112,400,"INDRA | Indra Group | Indra Space | SIA, an Indra company",https://www.indracompany.com/en/indra/employment,www.indracompany.com,Custom / backend unverified,33,13,0,20,0,4,0,0,148,UNKNOWN,public contract not yet observed
+113,428,Morgan Stanley,https://www.morganstanley.com/people-opportunities/apply-contact,www.morganstanley.com,Custom / backend unverified,33,13,0,20,0,4,0,0,148,UNKNOWN,public contract not yet observed
+114,440,Novartis,https://www.novartis.com/careers/career-search,www.novartis.com,Custom / branded portal,33,13,0,20,0,4,0,0,76,UNKNOWN,public contract not yet observed
+115,490,Telenor | Telenor Cyberdefence | Telenor Danmark | Telenor Maritime (KNL),https://www.telenor.com/careers/,www.telenor.com,Custom / backend unverified,33,13,0,20,0,4,0,0,148,UNKNOWN,public contract not yet observed
+116,113,Thiess,https://careers.thiess.com/jobs/search,careers.thiess.com,Custom / branded careers portal,32,7,3,6,16,1,16,0,6,HEALTHY,successful public response observed
+117,24,Advanced Micro Devices,https://careers.amd.com/,careers.amd.com,Custom / branded jobs portal,32,7,0,9,16,1,1,0,9,HEALTHY,successful public response observed
+118,186,Capgemini,https://jobs.capgemini.com/,jobs.capgemini.com,Branded portal / backend unverified,32,19,0,2,11,7,0,0,2,HEALTHY,successful public response observed
+119,500,UniCredit,https://www.unicreditgroup.eu/en/careers.html,www.unicreditgroup.eu,Multiple local portals,32,29,0,3,0,12,0,0,3,UNKNOWN,public contract not yet observed
+120,78,Mineral Resources,https://careers.mineralresources.com.au/,careers.mineralresources.com.au,Custom / branded careers portal,31,7,2,6,16,1,10,0,6,HEALTHY,successful public response observed
+121,297,Aptiv,https://www.aptiv.com/en/jobs/search/open-positions,www.aptiv.com,Custom / branded portal,31,11,0,20,0,3,0,0,76,UNKNOWN,public contract not yet observed
+122,322,BMW,https://www.bmwgroup.jobs/,www.bmwgroup.jobs,Custom / branded portal,31,11,0,20,0,3,0,0,76,UNKNOWN,public contract not yet observed
+123,330,CAE,https://www.cae.com/careers/,www.cae.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+124,365,Emerson,https://www.emerson.com/en/corporate/careers/career-opportunities,www.emerson.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+125,366,Enel,https://www.enel.com/careers,www.enel.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+126,367,Eni,https://www.eni.com/en-IT/careers/job-opportunities.html,www.eni.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+127,369,Equinor,https://www.equinor.com/careers,www.equinor.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+128,373,FINCANTIERI,https://www.fincantieri.com/it/persone/lavora-con-noi/posizioni-aperte,www.fincantieri.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+129,334,Janssen Pharmaceutica,https://www.careers.jnj.com/jobs,www.careers.jnj.com,Custom / branded portal,31,11,0,20,0,3,0,0,76,UNKNOWN,public contract not yet observed
+130,415,Lockheed Martin,https://www.lockheedmartin.com/careers/opportunities,www.lockheedmartin.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+131,364,Merck,https://www.emdgroup.com/en/careers.html,www.emdgroup.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+132,439,Northrop Grumman,https://www.northropgrumman.com/jobs-search,www.northropgrumman.com,Custom / branded portal,31,11,0,20,0,3,0,0,76,UNKNOWN,public contract not yet observed
+133,458,Renault Group,https://www.renaultgroup.com/en/careers/,www.renaultgroup.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+134,466,RWE,https://www.rwe.com/en/rwe-careers-portal/,www.rwe.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+135,387,Telecom Italia | TIM,https://www.gruppotim.it/it/lavora-con-noi.html,www.gruppotim.it,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+136,493,Tenable | Vulcan Cyber,https://www.tenable.com/careers,www.tenable.com,Custom / branded portal,31,11,0,20,0,3,0,0,76,UNKNOWN,public contract not yet observed
+137,496,Trend Micro,https://www.trendmicro.com/en/about/careers.html,www.trendmicro.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+138,498,UBS,https://www.ubs.com/global/en/careers.html,www.ubs.com,Custom / backend unverified,31,11,0,20,0,3,0,0,148,UNKNOWN,public contract not yet observed
+139,65,IGO,https://careers.igo.com.au/,careers.igo.com.au,Custom / branded careers portal,30,7,1,6,16,1,6,0,6,HEALTHY,successful public response observed
+140,28,Auto & General Insurance Company,https://careers.autogeneral.com.au/,careers.autogeneral.com.au,Custom / branded careers portal,30,7,1,6,16,1,5,0,6,HEALTHY,successful public response observed
+141,46,Detectify,https://careers.detectify.com/,careers.detectify.com,Custom / branded careers portal,29,7,0,6,16,1,4,0,6,HEALTHY,successful public response observed
+142,485,AAI | Suncorp,https://www.suncorpgroup.com.au/careers,www.suncorpgroup.com.au,Custom / backend unverified,29,9,0,20,0,2,0,0,148,UNKNOWN,public contract not yet observed
+143,345,Commonwealth Bank | Commonwealth Bank of Australia,https://www.commbank.com.au/about-us/careers.html,www.commbank.com.au,Custom / backend unverified,29,9,0,20,0,2,0,0,148,UNKNOWN,public contract not yet observed
+144,217,Daimler Truck,https://jobs.mercedes-benz.com/,jobs.mercedes-benz.com,Oracle Taleo,29,17,0,1,11,6,0,0,1,HEALTHY,successful public response observed
+145,362,EDF,https://www.edf.fr/edf-recrute,www.edf.fr,Custom / backend unverified,29,9,0,20,0,2,0,0,148,UNKNOWN,public contract not yet observed
+146,402,InfoCamere,https://www.infocamere.it/lavora-con-noi,www.infocamere.it,Custom first-party portal,29,9,0,20,0,2,0,0,31,UNKNOWN,public contract not yet observed
+147,430,National Australia Bank | National Australia Bank Europe France,https://www.nab.com.au/about-us/careers,www.nab.com.au,Custom / backend unverified,29,9,0,20,0,2,0,0,148,UNKNOWN,public contract not yet observed
+148,478,Solvay (Syensqo),https://www.solvay.com/en/career,www.solvay.com,Custom / backend unverified,29,9,0,20,0,2,0,0,148,UNKNOWN,public contract not yet observed
+149,480,Sophos,https://www.sophos.com/en-us/company/careers,www.sophos.com,Custom / backend unverified,29,9,0,20,0,2,0,0,148,UNKNOWN,public contract not yet observed
+150,503,Valeo,https://www.valeo.com/en/find-a-job-or-internship/,www.valeo.com,Custom / backend unverified,29,9,0,20,0,2,0,0,148,UNKNOWN,public contract not yet observed
+151,507,Westpac Banking | Westpac New Zealand,https://www.westpac.com.au/about-westpac/careers/,www.westpac.com.au,Custom / backend unverified,29,9,0,20,0,2,0,0,148,UNKNOWN,public contract not yet observed
+152,152,Asirom Vienna Insurance Group,https://group.vig/en/career/application/jobs/,group.vig,Custom / local application portals,28,11,0,1,16,3,1,0,1,HEALTHY,successful public response observed
+153,137,Visa,https://corporate.visa.com/en/careers.html,corporate.visa.com,Greenhouse-integrated signal (gh_jid) / backend not fully asserted,28,11,0,1,16,3,1,0,1,HEALTHY,successful public response observed
+154,384,Alphabet | Mandiant,https://www.google.com/about/careers/applications/jobs/results,www.google.com,Custom Google Careers,28,27,0,1,0,11,0,0,1,UNKNOWN,public contract not yet observed
+155,385,A2A,https://www.gruppoa2a.it/it/carriere/opportunita-lavoro-nostre-career-areas,www.gruppoa2a.it,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+156,407,Abbott,https://www.jobs.abbott/,www.jobs.abbott,Custom / branded portal,27,7,0,20,0,1,0,0,76,UNKNOWN,public contract not yet observed
+157,506,ABN AMRO,https://www.werkenbijabnamro.nl/en/vacancies,www.werkenbijabnamro.nl,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+158,20,Adobe,https://careers.adobe.com/us/en/search-results,careers.adobe.com,Custom / branded jobs portal,27,7,0,9,11,1,0,0,9,HEALTHY,successful public response observed
+159,287,AIG,https://www.aig.com/careers,www.aig.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+160,286,AIG Australia,https://www.aig.com.au/home/careers,www.aig.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+161,289,Alcoa Australia,https://www.alcoa.com/careers/en,www.alcoa.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+162,290,Alex Bank,https://www.alex.bank/about-alex/,www.alex.bank,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+163,23,Alvarez & Marsal,https://careers.alvarezandmarsal.com/search/jobs,careers.alvarezandmarsal.com,Custom / branded portal,27,7,0,20,0,1,0,0,76,DEGRADED,public contract not yet observed
+164,293,AMP Bank,https://www.amp.com.au/about-amp/careers,www.amp.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+165,294,Anduril,https://www.anduril.com/careers,www.anduril.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+166,298,Aqua Security,https://www.aquasec.com/careers/,www.aquasec.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+167,299,Arab Bank Australia,https://www.arabbank.com.au/about/careers,www.arabbank.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+168,302,ASML,https://www.asml.com/en/careers/find-your-job,www.asml.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+169,303,Assetinsure,https://www.assetinsure.com.au/careers/,www.assetinsure.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+170,306,Australian Military Bank,https://www.australianmilitarybank.com.au/careers,www.australianmilitarybank.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+171,307,Auswide Bank,https://www.auswidebank.com.au/about/careers/,www.auswidebank.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+172,309,Avenue Bank,https://www.avenuebank.com.au/careers/,www.avenuebank.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+173,310,Avio,https://www.avio.com/it/lavora-con-noi/,www.avio.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+174,312,Azimut,https://www.azimut.it/careers,www.azimut.it,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+175,313,Bain & Company,https://www.bain.com/careers/find-a-role/,www.bain.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+176,314,Banca Mediolanum,https://www.bancamediolanum.it/lavora-con-noi,www.bancamediolanum.it,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+177,386,Banca Monte dei Paschi di Siena,https://www.gruppomps.it/lavora-con-noi/,www.gruppomps.it,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+178,30,Banco Sabadell,https://careers.bancsabadell.com/,careers.bancsabadell.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,DEGRADED,public contract not yet observed
+179,315,Bank Australia,https://www.bankaust.com.au/careers,www.bankaust.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+180,325,Bank of Queensland,https://www.boq.com.au/about-us/careers/,www.boq.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+181,316,Bank of Sydney,https://www.banksyd.com.au/careers,www.banksyd.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+182,317,BASF Antwerpen,https://www.basf.com/global/en/careers,www.basf.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+183,318,Beyond Bank Australia,https://www.beyondbank.com.au/careers/current-opportunities/,www.beyondbank.com.au,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+184,319,BeyondTrust,https://www.beyondtrust.com/company/overview/careers,www.beyondtrust.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+185,320,Bitdefender,https://www.bitdefender.com/en-us/company/careers,www.bitdefender.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+186,321,Blue Origin,https://www.blueorigin.com/careers,www.blueorigin.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+187,323,BNK Banking,https://www.bnk.com.au/about/jobs/,www.bnk.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+188,324,BNY Mellon,https://www.bny.com/corporate/global/en/about-us/careers/work-with-us.html,www.bny.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+189,327,Broadcom,https://www.broadcom.com/company/careers,www.broadcom.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+190,328,Bugcrowd,https://www.bugcrowd.com/about/careers/,www.bugcrowd.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+191,329,Buzzi,https://www.buzzi.com/career,www.buzzi.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+192,331,CaixaBank,https://www.caixabank.com/en/people.html,www.caixabank.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+193,336,Carrefour,https://www.carrefour.com/en/group/careers,www.carrefour.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+194,337,Cato Networks,https://www.catonetworks.com/careers/,www.catonetworks.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+195,338,Cequence Security,https://www.cequence.ai/careers/,www.cequence.ai,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+196,339,Checkout.com,https://www.checkout.com/careers/jobs,www.checkout.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+197,342,CME Group,https://www.cmegroup.com/careers.html,www.cmegroup.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+198,343,Coinbase,https://www.coinbase.com/careers/positions,www.coinbase.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+199,346,Commerzbank,https://www.commerzbank.de/group/careers/,www.commerzbank.de,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+200,347,Confluent,https://www.confluent.io/careers/,www.confluent.io,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+201,348,Coro,https://www.coro.net/careers,www.coro.net,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+202,349,Costco,https://www.costco.com/f/-/careers,www.costco.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+203,351,Cuscal,https://www.cuscal.com/about-us/job-opportunities/,www.cuscal.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+204,352,Cybereason,https://www.cybereason.com/company/careers,www.cybereason.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+205,353,Cyera,https://www.cyera.com/careers,www.cyera.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+206,354,Darktrace,https://www.darktrace.com/careers,www.darktrace.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+207,355,DBS Bank,https://www.dbs.com/careers/default.page,www.dbs.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+208,356,Deep Instinct,https://www.deepinstinct.com/careers,www.deepinstinct.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+209,194,Dell Technologies,https://jobs.dell.com/en/search-jobs,jobs.dell.com,Custom / branded jobs portal,27,7,0,9,11,1,0,0,9,HEALTHY,successful public response observed
+210,357,DigiCert,https://www.digicert.com/careers,www.digicert.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+211,358,Dragos,https://www.dragos.com/careers/,www.dragos.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+212,359,Dropbox,https://www.dropbox.jobs/en/,www.dropbox.jobs,Custom / branded portal,27,7,0,20,0,1,0,0,76,UNKNOWN,public contract not yet observed
+213,360,Druva,https://www.druva.com/why-druva/explore/careers,www.druva.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+214,363,Elastic,https://www.elastic.co/careers,www.elastic.co,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+215,361,Electronic Arts,https://www.ea.com/careers,www.ea.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+216,368,Epic Games,https://www.epicgames.com/site/careers/jobs?lang=en-US,www.epicgames.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+217,370,ESET,https://www.eset.com/int/about/careers/,www.eset.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+218,372,Fastly,https://www.fastly.com/about/careers,www.fastly.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+219,374,Forcepoint,https://www.forcepoint.com/company/work-with-us,www.forcepoint.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+220,376,Fortra,https://www.fortra.com/about,www.fortra.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+221,382,GitHub,https://www.github.careers/careers-home/jobs,www.github.careers,Custom / branded portal,27,7,0,20,0,1,0,0,76,UNKNOWN,public contract not yet observed
+222,383,Glencore Australia,https://www.glencore.com.au/careers,www.glencore.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+223,388,HackerOne,https://www.hackerone.com/careers,www.hackerone.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+224,389,Hapag-Lloyd,https://www.hapag-lloyd.com/en/company/career.html,www.hapag-lloyd.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+225,391,HCLTech,https://www.hcltech.com/careers,www.hcltech.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+226,450,Heritage and People's Choice,https://www.peoplefirstbank.com.au/about-us/careers,www.peoplefirstbank.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+227,62,Hewlett Packard Enterprise,https://careers.hpe.com/us/en/search-results,careers.hpe.com,Custom / branded jobs portal,27,7,0,9,11,1,0,0,9,HEALTHY,successful public response observed
+228,393,Hollard Insurance Company,https://www.hollard.com.au/about-hollard/careers-at-hollard,www.hollard.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+229,394,Iberdrola,https://www.iberdrola.com/careers/careers-iberdrola,www.iberdrola.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+230,397,Illumio,https://www.illumio.com/company/careers,www.illumio.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+231,398,Iluka Resources,https://www.iluka.com/careers/current-opportunities/,www.iluka.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+232,399,Inditex,https://www.inditexpeople.com/,www.inditexpeople.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+233,401,Infineon Technologies,https://www.infineon.com/careers,www.infineon.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+234,403,Inwit,https://www.inwit.it/en/people/careers/,www.inwit.it,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+235,404,Island,https://www.island.io/careers,www.island.io,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+236,405,Jamf,https://www.jamf.com/about/careers/jobs/,www.jamf.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+237,408,JupiterOne,https://www.jupiterone.com/careers,www.jupiterone.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+238,409,Klarna,https://www.klarna.com/careers/,www.klarna.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+239,246,KNDS,https://knds.com/en/careers,knds.com,Multiple / backend unverified,27,15,0,1,11,5,0,0,1,HEALTHY,successful public response observed
+240,411,Kyndryl,https://www.kyndryl.com/us/en/careers,www.kyndryl.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+241,412,Legit Security,https://www.legitsecurity.com/careers,www.legitsecurity.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+242,414,Lloyds Banking Group,https://www.lloydsbankinggroup.com/careers/job-search.html,www.lloydsbankinggroup.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+243,416,London Stock Exchange Group,https://www.lseg.com/en/careers,www.lseg.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+244,417,Macquarie Bank,https://www.macquarie.com/au/en/careers.html,www.macquarie.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+245,418,Maersk,https://www.maersk.com/careers,www.maersk.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+246,73,Manulife,https://careers.manulife.com/global/en/search-results,careers.manulife.com,Custom / branded portal,27,7,0,20,0,1,0,0,76,DEGRADED,public contract not yet observed
+247,420,McKinsey & Company,https://www.mckinsey.com/careers/search-jobs,www.mckinsey.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+248,422,Medtronic,https://www.medtronic.com/en-us/our-company/careers.html,www.medtronic.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+249,423,Menlo Security,https://www.menlosecurity.com/about/life-at-menlo,www.menlosecurity.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+250,426,Moncler,https://www.monclergroup.com/en/careers,www.monclergroup.com,Custom / branded portal,27,7,0,20,0,1,0,0,76,UNKNOWN,public contract not yet observed
+251,427,MongoDB,https://www.mongodb.com/company/careers,www.mongodb.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+252,429,MSC,https://www.msc.com/en/careers,www.msc.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+253,431,Nasdaq,https://www.nasdaq.com/about/careers,www.nasdaq.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+254,432,NAVAL GROUP,https://www.naval-group.com/en/talents,www.naval-group.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+255,433,NCC Group,https://www.nccgroupplc.com/careers/,www.nccgroupplc.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+256,434,Netskope,https://www.netskope.com/company/careers,www.netskope.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+257,436,NEXTDC,https://www.nextdc.com/careers,www.nextdc.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+258,444,NXP Semiconductors,https://www.nxp.com/company/about-nxp/careers:CAREERS,www.nxp.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+259,445,OCBC,https://www.ocbc.com/group/careers/index.page,www.ocbc.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+260,446,Okta,https://www.okta.com/company/careers/job-listing/,www.okta.com,Custom / branded portal,27,7,0,20,0,1,0,0,76,UNKNOWN,public contract not yet observed
+261,449,Pacific International Insurance,https://www.pd.com.au/careers/,www.pd.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+262,448,Palantir Technologies,https://www.palantir.com/careers/,www.palantir.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+263,452,Polestar,https://www.polestar.com/global/about/careers/,www.polestar.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+264,453,Poste Italiane,https://www.posteitaliane.it/en/careers/work-with-us,www.posteitaliane.it,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+265,454,Protiviti,https://www.protiviti.com/us-en/careers,www.protiviti.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+266,85,Qantas,https://careers.qantas.com/,careers.qantas.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,DEGRADED,public contract not yet observed
+267,456,Qualcomm,https://www.qualcomm.com/company/careers,www.qualcomm.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+268,457,Recorded Future,https://www.recordedfuture.com/work-with-us/jobs,www.recordedfuture.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+269,459,Repsol,https://www.repsol.com/en/careers/work-at-repsol/index.cshtml,www.repsol.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+270,91,Resmed,https://careers.resmed.com/,careers.resmed.com,Custom / branded portal,27,7,0,20,0,1,0,0,76,DEGRADED,public contract not yet observed
+271,462,Riot Games,https://www.riotgames.com/en/work-with-us,www.riotgames.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+272,464,Rockwell Automation,https://www.rockwellautomation.com/en-us/company/careers.html,www.rockwellautomation.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+273,465,Rubrik,https://www.rubrik.com/company/careers,www.rubrik.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+274,469,Saipem,https://www.saipem.com/en/people/careers,www.saipem.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+275,470,Sandfire Resources,https://www.sandfire.com.au/careers/,www.sandfire.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+276,473,SentinelOne,https://www.sentinelone.com/jobs/,www.sentinelone.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+277,474,Shopify,https://www.shopify.com/careers,www.shopify.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+278,476,Silverfort,https://www.silverfort.com/careers/,www.silverfort.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+279,477,SIX Group,https://www.six-group.com/en/careers.html,www.six-group.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+280,479,Sonatype,https://www.sonatype.com/company/careers,www.sonatype.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+281,475,Sony Interactive Entertainment,https://www.sie.com/en/careers/,www.sie.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+282,481,SpaceX,https://www.spacex.com/careers/,www.spacex.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+283,472,Standard Chartered,https://www.sc.com/en/global-careers/,www.sc.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+284,484,Starling Bank,https://www.starlingbank.com/careers/,www.starlingbank.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+285,106,State Street,https://careers.statestreet.com/global/en/search-results,careers.statestreet.com,Custom / branded jobs portal,27,7,0,9,11,1,0,0,9,HEALTHY,successful public response observed
+286,483,STMicroelectronics,https://www.st.com/content/st_com/en/about/careers.html,www.st.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+287,486,Sun Life,https://www.sunlife.com/en/careers/,www.sunlife.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+288,487,Sysdig,https://www.sysdig.com/careers/open-positions,www.sysdig.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+289,488,Tanium,https://www.tanium.com/careers/,www.tanium.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+290,489,Tata Consultancy Services (Canada),https://www.tcs.com/careers,www.tcs.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+291,491,Telstra,https://www.telstra.com.au/careers,www.telstra.com.au,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+292,492,TELUS,https://www.telus.com/en/about/careers,www.telus.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+293,494,Tesco,https://www.tesco.com/careers/en-GB,www.tesco.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+294,497,Ubisoft,https://www.ubisoft.com/en-us/company/careers,www.ubisoft.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+295,499,Umicore,https://www.umicore.com/en/careers/,www.umicore.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+296,501,Unipol,https://www.unipol.com/it/persone/lavora-con-noi/job-posting,www.unipol.com,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+297,406,UPS,https://www.jobs-ups.com/,www.jobs-ups.com,Custom / branded portal,27,7,0,20,0,1,0,0,76,UNKNOWN,public contract not yet observed
+298,502,Upwind Security,https://www.upwind.io/careers,www.upwind.io,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+299,504,Vectra AI,https://www.vectra.ai/about/careers,www.vectra.ai,Custom / backend unverified,27,7,0,20,0,1,0,0,148,UNKNOWN,public contract not yet observed
+300,505,Veracode,https://www.veracode.com/job-post/,www.veracode.com,Custom first-party job board,27,7,0,20,0,1,0,0,22,UNKNOWN,public contract not yet observed
+301,284,Wayfair,https://www.aboutwayfair.com/careers,www.aboutwayfair.com,Custom first-party portal,27,7,0,20,0,1,0,0,31,UNKNOWN,public contract not yet observed
+302,509,Zscaler,https://www.zscaler.com/careers/search,www.zscaler.com,Custom / branded portal,27,7,0,20,0,1,0,0,76,UNKNOWN,public contract not yet observed
+303,61,HDI Global Specialty Australia,https://careers.hdi.group/en/your_career_opportunities/job_board,careers.hdi.group,HDI Group careers,26,7,2,1,16,1,10,0,1,HEALTHY,successful public response observed
+304,13,BigID,https://bigid.com/company/careers/,bigid.com,Greenhouse embedded,26,7,1,2,16,1,7,0,2,HEALTHY,successful public response observed
+305,56,FM Insurance Australia,https://careers.fm.com/careers-home,careers.fm.com,Custom / branded global jobs portal,26,7,0,3,16,1,1,0,3,HEALTHY,successful public response observed
+306,350,Calit - Credit Agricole Leasing Italia,https://www.credit-agricole.com/en/candidate,www.credit-agricole.com,Multiple local/entity portals,26,25,0,1,0,10,0,0,1,UNKNOWN,public contract not yet observed
+307,218,Merck &,https://jobs.merck.com/us/en/search-results,jobs.merck.com,Branded portal / backend unverified,26,13,0,2,11,4,0,0,2,HEALTHY,successful public response observed
+308,83,Guild Insurance,https://careers.pageuppeople.com/939/cw/en/job/,careers.pageuppeople.com,PageUp,24,7,0,1,16,1,3,0,1,HEALTHY,successful public response observed
+309,96,Salesforce,https://careers.salesforce.com/en/jobs/,careers.salesforce.com,Custom Salesforce Careers,24,7,0,1,16,1,1,0,1,HEALTHY,successful public response observed
+310,461,American Rheinmetall Defense,https://www.rheinmetall.com/en/career/vacancies,www.rheinmetall.com,Custom corporate portal,24,23,0,1,0,9,0,0,1,UNKNOWN,public contract not yet observed
+311,395,IBM,https://www.ibm.com/careers/search,www.ibm.com,Custom IBM Careers,24,23,0,1,0,9,0,0,1,UNKNOWN,public contract not yet observed
+312,157,Goldman Sachs,https://higher.gs.com/,higher.gs.com,Custom Goldman Sachs portal,23,11,0,1,11,3,0,0,1,HEALTHY,successful public response observed
+313,63,IAG New Zealand | Insurance Australia,https://careers.iag.com.au/global/en/search-results,careers.iag.com.au,IAG branded careers portal,23,11,0,1,11,3,0,0,1,HEALTHY,successful public response observed
+314,291,Amazon,https://www.amazon.jobs/en/search,www.amazon.jobs,Custom Amazon Jobs,22,21,0,1,0,8,0,0,1,UNKNOWN,public contract not yet observed
+315,175,Apple,https://jobs.apple.com/en-us/search,jobs.apple.com,Custom Apple Jobs,21,9,0,1,11,2,0,0,1,HEALTHY,successful public response observed
+316,2,FinecoBank | FinecoBank Banca Fineco,https://about.finecobank.com/en/careers/diventa-un-dipendente/?carreersType=dipendente-consulente,about.finecobank.com,First-party embedded vacancies,21,9,0,1,11,2,0,0,1,HEALTHY,successful public response observed
+317,221,Newmont Australia,https://jobs.newmont.com/us/en/search-results,jobs.newmont.com,Custom / branded global jobs portal,21,7,0,3,11,1,0,0,3,HEALTHY,successful public response observed
+318,93,Roche,https://careers.roche.com/global/en/search-results,careers.roche.com,Workday employment system + branded frontend,21,9,0,1,11,2,0,0,1,HEALTHY,successful public response observed
+319,276,Stripe,https://stripe.com/careers/search,stripe.com,Custom Stripe Careers,21,9,0,1,11,2,0,0,1,HEALTHY,successful public response observed
+320,460,Revolut,https://www.revolut.com/careers/,www.revolut.com,Custom Revolut careers,20,19,0,1,0,7,0,0,1,UNKNOWN,public contract not yet observed
+321,6,Aikido Security,https://aikidosecurity.recruitee.com/,aikidosecurity.recruitee.com,Recruitee,19,7,0,1,11,1,0,0,1,HEALTHY,successful public response observed
+322,151,BPER Banca,https://group.bper.it/en/careers/lavora-con-noi,group.bper.it,Proprietary CV portal / backend unverified,19,7,0,1,11,1,0,0,1,HEALTHY,successful public response observed
+323,222,Protect AI,https://jobs.paloaltonetworks.com/en/,jobs.paloaltonetworks.com,Palo Alto Networks Careers,19,7,0,1,11,1,0,0,1,HEALTHY,successful public response observed
+324,275,Snyk,https://snyk.io/careers/all-jobs/,snyk.io,Custom / branded JS portal,19,7,0,1,11,1,0,0,1,HEALTHY,successful public response observed
+325,377,Faurecia Automotive,https://www.forvia.com/en/careers,www.forvia.com,Multiple: Faurecia + HELLA,18,17,0,1,0,6,0,0,1,UNKNOWN,public contract not yet observed
+326,442,NTT DATA,https://www.nttdata.com/global/en/careers,www.nttdata.com,Multiple local portals,18,15,0,3,0,5,0,0,3,UNKNOWN,public contract not yet observed
+327,447,Oracle,https://www.oracle.com/careers/,www.oracle.com,Oracle-branded / backend not asserted,18,17,0,1,0,6,0,0,1,UNKNOWN,public contract not yet observed
+328,292,American Express,https://www.americanexpress.com/en-us/careers/,www.americanexpress.com,Custom / branded jobs portal,16,7,0,9,0,1,0,0,9,UNKNOWN,public contract not yet observed
+329,305,AT&T,https://www.att.jobs/search-jobs,www.att.jobs,Custom / branded jobs portal,16,7,0,9,0,1,0,0,9,UNKNOWN,public contract not yet observed
+330,308,Autodesk,https://www.autodesk.com/careers/overview,www.autodesk.com,Custom / branded jobs portal,16,7,0,9,0,1,0,0,9,UNKNOWN,public contract not yet observed
+331,443,NVIDIA,https://www.nvidia.com/en-us/about-nvidia/careers/,www.nvidia.com,Custom / branded jobs portal,16,7,0,9,0,1,0,0,9,UNKNOWN,public contract not yet observed
+332,419,MBDA,https://www.mbda-systems.com/careers,www.mbda-systems.com,Multiple local portals,14,11,0,3,0,3,0,0,3,UNKNOWN,public contract not yet observed
+333,381,GitGuardian,https://www.gitguardian.com/job-openings,www.gitguardian.com,Custom / branded careers portal,13,7,0,6,0,1,0,0,6,UNKNOWN,public contract not yet observed
+334,495,Ericsson Nikola Tesla d.d,https://www.tesla.com/careers/search,www.tesla.com,Custom Tesla careers,12,11,0,1,0,3,0,0,1,UNKNOWN,public contract not yet observed
+335,424,Facebook Italy,https://www.metacareers.com/jobs/,www.metacareers.com,Custom Meta Careers,12,11,0,1,0,3,0,0,1,UNKNOWN,public contract not yet observed
+336,378,General Dynamics,https://www.gd.com/careers,www.gd.com,Custom / federated,12,11,0,1,0,3,0,0,1,UNKNOWN,public contract not yet observed
+337,435,Nexi,https://www.nexigroup.com/en/people/careers/job-openings/,www.nexigroup.com,Custom / local ATSs,12,11,0,1,0,3,0,0,1,UNKNOWN,public contract not yet observed
+338,455,Prysmian | PRYSMIAN CABLES ET SYSTEMES FRANCE | PRYSMIAN RIASSICURAZIONI,https://www.prysmian.com/en/people-and-careers/what-we-offer,www.prysmian.com,Embedded/federated job search; backend unverified,12,11,0,1,0,3,0,0,1,UNKNOWN,public contract not yet observed
+339,288,Akamai | Noname Security,https://www.akamai.com/careers,www.akamai.com,Akamai Careers,10,9,0,1,0,2,0,0,1,UNKNOWN,public contract not yet observed
+340,341,Cloudflare,https://www.cloudflare.com/careers/jobs/,www.cloudflare.com,Custom Cloudflare careers,10,9,0,1,0,2,0,0,1,UNKNOWN,public contract not yet observed
+341,380,Gilead Sciences,https://www.gilead.com/careers/opportunities,www.gilead.com,Workday,10,9,0,1,0,2,0,0,1,UNKNOWN,public contract not yet observed
+342,463,Rio Tinto Australia,https://www.riotinto.com/careers/available-jobs,www.riotinto.com,Custom / branded global jobs portal,10,7,0,3,0,1,0,0,3,UNKNOWN,public contract not yet observed
+343,311,Axonius,https://www.axonius.com/company/careers/open-jobs,www.axonius.com,Greenhouse embedded,9,7,0,2,0,1,0,0,2,UNKNOWN,public contract not yet observed
+344,371,Euronext,https://www.euronext.com/en/about/careers/open-positions,www.euronext.com,First-party embedded vacancies / backend unverified,9,7,0,2,0,1,0,0,2,UNKNOWN,public contract not yet observed
+345,392,Hitachi Rail,https://www.hitachirail.com/careers/vacancies/,www.hitachirail.com,First-party embedded vacancies / backend unverified,9,7,0,2,0,1,0,0,2,UNKNOWN,public contract not yet observed
+346,295,Ansvar Insurance,https://www.ansvar.com.au/submit-your-resume/,www.ansvar.com.au,Custom first-party application form,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+347,296,Aon Reinsurance Australia,https://www.aon.com/careers/,www.aon.com,Aon Careers,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+348,300,Arch Lenders Mortgage Indemnity,https://www.archgroup.com/careers/,www.archgroup.com,Arch Careers,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+349,301,Armis,https://www.armis.com/armis-careers/,www.armis.com,SmartRecruiters (ServiceNow parent openings),8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+350,304,Atlassian,https://www.atlassian.com/company/careers,www.atlassian.com,Custom Atlassian Careers,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+351,332,Canva,https://www.canva.com/careers/jobs/,www.canva.com,Custom Canva Careers,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+352,333,GovTech Singapore,https://www.careers.gov.sg/,www.careers.gov.sg,Careers@Gov shared public-sector platform,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+353,344,Grip Security,https://www.comeet.com/jobs/grip/A8.001,www.comeet.com,Comeet,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+354,396,HashiCorp,https://www.ibm.com/careers/search?q=hashicorp,www.ibm.com,IBM Careers,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+355,413,Liberty Specialty Markets Australia,https://www.libertyspecialtymarkets.com/gb-en/careers/current-opportunities/how-to-apply,www.libertyspecialtymarkets.com,Liberty recruitment portal,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+356,508,Red Canary,https://www.zscaler.com/careers,www.zscaler.com,Zscaler Careers,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+357,482,Spotify,https://www.spotifyjobs.com/,www.spotifyjobs.com,Custom Spotify Jobs,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed
+358,390,Traceable AI,https://www.harness.io/company/jobs,www.harness.io,Harness Careers,8,7,0,1,0,1,0,0,1,UNKNOWN,public contract not yet observed

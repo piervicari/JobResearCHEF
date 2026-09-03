@@ -1,0 +1,27 @@
+version: 0.1
+purpose: >-
+  First end-to-end P0 pilot on lower-criticality cybersecurity employers with different
+  career-stack families. The cohort is deliberately small and is not a ranking.
+network_policy:
+  concurrency: 1
+  max_requests_per_portal: 3
+  max_pages_per_portal: 1
+  max_jobs_per_portal: 10
+  retries: 0
+  inter_portal_wait_seconds: 10
+portals:
+  - portal_id: 46
+    employer: Detectify
+    reason: security employer; prior successful access; official Workday route corrected after P0 pilot
+  - portal_id: 535
+    employer: Trellix
+    reason: security employer; prior successful access; official Workday route corrected after P0 pilot
+  - portal_id: 177
+    employer: Horizon3.ai
+    reason: security employer; prior successful access; Ashby
+  - portal_id: 214
+    employer: Safe Security
+    reason: security employer; prior successful access; Lever
+  - portal_id: 280
+    employer: Wazuh
+    reason: security employer; prior successful access; custom/backend-unverified stack
