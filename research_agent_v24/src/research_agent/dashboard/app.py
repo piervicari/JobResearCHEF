@@ -55,7 +55,11 @@ def _engine():
 def main() -> None:
     st.set_page_config(page_title="RESEARCH AGENT - PIER", layout="wide")
     st.title("RESEARCH AGENT - PIER")
-    st.caption("Local-first cybersecurity junior & internship research dashboard")
+    st.caption(
+        "Local-first cybersecurity research agent. V2 keeps every seniority (junior, "
+        "mid, senior, staff, principal, manager, director); semantic classification "
+        "is delegated to the routed JobAnalyzer."
+    )
     st.caption(f"Database: `{_database_url()}`")
     if st.button("Refresh data"):
         st.rerun()

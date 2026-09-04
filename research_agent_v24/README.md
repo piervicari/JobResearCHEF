@@ -74,6 +74,12 @@ given, and cannot be combined with `--limit`. It does not modify the
 database; the next normal `scan-discover` will still honour
 `scan_enabled`.
 
+For controlled probes the scanner budget is overridden on the
+command line via `RESEARCH_AGENT_SCANNER__GLOBAL_CONCURRENCY=1` and
+`RESEARCH_AGENT_SCANNER__MAX_RETRIES=0` so a single portal is hit
+sequentially and conservatively. The persisted YAML default of
+`global_concurrency=8` only applies to bulk / full-registry runs.
+
 ## Google structured-RPC probe
 
 `scripts/run_google_careers_probe.sh` is the next Tier-S validation
@@ -87,7 +93,8 @@ declaring Google PASS/FIX.
 
 ## Network safety
 
-Conservative by default: `concurrency=1`, `per_host=1`,
+The persisted `config/settings.yaml` defaults are
+`global_concurrency=8`, `per_domain_concurrency=1`,
 `per_domain_min_interval_seconds=1.0`, `max_retries=2`,
 `max_response_bytes=20MB`, no rotating proxies, no fingerprint
 spoofing, no CAPTCHA bypass, no browser automation. Respect

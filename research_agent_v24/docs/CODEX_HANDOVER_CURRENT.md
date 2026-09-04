@@ -467,3 +467,102 @@ CLI commands (9): `benchmark-taxonomy`, `validate-master`, `rank-adapter-candida
 After reviewing the smoke test log, the next milestone is **family-level controlled probing of the V25.1 `READY_TO_PROBE` queue** (62 employers, one ATS family at a time, starting with Greenhouse). Before that, an operator-driven, bounded Workday detail-enrichment run (decision 0028 + 0036) would close the most visible gap observed on Proofpoint. No new ATS adapters, no resolver, no scheduler, no Telegram.
 
 STOP. Do not start the next step in this task.
+
+## Update — 2026-09-04: V26.1 — Workday `/apply` detail path closure
+
+A small, local product-wiring closure. No new architecture.
+
+### What changed
+
+- `pipeline/detail_enrichment.py`:
+  - `_DETAIL_ADAPTERS = ("official_html", "workday")` — Workday rows now
+    become detail candidates with the same CYBER / NEEDS_MORE_DETAIL /
+    short-description policy as `official_html`.
+  - `_detail_request_url(source_url, adapter)` and `_collapse_apply_path()`
+    compute the actual detail fetch URL. For Workday this is
+    `source_url + "/apply"`, idempotent against URLs that already end in
+    `/apply`, and never double-appended.
+  - `select_detail_candidates` accepts an optional `portal_ids` filter and
+    runs the same-host check against the *actual* detail URL, not the
+    raw source URL.
+  - `enrich_official_html_details` plumbs the new `portal_ids` argument
+    through to the candidate selector; the existing budget, pacing, and
+    `parse_detail_html` / `_store_detail` paths are reused unchanged.
+- `cli.py` (`enrich-details`):
+  - New optional `--portal-id` (repeatable) flag. When omitted, the
+    command behaves exactly as before.
+- `dashboard/app.py`:
+  - Top caption updated from
+    "Local-first cybersecurity junior & internship research dashboard" to a
+    V2-coherent description that explicitly mentions every seniority.
+- `README.md`:
+  - "Network safety" section now states the persisted default
+    `global_concurrency=8` and notes that controlled probes override
+    it on the command line.
+- `tests/test_detail_enrichment.py`: 9 new tests, including
+  Workday candidate selection, `source_url → /apply` transform,
+  no-double-`/apply`, same-host protection, `official_html` URL
+  invariance, `--portal-id` filtering, and a JSON-LD parsing check
+  using the existing `parse_detail_html`.
+
+### What did NOT change
+
+- The CYBER semantic contract, the LLM routing, the V25.1 control plane,
+  the persistent runtime DB, the dashboard tab list, the `--include-disabled`
+  flag on `scan-discover`, and the `2000-01-01` sentinel for unknown
+  verification dates are all untouched in this task.
+- The 89 pre-existing ruff violations were left alone; the only new
+  violations introduced by V26.1 were fixed (back to the 89 baseline).
+
+### End-to-end live test on NVIDIA
+
+`/apply` is confirmed consistent across three Workday tenants
+(NVIDIA, CrowdStrike, Proofpoint — all 200 OK, JSON-LD `JobPosting`
+present, description 4,355 / 8,818 / 7,495 characters respectively,
+same-host in all three cases).
+
+A live E2E on NVIDIA portal 539 produced this sequence in
+`output/test_runs/workday_enrich_v261_20260904-110109.log`:
+
+```
+scan-discover --portal-id 539 --include-disabled
+  → 15 jobs persisted (PENDING_AI, 0/15 descrizioni)
+triage-pending --portal-id 539 --limit 20
+  → 14 obvious_non_cyber + 1 candidate
+analyze-pending --portal-id 539 --limit 20
+  → 1 NEEDS_MORE_DETAIL (job 659, Senior ML Engineer, AI Safety)
+enrich-details --portal-id 539 --limit 5
+  → 2 request (robots.txt + /apply), 200 OK,
+    description_chars=5597, parser=json_ld_jobposting,
+    detail_url=...JR2024679/apply, PENDING_AI (re-queue)
+analyze-pending --portal-id 539 --limit 5
+  → 1 CYBER (cyber=True, needs_more=False)
+```
+
+Total request budget consumed: 2 HTTPS + 3 LLM calls. No retries, no
+cooldowns triggered. The re-analysis with the real 5.6KB description
+re-classified the job as CYBER with `needs_more=False` and persisted
+a `JobAiAnalysis` row.
+
+### Quantitative summary
+
+| Metric | Before V26.1 | After V26.1 |
+|---|---:|---:|
+| Pytest passed | 254 | 263 (+9 new) |
+| Ruff violations | 89 | 89 (no new) |
+| CLI commands in `cli.py` | 24 | 24 |
+| New files | — | 0 |
+| Files modified | — | 3 (`detail_enrichment.py`, `cli.py`, `app.py`, `README.md`) |
+| Lines added in `detail_enrichment.py` | — | ~30 |
+| New tests | — | 9 (all in `test_detail_enrichment.py`) |
+
+### Suggested next test (do not implement here)
+
+A bounded Workday detail-enrichment run over the existing CORE_200
+Workday portals (NVIDIA 539, Proofpoint 265, Crowdstrike 138, PayPal
+514, Intel 521, etc.) — i.e. a `--portal-id 539,265,138,514,521`
+operator action over the persistent runtime DB, with a small
+`--limit` per portal, then a single `analyze-pending` covering all
+five. The expected outcome is a meaningful increase in
+`detail_description_nonempty` and a lower `NEEDS_MORE_DETAIL` count
+without any new architecture.

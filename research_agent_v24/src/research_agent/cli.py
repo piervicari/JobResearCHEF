@@ -627,6 +627,16 @@ def enrich_details_command(
     max_jobs_per_host: Annotated[
         int, typer.Option(min=1, max=5, help="Safety cap for detail pages fetched from one host per run."),
     ] = 2,
+    portal_ids: Annotated[
+        list[int] | None,
+        typer.Option(
+            "--portal-id",
+            help=(
+                "Optional portal filter; repeat as needed. When omitted, the existing "
+                "behaviour is preserved (all CYBER/NEEDS_MORE_DETAIL detail candidates)."
+            ),
+        ),
+    ] = None,
     dry_run: Annotated[
         bool, typer.Option("--dry-run", help="Show exact candidate URLs; zero network requests."),
     ] = False,
@@ -641,21 +651,25 @@ def enrich_details_command(
         limit=limit,
         min_description_chars=min_description_chars,
         max_jobs_per_host=max_jobs_per_host,
+        portal_ids=set(portal_ids) if portal_ids else None,
     )
     if dry_run:
         typer.echo("DETAIL ENRICHMENT DRY RUN — zero network and zero LLM requests")
+        portal_filter = f" portal_ids={sorted(portal_ids)}" if portal_ids else ""
         typer.echo(
             f"selected_jobs: {len(candidates)} limit={limit} min_description_chars={min_description_chars} "
-            f"max_jobs_per_host={max_jobs_per_host}"
+            f"max_jobs_per_host={max_jobs_per_host}{portal_filter}"
         )
         typer.echo(
-            "policy: official_html only; same-host detail URLs; CYBER first; then NEEDS_MORE_DETAIL; "
+            "policy: official_html + workday detail candidates; same-host detail URLs; "
+            "Workday fetches source_url + '/apply'; CYBER first; then NEEDS_MORE_DETAIL; "
             "bounded per-host detail fetches"
         )
         for item in candidates:
             typer.echo(
                 f"job_id={item.job_id} status={item.ai_status} company={item.company!r} "
-                f"title={item.title!r} description_chars={item.description_chars} url={item.source_url}"
+                f"title={item.title!r} description_chars={item.description_chars} "
+                f"request_url={item.request_url}"
             )
         return
 
@@ -692,6 +706,7 @@ def enrich_details_command(
             inter_job_wait_seconds=10.0,
             cache_directory=cache_directory,
             progress_callback=progress,
+            portal_ids=set(portal_ids) if portal_ids else None,
         )
     )
     for key, value in asdict(summary).items():

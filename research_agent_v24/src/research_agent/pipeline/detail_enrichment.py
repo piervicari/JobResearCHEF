@@ -28,7 +28,7 @@ from research_agent.config import ScannerSettings
 from research_agent.db.migrations import create_schema
 from research_agent.db.models import Portal, SourceJob
 from research_agent.pipeline.cache import FileResponseCache
-from research_agent.pipeline.http import FetchError, FetchRequest, HttpFetcher
+from research_agent.pipeline.http import FetchRequest, HttpFetcher
 
 
 @dataclass(frozen=True)
@@ -39,6 +39,7 @@ class DetailCandidate:
     title: str
     ai_status: str
     source_url: str
+    request_url: str
     host: str
     description_chars: int
 
@@ -67,12 +68,48 @@ class DetailEnrichmentSummary:
     pending_ai_after: int
 
 
+# Adapters whose second-stage detail page is a same-host public apply URL
+# (Workday's `/apply` returns a JSON-LD JobPosting even though the listing
+# is a JS-rendered SPA). The pattern is: source_url + "/apply" must still
+# resolve on the same host as the portal.
+_DETAIL_ADAPTERS = ("official_html", "workday")
+
+
+def _detail_request_url(source_url: str, adapter: str) -> str:
+    """Return the URL the detail fetcher should hit.
+
+    For `official_html` and `workday` we use the canonical public detail
+    page. Workday exposes the description only on `/apply`; appending a
+    second `/apply` to a URL that already ends in `/apply` is a no-op
+    because the path is collapsed before the request.
+    """
+    base = source_url.rstrip("/")
+    if adapter == "workday":
+        if base.endswith("/apply"):
+            return base
+        return base + "/apply"
+    return base
+
+
+def _collapse_apply_path(path: str) -> str:
+    """Ensure the URL has exactly one trailing `/apply` segment, even if
+    the source URL already ended with one (defensive against double-slash
+    artefacts and chained transformations)."""
+    if not path:
+        return path
+    suffix = "/apply"
+    while path.endswith(suffix + suffix):
+        path = path[: -len(suffix)]
+    return path
+
+
 def select_detail_candidates(
     engine: Engine,
     *,
     limit: int = 5,
     min_description_chars: int = 500,
     max_jobs_per_host: int = 2,
+    portal_ids: set[int] | None = None,
 ) -> list[DetailCandidate]:
     if limit < 1:
         raise ValueError("limit must be >= 1")
@@ -80,19 +117,25 @@ def select_detail_candidates(
         raise ValueError("max_jobs_per_host must be >= 1")
     create_schema(engine)
     with Session(engine) as session:
-        rows = session.scalars(
+        statement = (
             select(SourceJob)
             .where(
                 SourceJob.is_active.is_(True),
-                SourceJob.adapter == "official_html",
+                SourceJob.adapter.in_(_DETAIL_ADAPTERS),
                 SourceJob.ai_status.in_(("CYBER", "NEEDS_MORE_DETAIL")),
             )
             .order_by(SourceJob.id)
-        ).all()
+        )
+        if portal_ids is not None:
+            if not portal_ids:
+                return []
+            statement = statement.where(SourceJob.portal_id.in_(portal_ids))
+        rows = session.scalars(statement).all()
+        portal_ids_for_lookup = {row.portal_id for row in rows if row.portal_id}
         portals = {
             portal.id: portal
             for portal in session.scalars(
-                select(Portal).where(Portal.id.in_({row.portal_id for row in rows if row.portal_id}))
+                select(Portal).where(Portal.id.in_(portal_ids_for_lookup))
             ).all()
         }
 
@@ -110,10 +153,14 @@ def select_detail_candidates(
             continue
         portal = portals[row.portal_id]
         url = row.source_url or row.apply_url
-        parsed = urlsplit(url)
-        if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        if not url:
             continue
-        if parsed.hostname.casefold() != portal.host.casefold():
+        # Compute the actual detail request URL for this adapter.
+        request_url = _collapse_apply_path(_detail_request_url(url, row.adapter))
+        parsed_source = urlsplit(request_url)
+        if parsed_source.scheme not in {"http", "https"} or not parsed_source.hostname:
+            continue
+        if parsed_source.hostname.casefold() != portal.host.casefold():
             # The first conservative implementation never follows a generic anchor onto a
             # third-party host. Structured ATS detail enrichment is a separate future adapter.
             continue
@@ -128,6 +175,7 @@ def select_detail_candidates(
                 title=row.detail_title or row.raw_title,
                 ai_status=row.ai_status,
                 source_url=url,
+                request_url=request_url,
                 host=portal.host,
                 description_chars=len(effective_description),
             )
@@ -148,6 +196,7 @@ async def enrich_official_html_details(
     inter_job_wait_seconds: float = 10.0,
     cache_directory: Path | None = None,
     progress_callback=None,
+    portal_ids: set[int] | None = None,
 ) -> DetailEnrichmentSummary:
     """Fetch a tiny bounded set of same-host official job pages and requeue changed jobs."""
 
@@ -156,6 +205,7 @@ async def enrich_official_html_details(
         limit=limit,
         min_description_chars=min_description_chars,
         max_jobs_per_host=max_jobs_per_host,
+        portal_ids=portal_ids,
     )
     if not candidates:
         return DetailEnrichmentSummary(0, 0, 0, 0, 0, 0, _pending_count(engine))
@@ -193,16 +243,25 @@ async def enrich_official_html_details(
     async with fetcher:
         for index, candidate in enumerate(candidates, start=1):
             if progress_callback:
-                progress_callback({"event": "detail_start", "index": index, "count": len(candidates), "candidate": candidate})
+                progress_callback(
+                    {
+                        "event": "detail_start",
+                        "index": index,
+                        "count": len(candidates),
+                        "candidate": candidate,
+                    }
+                )
             try:
+                # robots check is run against the actual detail URL, not the
+                # raw source URL, because that's what we will actually fetch.
                 allowed, robots_requests = await _robots_allows(
-                    fetcher, candidate.source_url, robots, user_agent="research-agent-pier"
+                    fetcher, candidate.request_url, robots, user_agent="research-agent-pier"
                 )
                 request_count += robots_requests
                 if not allowed:
                     raise RuntimeError("robots.txt disallows detail URL")
                 response = await fetcher.fetch(
-                    FetchRequest(candidate.source_url, headers={"Accept": "text/html,*/*;q=0.8"})
+                    FetchRequest(candidate.request_url, headers={"Accept": "text/html,*/*;q=0.8"})
                 )
                 request_count += 1
                 if not 200 <= response.status_code < 300:
