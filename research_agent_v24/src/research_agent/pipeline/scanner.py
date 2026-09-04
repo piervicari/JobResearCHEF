@@ -60,17 +60,30 @@ class ScanSummary:
 
 
 def load_portal_targets(
-    engine: Engine, *, portal_ids: set[int] | None = None, limit: int | None = None
+    engine: Engine,
+    *,
+    portal_ids: set[int] | None = None,
+    limit: int | None = None,
+    include_disabled: bool = False,
 ) -> list[PortalTarget]:
+    """Resolve scan-eligible Portal rows to PortalTarget objects.
+
+    `include_disabled=True` is only meaningful with an explicit `portal_ids` set.
+    It allows probing a single `READY_TO_PROBE` portal whose `scan_enabled` flag
+    is intentionally `False` (operational sources land in this state after the
+    V25.1 sync unless an operator opts them in). The flag never modifies the
+    database; the next normal scan still honours `scan_enabled`.
+    """
+    if include_disabled and portal_ids is None:
+        raise ValueError("include_disabled requires an explicit portal_ids set")
     with Session(engine) as session:
         statement = (
             select(Portal)
-            .where(
-                Portal.active_in_registry.is_(True),
-                Portal.scan_enabled.is_(True),
-            )
+            .where(Portal.active_in_registry.is_(True))
             .order_by(Portal.host, Portal.normalized_jobs_url)
         )
+        if not include_disabled:
+            statement = statement.where(Portal.scan_enabled.is_(True))
         if portal_ids is not None:
             statement = statement.where(Portal.id.in_(portal_ids))
         if limit is not None:
@@ -98,11 +111,16 @@ async def scan_portals(
     limit: int | None = None,
     allow_all: bool = False,
     ignore_cooldowns: bool = False,
+    include_disabled: bool = False,
     transport: httpx.AsyncBaseTransport | None = None,
     cache_directory: Path | None = None,
     run_source: str = "official_portals",
 ) -> ScanSummary:
     create_schema(engine)
+    if include_disabled and portal_ids is None:
+        raise ValueError("include_disabled requires an explicit portal_ids set")
+    if include_disabled and limit is not None:
+        raise ValueError("--include-disabled cannot be combined with --limit")
     if portal_ids is None and limit is None and not allow_all:
         raise ValueError(
             "Safety gate: select portal_ids or a limit; pass allow_all=True only for an "
@@ -110,7 +128,9 @@ async def scan_portals(
         )
     if limit is not None and limit < 1:
         raise ValueError("limit must be at least 1")
-    targets = load_portal_targets(engine, portal_ids=portal_ids, limit=limit)
+    targets = load_portal_targets(
+        engine, portal_ids=portal_ids, limit=limit, include_disabled=include_disabled
+    )
     if not targets:
         raise ValueError("No active portals selected")
 

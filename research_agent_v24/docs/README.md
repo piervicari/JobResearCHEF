@@ -11,8 +11,8 @@ that it describes.
 ## Start here
 
 - [`../README.md`](../README.md): product scope, setup and common commands.
-- [`STATUS.md`](STATUS.md): verified implementation state and current milestone.
-- [`ROADMAP.md`](ROADMAP.md): ordered execution plan and completion gates.
+- [`CODEX_HANDOVER_CURRENT.md`](CODEX_HANDOVER_CURRENT.md): cumulative current-state handover.
+- [`ROADMAP_V2.md`](ROADMAP_V2.md): current product roadmap.
 - [`OPERATIONS.md`](OPERATIONS.md): safe local operation, backups, scan gates and recovery.
 - [`TESTING.md`](TESTING.md): test layers, offline guarantees and release verification.
 - [`../SECURITY.md`](../SECURITY.md): trust boundaries, vulnerability reporting and known risks.
@@ -20,8 +20,6 @@ that it describes.
 
 ## Design and decisions
 
-- [`CRITICAL_ANALYSIS.md`](CRITICAL_ANALYSIS.md): prioritized gaps and work that should not be done
-  yet.
 - [`architecture/`](architecture/): accepted Architecture Decision Records (ADRs). Add an ADR when
   changing a trust boundary, persistence invariant, external-source contract or irreversible design
   choice.
@@ -37,29 +35,25 @@ that it describes.
   reconstruction, acceptance, dashboard and recovery audit.
 - [`reports/dashboard_analytics_validation_v2.md`](reports/dashboard_analytics_validation_v2.md):
   query, filter and rendered-browser evidence for the complete handover analytics.
-- [`reports/mvp_definition_of_done_audit_v1.md`](reports/mvp_definition_of_done_audit_v1.md): explicit
-  18/18 reconciliation against the original MVP Definition of Done.
 - [`reports/source_operation_final_hardening_v1.md`](reports/source_operation_final_hardening_v1.md):
   source cadence, LinkedIn contingency and architecture-trigger decisions.
 
 ## Documentation lifecycle
 
 Every document should state facts that can be verified from code, configuration or a named report.
-Use `STATUS.md` for current facts, ADRs for decisions and consequences, and `OPERATIONS.md` for
-procedures. Do not silently rewrite historical reports after behavior changes; create a new report
-or clearly record its regeneration date and inputs.
+Use `CODEX_HANDOVER_CURRENT.md` for current facts, ADRs for decisions and consequences, and
+`OPERATIONS.md` for procedures. Do not silently rewrite historical reports after behavior changes;
+create a new report or clearly record its regeneration date and inputs.
 
 
 ## Current product roadmap
 
-Use [`ROADMAP_V2.md`](ROADMAP_V2.md) for the current cyber-pilot direction. `ROADMAP.md` is retained as historical evidence of the completed deterministic-filtering MVP.
+Use [`ROADMAP_V2.md`](ROADMAP_V2.md) for the current cyber-pilot direction. Historical evidence of
+the completed deterministic-filtering MVP lives in `docs/reports/` and `docs/architecture/`.
 
 ## V2 current path
 
 - [`ROADMAP_V2.md`](ROADMAP_V2.md) — current product roadmap.
-- [`V2_IMPLEMENTATION_STATUS.md`](V2_IMPLEMENTATION_STATUS.md) — what is implemented vs still pending.
-- [`V2_QUICKSTART.md`](V2_QUICKSTART.md) — safe operational sequence.
-- [`LIVE_CANARY_TEST_PLAN.md`](LIVE_CANARY_TEST_PLAN.md) — low-impact network canary policy.
+- [`CODEX_HANDOVER_CURRENT.md`](CODEX_HANDOVER_CURRENT.md) — cumulative state for the next coding
+  agent.
 - [`decisions/`](decisions/) — versioned product/implementation decisions.
-
-- [`LLM_ROUTING_BENCHMARK_2026-09-02.md`](LLM_ROUTING_BENCHMARK_2026-09-02.md) — benchmark basis and task-difficulty model assignments for the routed JobAnalyzer.

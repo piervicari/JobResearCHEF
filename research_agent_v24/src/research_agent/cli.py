@@ -710,6 +710,17 @@ def scan_discover_command(
         int | None,
         typer.Option(min=1, help="Scan at most N registry portals in stable order."),
     ] = None,
+    include_disabled: Annotated[
+        bool,
+        typer.Option(
+            "--include-disabled",
+            help=(
+                "Probe a portal even when its scan_enabled flag is False. "
+                "Requires an explicit --portal-id; cannot be combined with --limit. "
+                "Does not modify the database."
+            ),
+        ),
+    ] = False,
     database_url: Annotated[
         str | None, typer.Option(help="Override the configured database URL.")
     ] = None,
@@ -722,6 +733,10 @@ def scan_discover_command(
 
     if not portal_ids and limit is None:
         raise typer.BadParameter("select --portal-id or --limit; V2 discovery has no --all shortcut")
+    if include_disabled and not portal_ids:
+        raise typer.BadParameter("--include-disabled requires at least one --portal-id")
+    if include_disabled and limit is not None:
+        raise typer.BadParameter("--include-disabled cannot be combined with --limit")
     settings = get_settings()
     engine = _engine(database_url)
     if backup:
@@ -741,6 +756,7 @@ def scan_discover_command(
             portal_ids=set(portal_ids) if portal_ids else None,
             limit=limit,
             allow_all=False,
+            include_disabled=include_disabled,
             cache_directory=cache_directory,
             run_source="official_portals_v2_discovery",
         )

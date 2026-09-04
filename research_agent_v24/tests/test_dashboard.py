@@ -347,3 +347,26 @@ def test_portal_issue_categories_are_actionable(
         error_message=message,
     )
     assert classify_portal_issue(portal, attempt) == expected
+
+
+def test_dashboard_top_bar_keeps_legacy_canonicaljob_out_of_main_view() -> None:
+    """The dashboard must not present the legacy CanonicalJob counters as the
+    primary V2 product metrics. They are intentionally demoted to a closed
+    expander so an empty CanonicalJob table does not look like an empty V2
+    pipeline."""
+    from research_agent.dashboard import app as dashboard_app
+
+    source = dashboard_app.__file__
+    text = Path(source).read_text(encoding="utf-8")
+    # The "AI-first cyber pipeline" subheader is the V2 product view; it must
+    # come before the legacy CanonicalJob expander in the source file.
+    ai_idx = text.find('"AI-first cyber pipeline"')
+    legacy_idx = text.find("Legacy CanonicalJob metrics")
+    assert ai_idx != -1
+    assert legacy_idx != -1
+    assert ai_idx < legacy_idx
+    # The literal "Active jobs" metric label only appears in the legacy
+    # expander block, never as a top-level metric on the V2 view.
+    legacy_block = text[legacy_idx:]
+    assert "Legacy active jobs" in legacy_block
+    assert "Active jobs" not in legacy_block.split("Legacy active jobs")[0]

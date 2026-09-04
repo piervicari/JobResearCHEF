@@ -329,6 +329,42 @@ def test_cloudflare_interstitial_still_counts_as_access_challenge() -> None:
     assert HttpFetcher._contains_challenge(html) is True
 
 
+def test_scan_portals_include_disabled_requires_explicit_portal_ids(
+    sqlite_engine: Engine, tmp_path: Path
+) -> None:
+    """scan_portals(include_disabled=True) is only valid with an explicit
+    portal_ids set and cannot be combined with limit."""
+    settings = ScannerSettings()
+    def handler(_request: httpx.Request) -> httpx.Response:
+        return httpx.Response(200, json={"jobs": []})
+    # 1) No portal_ids → ValueError.
+    with pytest.raises(ValueError, match="include_disabled requires an explicit portal_ids set"):
+        asyncio.run(
+            scan_portals(
+                sqlite_engine,
+                AdapterRegistry([_FetchingAdapter()]),
+                settings,
+                include_disabled=True,
+                transport=httpx.MockTransport(handler),
+                cache_directory=tmp_path / "cache",
+            )
+        )
+    # 2) limit + include_disabled → ValueError.
+    with pytest.raises(ValueError, match="--include-disabled cannot be combined with --limit"):
+        asyncio.run(
+            scan_portals(
+                sqlite_engine,
+                AdapterRegistry([_FetchingAdapter()]),
+                settings,
+                portal_ids={1},
+                limit=1,
+                include_disabled=True,
+                transport=httpx.MockTransport(handler),
+                cache_directory=tmp_path / "cache",
+            )
+        )
+
+
 def test_http_fetcher_supports_form_encoded_post_without_json_body() -> None:
     seen: dict[str, str] = {}
 

@@ -71,14 +71,28 @@ def main() -> None:
     ai_top[2].metric("Needs detail", ai_metrics["needs_detail"])
     ai_top[3].metric("Non-cyber classified", ai_metrics["non_cyber"])
 
-    top = st.columns(7)
-    top[0].metric("Active jobs", jobs_metrics.active_jobs)
-    top[1].metric("Included", jobs_metrics.included_active_jobs)
-    top[2].metric("Needs review", jobs_metrics.review_jobs)
-    top[3].metric("Resolved clusters", f"{coverage.resolved_clusters:,}")
-    top[4].metric("Scannable portals", f"{coverage.scannable_portals:,}")
-    top[5].metric("Healthy portals", coverage.healthy_portals)
-    top[6].metric("Broken portals", coverage.broken_portals)
+    coverage_top = st.columns(4)
+    coverage_top[0].metric("Resolved clusters", f"{coverage.resolved_clusters:,}")
+    coverage_top[1].metric("Scannable portals", f"{coverage.scannable_portals:,}")
+    coverage_top[2].metric("Healthy portals", coverage.healthy_portals)
+    coverage_top[3].metric("Broken portals", coverage.broken_portals)
+
+    # The CanonicalJob layer is the legacy deterministic-MVP view; the V2
+    # product path reads SourceJob + JobAiAnalysis directly. We keep the legacy
+    # numbers around (they're cheap) but no longer present them as the main
+    # top bar — that confuses operators into thinking "Active jobs = 0" means
+    # the AI pipeline is empty.
+    with st.expander("Legacy CanonicalJob metrics (deterministic MVP, read-only)", expanded=False):
+        st.caption(
+            "These counters come from the legacy `canonical_jobs` table populated by "
+            "`process_scan_results`. The V2 product path uses `source_jobs` + "
+            "`job_ai_analyses` (see the AI-first cyber pipeline above). Kept here for "
+            "backwards compatibility; do not treat them as the current product view."
+        )
+        legacy_top = st.columns(3)
+        legacy_top[0].metric("Legacy active jobs", jobs_metrics.active_jobs)
+        legacy_top[1].metric("Legacy included", jobs_metrics.included_active_jobs)
+        legacy_top[2].metric("Legacy needs review", jobs_metrics.review_jobs)
 
     ai_tab, review_tab, jobs_tab, health_tab, coverage_tab, runs_tab = st.tabs(
         ["AI Cyber V2", "Legacy review", "Legacy jobs", "Portal health", "Coverage", "Runs"]

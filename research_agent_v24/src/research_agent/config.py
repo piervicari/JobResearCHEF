@@ -32,7 +32,7 @@ class ScannerSettings(BaseModel):
     backoff_max_seconds: float = Field(default=30.0, ge=0)
     max_retry_after_seconds: float = Field(default=60.0, ge=0)
     jitter_seconds: float = Field(default=0.5, ge=0)
-    max_response_bytes: int = Field(default=10_000_000, ge=1)
+    max_response_bytes: int = Field(default=20_000_000, ge=1)
     max_redirects: int = Field(default=10, ge=0, le=20)
     max_requests_per_host_per_run: int = Field(default=30, ge=1)
     max_requests_per_run: int = Field(default=500, ge=1)

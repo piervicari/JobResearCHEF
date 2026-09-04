@@ -230,3 +230,16 @@ def test_fetcher_detects_known_challenge_redirect_endpoint() -> None:
                 await fetcher.fetch(FetchRequest("https://jobs.example.test/openings"))
 
     asyncio.run(run())
+
+
+def test_scanner_default_max_response_bytes_is_20mb() -> None:
+    """The 10MB ceiling was the root cause of the OpenAI Ashby smoke failure:
+    a normal supported employer now ships a ~12.6MB JobPosting payload. The
+    default must accommodate that envelope out of the box."""
+    from research_agent.config import ScannerSettings, load_yaml, PROJECT_ROOT
+
+    settings = ScannerSettings()
+    assert settings.max_response_bytes == 20_000_000
+
+    yaml_values = load_yaml(PROJECT_ROOT / "config" / "settings.yaml")
+    assert yaml_values["scanner"]["max_response_bytes"] == 20_000_000

@@ -894,9 +894,7 @@ def sync_operational_sources(
             key = (cluster_id, normalized)
             mapping = existing_mappings_by_key.get(key)
             verified_date = (
-                date.fromisoformat(row.last_verified_at)
-                if row.last_verified_at
-                else date(1970, 1, 1)
+                date.fromisoformat(row.last_verified_at) if row.last_verified_at else None
             )
             if mapping is None:
                 mapping = ClusterPortalMapping(
@@ -910,7 +908,11 @@ def sync_operational_sources(
                     ats_confidence=_ats_confidence_from_evidence(row.evidence_state),
                     portal_resolution_status=row.evidence_state,
                     portal_verification_url=row.evidence_url or row.canonical_careers_url,
-                    portal_verified_date=verified_date,
+                    # `portal_verified_date` is NOT NULL in the schema, so we
+                    # have to write something on first insert. 2000-01-01 is
+                    # the documented "unknown" sentinel for new mappings and
+                    # is never confused with a real verification date.
+                    portal_verified_date=verified_date or date(2000, 1, 1),
                     resolution_parent_override="",
                     resolution_wave=source_version,
                     source_record_count=0,
@@ -934,7 +936,10 @@ def sync_operational_sources(
                 mapping.portal_verification_url = (
                     row.evidence_url or mapping.portal_verification_url
                 )
-                mapping.portal_verified_date = verified_date
+                # Never overwrite a real verified date with a blank one from a
+                # later CSV row — the operator has to explicitly retract it.
+                if verified_date is not None:
+                    mapping.portal_verified_date = verified_date
                 mapping.resolution_wave = source_version
                 mapping.import_batch_id = batch.id
                 updated_mappings += 1
@@ -1085,7 +1090,9 @@ def _infer_ats_family(normalized: str) -> str:
         return "Workday"
     if "phenom" in host:
         return "Phenom"
-    if "oraclecloud.com" in host or "taleo" in host:
+    if "taleo" in host:
+        return "Taleo"
+    if "oraclecloud.com" in host:
         return "Oracle Recruiting Cloud"
     if "avature" in host:
         return "Avature"

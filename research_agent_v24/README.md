@@ -1,139 +1,121 @@
 # RESEARCH AGENT - PIER
 
-> **V2 pilot note (2026-09-02):** the current product direction is documented in `docs/ROADMAP_V2.md`, `docs/V2_QUICKSTART.md` and `docs/decisions/`. The historical deterministic MVP described later in this README is retained for provenance but is **not** the V2 product path. V2 stores discovered source jobs before semantic processing, keeps all cybersecurity seniorities, and delegates job semantics to the routed `JobAnalyzer`. Use `scan-discover` / `analyze-pending`, not legacy `scan-official` / `reclassify-current`, for V2 testing.
+Local-first research agent that monitors a curated set of employers through
+their official career sites, persists raw discoveries durably, and uses a
+free-only LLM (with retry-aware routing) to interpret job semantics in
+cybersecurity. Current product line: `V2.6` (post-cleanup).
 
-MVP local-first per la ricerca manualmente avviata di vacancy cybersecurity junior,
-graduate e internship. Il sistema separa rigorosamente:
+## Setup
 
-```text
-company universe -> portal registry -> job observations
-```
-
-Il file autorevole storico e' `data/company_universe/master_company_universe_v1_5_portal_resolution_wave5.csv`;
-il corrente snapshot sincronizzato e'
-`data/company_universe/master_company_universe_v1_10_portal_resolution_wave6.csv`. Le Wave 1-5 non
-vengono ricostruite. Correzioni e Wave 6 sono batch versionati; gli asset originali nella root sono
-conservati come consegna immutata.
-
-## Avvio locale
-
-Requisiti: Python 3.12+ e `uv`.
+Requirements: Python 3.12+ and `uv`.
 
 ```bash
-uv sync --dev
-uv run research-agent init-db
-uv run research-agent import-master
-uv run research-agent validate-master --report docs/reports/milestone_1_validation.md
-uv run pytest
+uv sync --dev --extra dashboard
+uv run research-agent bootstrap-secrets
+./scripts/bootstrap_runtime_db.sh
+./scripts/ensure_dashboard.sh
 ```
 
-Controllare il routing degli adapter senza fare rete:
+The persistent runtime DB lives at
+`~/.local/share/research-agent/research_agent.db`. The dashboard binds to
+`http://127.0.0.1:8501`. The project-local `data/research_agent.db` is the
+legacy V1 path and is no longer touched by the operator flow.
 
-```bash
-uv run research-agent adapter-coverage
-```
-
-Una scansione richiede sempre un limite esplicito o una lista di Portal ID. Per esempio:
-
-```bash
-uv run research-agent scan-official --portal-id 160 --portal-id 177
-```
-
-`--all` e' disponibile solo come opt-in esplicito. Non e' stato usato durante lo sviluppo MVP.
-
-Dashboard locale:
-
-```bash
-uv sync --extra dashboard
-uv run --extra dashboard streamlit run src/research_agent/dashboard/app.py
-```
-
-LinkedIn e' integrato nell'MVP tramite import manuale controllato, senza scraping o automazione di
-login. Copiare e compilare `data/import_templates/linkedin_jobs.csv`, quindi:
-
-```bash
-uv run research-agent ingest-linkedin-csv path/to/linkedin_jobs.csv
-```
-
-Dopo una modifica alla tassonomia, riclassificare gli snapshot correnti senza rete:
-
-```bash
-uv run research-agent reclassify-current
-```
-
-Misurare precisione e recall dei filtri sul benchmark etichettato, sempre senza rete:
-
-```bash
-uv run research-agent benchmark-taxonomy
-```
-
-Il database SQLite predefinito e' `data/research_agent.db`. Puo' essere cambiato con
-`RESEARCH_AGENT_DATABASE_URL`.
-
-## Stato verificato
-
-- Milestone 1: tutti i sei acceptance criteria esatti sono PASS.
-- Routing: 123 portali strutturati e 369 fallback HTML incompleti attualmente scansionabili. I contratti
-  SuccessFactors, Workday, Phenom, Oracle Recruiting Cloud e Avature hanno fixture e canary live.
-- Rollout: le coorti corrette da 50 e 100 hanno superato il gate; il run 26 ha avuto 8% di failure,
-  zero retry e zero `429`.
-- Tassonomia: benchmark versionato di 212 casi, decisione finale 100% e gate 95% PASS.
-- Dashboard: review, lifecycle confidence, portal health, adapter coverage e cluster prioritari.
-- Wave 6: 100 cluster prioritizzati, 15 risolti da fonti ufficiali e 85 differiti senza mapping
-  forzato; il master v1.10 conserva 12.503 record.
-- Qualita': 169 test, master validation, benchmark, dashboard smoke, audit da database vuoto,
-  backup/recovery e Ruff PASS. La verifica offline e' anche codificata in CI.
-
-Il dettaglio corrente e' in `docs/STATUS.md` e
-`docs/reports/adapter_rollout_2026-08-31.md`. Il routing al fallback HTML non equivale a copertura
-strutturata verificata.
-
-## Vincoli MVP
-
-- nessun people research o CV fit;
-- niente ruoli SWE generici o senior;
-- Italia inclusa e Middle East escluso;
-- HTTP/API only nel runtime corrente; l'automazione browser e' esclusa da ADR 0008;
-- nessun bypass di login, CAPTCHA o rate limit;
-- dedup prima per Corporate Cluster ID, poi per Jobs Search URL normalizzato;
-- provenance e auditability sono parte del modello dati.
-
-Le decisioni architetturali, lo stato delle milestone e l'analisi critica sono in `docs/`.
-L'indice della documentazione e' in `docs/README.md`; prima di una scansione live leggere il
-runbook `docs/OPERATIONS.md` e la policy `SECURITY.md`.
-
-## Current one-command operator flow
-
-For the current V2/P0 path, prefer:
+## One-command operator flow
 
 ```bash
 ./scripts/run_core_trial.sh
 ```
 
-The script syncs development + dashboard dependencies, reuses persistent secrets, initializes/migrates the persistent runtime DB at `~/.local/share/research-agent/research_agent.db`, ensures the Streamlit dashboard is running at `http://127.0.0.1:8501`, and then launches the bounded core-employer expansion. A healthy managed dashboard is not started twice.
+The script syncs development + dashboard dependencies, reuses persistent
+secrets, initializes/migrates the persistent runtime DB, ensures the
+Streamlit dashboard is running, and runs a bounded core-employer scan.
+A healthy managed dashboard is not started twice.
 
+## Current V2 product path
 
-## V23 — Stripe structured-source probe
-
-The first core expansion showed that an HTTP-200 corporate careers page can still be `EMPTY_INCOMPLETE`. Stripe is now resolved to its Greenhouse operational source while the Stripe careers page remains canonical. To test the correction and the large-batch free-LLM triage path:
-
-```bash
-./scripts/run_stripe_greenhouse_probe.sh
+```text
+data/target_employers/tier_s_operational_sources_v1.csv
+  → scripts/prepare_tier_s_operational_sources.sh
+  → research-agent scan-discover --portal-id <id>
+  → research-agent triage-pending --portal-id <id>
+  → research-agent analyze-pending --portal-id <id>
+  → research-agent show-ai-results
+  → dashboard at http://127.0.0.1:8501
 ```
 
-The script reuses the persistent runtime DB/dashboard, applies the versioned Stripe registry correction idempotently, scans the Greenhouse catalog with the existing low-request envelope, triages up to 2,000 Stripe jobs in batches of 100, runs the full JobAnalyzer only on candidates, and writes `output/test_runs/stripe_greenhouse_probe_*.log`.
+Auxiliary commands used in the same path:
 
+- `research-agent adapter-coverage` — zero-network adapter selection check.
+- `research-agent prepare-v2-source-jobs --dry-run` — backfill legacy source
+  jobs into the V2 schema before any live LLM call.
+- `research-agent enrich-details` — selective, same-host detail enrichment
+  for CYBER / NEEDS_MORE_DETAIL jobs whose listing response lacks
+  description.
+- `research-agent ingest-linkedin-csv path/to/linkedin_jobs.csv` — manual
+  LinkedIn import (no scraping, no automation).
+- `research-agent llm-preflight` — verify LLM credentials without external
+  traffic.
 
-## V24 — Google structured-RPC probe + narrower CYBER boundary
+## Controlled probe of a `READY_TO_PROBE` portal
 
-Stripe proved the technical pipeline but exposed semantic overreach into payment fraud, AML/financial crime and generic enterprise risk/compliance. V24 narrows both LLM contracts without introducing keyword/regex membership rules (`cyber-triage-v2`, `cyber-job-v4`).
-
-Google is the next Tier-S employer. The current careers frontend exposes a structured anonymous `batchexecute` search RPC; `GoogleCareersAdapter` consumes that platform contract instead of crawling result/detail HTML. The Google-specific full-catalog request budget is isolated to the probe script; ordinary scanner defaults are unchanged.
-
-Run:
+`READY_TO_PROBE` rows land in the registry as `scan_enabled=False` so the
+default scanner skips them. To probe a single one explicitly, use
+`--include-disabled` together with an explicit `--portal-id`:
 
 ```bash
-./scripts/run_google_careers_probe.sh
+uv run research-agent scan-discover \
+  --database-url sqlite:///$HOME/.local/share/research-agent/research_agent.db \
+  --portal-id <id> --include-disabled
 ```
 
-The script uses `~/.local/share/research-agent/research_agent.db`, ensures the managed dashboard, scans the Google catalog sequentially, runs 100-job high-recall triage batches plus candidate-only rich analysis, and writes `output/test_runs/google_careers_probe_*.log`. Upload that log before declaring Google PASS/FIX; the result must be compared against current web-visible Google security vacancies.
+`--include-disabled` is rejected unless at least one `--portal-id` is
+given, and cannot be combined with `--limit`. It does not modify the
+database; the next normal `scan-discover` will still honour
+`scan_enabled`.
+
+## Google structured-RPC probe
+
+`scripts/run_google_careers_probe.sh` is the next Tier-S validation
+operator action. It uses the persistent runtime DB, ensures the managed
+dashboard, scans the Google catalog sequentially with a Google-only
+request envelope, runs 100-job high-recall triage batches plus
+candidate-only rich analysis, and writes
+`output/test_runs/google_careers_probe_*.log`. Upload the log and
+compare it against current web-visible Google security vacancies before
+declaring Google PASS/FIX.
+
+## Network safety
+
+Conservative by default: `concurrency=1`, `per_host=1`,
+`per_domain_min_interval_seconds=1.0`, `max_retries=2`,
+`max_response_bytes=20MB`, no rotating proxies, no fingerprint
+spoofing, no CAPTCHA bypass, no browser automation. Respect
+`Retry-After`. `max_response_bytes` defaults to 20 MB so a normal
+structured Ashby / Greenhouse / Workday catalog lands in a single
+response.
+
+## AI budget
+
+LLM routing is free-only. Full analysis chain:
+`minimax/minimax-m3:free → minimax/minimax-m2.7:free → google/gemini-3.6-flash`.
+Triage chain: `m3:free → m2.7:free → google/gemini-3.5-flash-lite`.
+M3 may retry once only when OpenRouter supplies `Retry-After`. No paid
+model is introduced.
+
+## Tests
+
+```bash
+uv run pytest -q
+```
+
+## Documentation map
+
+- `docs/CODEX_HANDOVER_CURRENT.md` — full technical state for the next
+  coding agent.
+- `docs/ROADMAP_V2.md` — current product roadmap.
+- `docs/OPERATIONS.md` — runtime / safety / recovery.
+- `docs/TESTING.md` — testing policy and gates.
+- `docs/decisions/` — decision log (ADR).
+- `docs/reports/` — historical evidence.
+- `SECURITY.md` — security policy.

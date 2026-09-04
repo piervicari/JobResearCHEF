@@ -1,4 +1,5 @@
 import csv
+from datetime import date
 from pathlib import Path
 
 import pytest
@@ -13,9 +14,11 @@ from research_agent.company.registry_changes import (
     apply_registry_changes,
     export_synchronized_master,
 )
+from research_agent.db.migrations import create_schema
 from research_agent.db.models import (
     ClusterPortalMapping,
     CompanyRecord,
+    CorporateCluster,
     ImportBatch,
     Portal,
     RegistryChangeAudit,
@@ -262,3 +265,111 @@ def test_registry_suspend_and_resume_preserve_resolution(
     apply_registry_changes(sqlite_engine, resume, source_version="fixture-resume")
 
     assert len(load_portal_targets(sqlite_engine)) == 1
+
+
+def test_load_portal_targets_include_disabled_explicit_only(
+    sqlite_engine: Engine, tmp_path: Path
+) -> None:
+    """include_disabled is allowed only with an explicit portal_ids set; the DB
+    is never mutated, and the next normal load_portal_targets call still hides
+    the disabled portal."""
+    create_schema(sqlite_engine)
+
+    # 1) Seed one CorporateCluster + one Portal directly so we don't depend on
+    #    the master-import / registry-changes flow (this test is about the
+    #    loader behaviour, not the upstream sync).
+    with Session(sqlite_engine) as session, session.begin():
+        batch = ImportBatch(
+            source_kind="test",
+            source_filename="loader-fixture.csv",
+            source_path="loader-fixture.csv",
+            source_sha256="a" * 64,
+            source_version="loader-fixture-v1",
+            status="COMPLETE",
+        )
+        session.add(batch)
+        session.flush()
+        session.add(
+            CorporateCluster(
+                corporate_cluster_id="CG-LOAD-1",
+                representative_canonical_employer="Fixture Inc.",
+                canonical_employers_json="[\"Fixture Inc.\"]",
+                parent_groups_json="[]",
+                entity_classes_json="[]",
+                eligibility_values_json="[]",
+                sectors_json="[]",
+                discovery_geographies_json="[]",
+                org_types_json="[]",
+                record_count=1,
+                has_primary_scan_eligibility=True,
+                import_batch_id=batch.id,
+            )
+        )
+        portal = Portal(
+            normalized_jobs_url="https://disabled.example.test/jobs",
+            jobs_search_url="https://disabled.example.test/jobs",
+            scheme="https",
+            host="disabled.example.test",
+            ats_families_json="[\"Fixture ATS 2\"]",
+            ats_confidences_json="[\"Verified\"]",
+            metadata_conflict=False,
+            cluster_count=1,
+            active_in_registry=True,
+            health_state="HEALTHY",
+            consecutive_failures=0,
+            scan_enabled=True,
+            import_batch_id=batch.id,
+        )
+        session.add(portal)
+        session.flush()
+        session.add(
+            ClusterPortalMapping(
+                corporate_cluster_id="CG-LOAD-1",
+                portal_id=portal.id,
+                resolved_corporate_website="https://disabled.example.test",
+                resolved_careers_landing_url="https://disabled.example.test/careers",
+                source_jobs_search_url="https://disabled.example.test/jobs",
+                portal_scope="Global",
+                ats_family="Fixture ATS 2",
+                ats_confidence="Verified",
+                portal_resolution_status="VERIFIED",
+                portal_verification_url="https://evidence.example.test/careers",
+                portal_verified_date=date(2026, 8, 31),
+                resolution_wave="W1",
+                source_record_count=1,
+                import_batch_id=batch.id,
+            )
+        )
+        disabled_id = portal.id
+
+    # 2) Flip scan_enabled to False directly to simulate a "READY_TO_PROBE"
+    #    portal that the sync has not yet promoted. (We use SQL instead of
+    #    apply_registry_changes to keep this test laser-focused on the loader.)
+    with Session(sqlite_engine) as session, session.begin():
+        session.execute(
+            Portal.__table__.update().where(Portal.id == disabled_id).values(scan_enabled=False)
+        )
+
+    # 3) Normal loader hides the disabled portal.
+    assert load_portal_targets(sqlite_engine) == []
+
+    # 4) include_disabled without portal_ids is rejected.
+    with pytest.raises(ValueError, match="include_disabled requires an explicit portal_ids set"):
+        load_portal_targets(sqlite_engine, include_disabled=True)
+
+    # 5) include_disabled with explicit portal_ids returns the disabled
+    #    portal without mutating the database.
+    with_disabled = load_portal_targets(
+        sqlite_engine, portal_ids={disabled_id}, include_disabled=True
+    )
+    assert len(with_disabled) == 1
+    assert with_disabled[0].portal_id == disabled_id
+
+    with Session(sqlite_engine) as session:
+        still_disabled = session.scalar(select(Portal).where(Portal.id == disabled_id))
+        assert still_disabled.scan_enabled is False  # DB unchanged
+        # mapping is still there
+        assert session.scalar(
+            select(func.count()).select_from(ClusterPortalMapping)
+            .where(ClusterPortalMapping.portal_id == disabled_id)
+        ) == 1

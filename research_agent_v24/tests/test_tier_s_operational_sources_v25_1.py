@@ -22,6 +22,7 @@ from research_agent.company.tier_s_operational_sources import (
     VALID_EVIDENCE_STATES,
     VALID_RESOLUTION_PATHS,
     OperationalSourceError,
+    _infer_ats_family,
     derive_routing,
     read_registry,
     validate_registry_invariants,
@@ -545,3 +546,176 @@ def test_sync_skips_source_less_rows(tmp_path: Path) -> None:
         portals = session.scalars(select(Portal)).all()
         assert len(portals) == 1
         assert portals[0].host == "boards-api.greenhouse.io"
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("https://boards-api.greenhouse.io/v1/boards/acme/jobs", "Greenhouse"),
+        ("https://jobs.lever.co/someco", "Lever"),
+        ("https://jobs.ashbyhq.com/acme", "Ashby"),
+        ("https://jobs.smartrecruiters.com/SomeOne", "SmartRecruiters"),
+        ("https://example.talentbrew.com/careers", "Radancy"),
+        ("https://jobs.successfactors.com/SomeOne", "SuccessFactors RMK"),
+        ("https://acme.wd5.myworkdayjobs.com/acme", "Workday"),
+        ("https://acme.phenom.com/jobs", "Phenom"),
+        # Taleo must NOT collapse into Oracle Recruiting Cloud.
+        ("https://acme.taleo.net/careersection/1/joblist.ftl", "Taleo"),
+        ("https://acme.taleo.com/careersection/2/joblist.ftl", "Taleo"),
+        # Oracle Recruiting Cloud keeps its own family.
+        ("https://example.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1", "Oracle Recruiting Cloud"),
+        ("https://careers.avature.net/en/SomeOne", "Avature"),
+        ("https://acme.com/jobs", ""),
+    ],
+)
+def test_infer_ats_family_recognises_taleo_as_taleo(url: str, expected: str) -> None:
+    assert _infer_ats_family(url) == expected
+
+
+def test_sync_preserves_existing_verified_date_when_row_is_blank(
+    tmp_path: Path,
+) -> None:
+    """An operational source CSV row with an empty `last_verified_at` must not
+    overwrite a previously persisted `portal_verified_date`, and a brand-new
+    mapping must never fall back to the 1970 epoch sentinel."""
+    from datetime import date
+    from sqlalchemy import select
+    from sqlalchemy.orm import Session
+    from research_agent.company.tier_s_operational_sources import (
+        sync_operational_sources,
+    )
+    from research_agent.db.migrations import create_schema
+    from research_agent.db.models import ClusterPortalMapping, CorporateCluster, ImportBatch
+    from research_agent.db.session import create_db_engine
+
+    engine = create_db_engine(f"sqlite:///{tmp_path / 'preserve.db'}")
+    create_schema(engine)
+
+    # 1) Seed a cluster.
+    with Session(engine) as session, session.begin():
+        session.add(
+            ImportBatch(
+                source_kind="seed",
+                source_filename="seed",
+                source_path="seed",
+                source_sha256="0" * 64,
+                source_version="seed-v1",
+                status="COMPLETE",
+            )
+        )
+        session.flush()
+        batch = session.scalar(select(ImportBatch).where(ImportBatch.source_kind == "seed"))
+        session.add(
+            CorporateCluster(
+                corporate_cluster_id="CG-VERIFY-1",
+                representative_canonical_employer="Verify Co.",
+                canonical_employers_json="[\"Verify Co.\"]",
+                parent_groups_json="[]",
+                entity_classes_json="[]",
+                eligibility_values_json="[]",
+                sectors_json="[]",
+                discovery_geographies_json="[]",
+                org_types_json="[]",
+                record_count=1,
+                has_primary_scan_eligibility=True,
+                import_batch_id=batch.id,
+            )
+        )
+
+    registry = tmp_path / "registry.csv"
+    registry.write_text(
+        "employer_name,corporate_cluster_id,priority,cohort,source_key,source_scope,"
+        "canonical_careers_url,operational_url,ats_family,evidence_state,"
+        "resolution_path,adapter_supported,catalog_state,last_verified_at,"
+        "evidence_url,notes,scan_enabled,routing_override,routing_override_rationale\n"
+        "Verify Co.,CG-VERIFY-1,1,CORE_200,verify,Global,"
+        "https://verify.example.test/careers,https://boards-api.greenhouse.io/v1/boards/verify/jobs,"
+        "Greenhouse,FIRST_PARTY_AND_PLATFORM_VERIFIED,READY_TO_PROBE,YES,PARITY_PENDING,2026-05-01,"
+        "https://verify.example.test/careers,,N,,\n",
+        encoding="utf-8",
+    )
+
+    # 2) First sync with a real date (2026-05-01).
+    rows = read_registry(registry)
+    cluster_mapping, _, _ = __import__(
+        "research_agent.company.tier_s_operational_sources",
+        fromlist=["reconcile_clusters"],
+    ).reconcile_clusters(engine, rows)
+    sync_operational_sources(
+        engine, registry, cluster_mapping=cluster_mapping, source_version="v1"
+    )
+
+    with Session(engine) as session:
+        mapping = session.scalar(
+            select(ClusterPortalMapping).where(
+                ClusterPortalMapping.corporate_cluster_id == "CG-VERIFY-1"
+            )
+        )
+        assert mapping is not None
+        assert mapping.portal_verified_date == date(2026, 5, 1)
+
+    # 3) Re-emit the registry with an empty last_verified_at. Existing
+    #    verified date must be preserved.
+    registry.write_text(
+        "employer_name,corporate_cluster_id,priority,cohort,source_key,source_scope,"
+        "canonical_careers_url,operational_url,ats_family,evidence_state,"
+        "resolution_path,adapter_supported,catalog_state,last_verified_at,"
+        "evidence_url,notes,scan_enabled,routing_override,routing_override_rationale\n"
+        "Verify Co.,CG-VERIFY-1,1,CORE_200,verify,Global,"
+        "https://verify.example.test/careers,https://boards-api.greenhouse.io/v1/boards/verify/jobs,"
+        "Greenhouse,FIRST_PARTY_AND_PLATFORM_VERIFIED,READY_TO_PROBE,YES,PARITY_PENDING,,"
+        "https://verify.example.test/careers,,N,,\n",
+        encoding="utf-8",
+    )
+    rows2 = read_registry(registry)
+    cluster_mapping2, _, _ = __import__(
+        "research_agent.company.tier_s_operational_sources",
+        fromlist=["reconcile_clusters"],
+    ).reconcile_clusters(engine, rows2)
+    sync_operational_sources(
+        engine, registry, cluster_mapping=cluster_mapping2, source_version="v2"
+    )
+
+    with Session(engine) as session:
+        mapping = session.scalar(
+            select(ClusterPortalMapping).where(
+                ClusterPortalMapping.corporate_cluster_id == "CG-VERIFY-1"
+            )
+        )
+        # The previous 2026-05-01 is preserved — never silently replaced.
+        assert mapping is not None
+        assert mapping.portal_verified_date == date(2026, 5, 1)
+
+    # 4) A brand-new mapping (no previous date) must NOT silently use 1970-01-01.
+    registry2 = tmp_path / "registry_new.csv"
+    registry2.write_text(
+        "employer_name,corporate_cluster_id,priority,cohort,source_key,source_scope,"
+        "canonical_careers_url,operational_url,ats_family,evidence_state,"
+        "resolution_path,adapter_supported,catalog_state,last_verified_at,"
+        "evidence_url,notes,scan_enabled,routing_override,routing_override_rationale\n"
+        "Verify Co.,CG-VERIFY-1,2,CORE_200,verify_2,Global,"
+        "https://verify.example.test/careers,https://boards-api.greenhouse.io/v1/boards/verify2/jobs,"
+        "Greenhouse,FIRST_PARTY_AND_PLATFORM_VERIFIED,READY_TO_PROBE,YES,PARITY_PENDING,,"
+        "https://verify.example.test/careers,,N,,\n",
+        encoding="utf-8",
+    )
+    rows3 = read_registry(registry2)
+    cluster_mapping3, _, _ = __import__(
+        "research_agent.company.tier_s_operational_sources",
+        fromlist=["reconcile_clusters"],
+    ).reconcile_clusters(engine, rows3)
+    sync_operational_sources(
+        engine, registry2, cluster_mapping=cluster_mapping3, source_version="v3"
+    )
+
+    with Session(engine) as session:
+        new_mapping = session.scalar(
+            select(ClusterPortalMapping).where(
+                ClusterPortalMapping.corporate_cluster_id == "CG-VERIFY-1",
+                ClusterPortalMapping.source_jobs_search_url
+                == "https://boards-api.greenhouse.io/v1/boards/verify2/jobs",
+            )
+        )
+        assert new_mapping is not None
+        # NOT 1970-01-01.
+        assert new_mapping.portal_verified_date != date(1970, 1, 1)
