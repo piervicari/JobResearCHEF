@@ -65,6 +65,10 @@ class FetchRequest:
     # they can never loosen the shared fetcher configuration.
     min_interval_seconds: float | None = None
     max_retries: int | None = None
+    # Per-scan wire policy (hard wire-attempt cap + wire-based pauses).
+    # Attached by the scan funnel, enforced at the real outbound attempt
+    # point. None = legacy behavior, byte-for-byte identical path.
+    wire_policy: ScanWirePolicy | None = None
 
 
 @dataclass(frozen=True)
@@ -75,6 +79,40 @@ class FetchAttempt:
     url: str = ""
     retry_index: int = 0
     redirect: bool = False
+
+
+@dataclass
+class ScanWirePolicy:
+    """Mutable per-scan wire policy, owned by exactly one source scan.
+
+    The single source of truth for ENFORCEMENT of a per-scan wire budget:
+    ``HttpFetcher`` mutates ``used_wire_attempts`` at the real outbound
+    attempt point (``_guarded_request`` — every initial request, retry and
+    redirect follow-up passes through it exactly once) and refuses the
+    attempt that would exceed ``max_wire_attempts``. Overshoot is
+    structurally impossible, not merely unlikely.
+
+    Pause placement is also wire-based: before the attempt that would make
+    ``used`` cross N+1, 2N+1, ... — retries and redirects shift pauses,
+    which is the point (they are real outbound traffic).
+
+    Not thread-safe by design: declarative specs are ``sequential_only``,
+    one scan owns one policy object. ``sleep`` is injectable for tests.
+    ``None`` policy (legacy requests) means "no per-scan cap, no pause",
+    behavior identical to before.
+    """
+
+    max_wire_attempts: int | None = None
+    pause_every_n_attempts: int = 0
+    pause_seconds: float = 0.0
+    sleep: Callable[[float], Awaitable[None]] | None = None
+    used_wire_attempts: int = 0
+
+    def exhausted(self) -> bool:
+        return (
+            self.max_wire_attempts is not None
+            and self.used_wire_attempts >= self.max_wire_attempts
+        )
 
 
 @dataclass(frozen=True)
@@ -345,6 +383,7 @@ class HttpFetcher:
                             method=target_method,
                             json_body=target_json,
                             form_body=target_form,
+                            wire_policy=request.wire_policy,
                         ),
                         min_interval_seconds=request.min_interval_seconds,
                     )
@@ -464,8 +503,29 @@ class HttpFetcher:
         method: str,
         json_body: dict[str, object] | None,
         form_body: dict[str, str] | None,
+        wire_policy: ScanWirePolicy | None = None,
     ) -> tuple[httpx.Response, bytes]:
         host = (urlsplit(url).hostname or "").rstrip(".").casefold()
+        if wire_policy is not None:
+            if wire_policy.exhausted():
+                # Hard cap: the refused attempt never touches the network,
+                # so wire attempt N+1 is impossible, not merely unlikely.
+                raise RequestBudgetExceededError(
+                    f"per-scan wire budget of {wire_policy.max_wire_attempts} "
+                    f"exhausted after {wire_policy.used_wire_attempts} attempts",
+                    attempts=(),
+                )
+            if (
+                wire_policy.pause_every_n_attempts > 0
+                and wire_policy.pause_seconds > 0
+                and wire_policy.used_wire_attempts > 0
+                and wire_policy.used_wire_attempts % wire_policy.pause_every_n_attempts == 0
+            ):
+                # Wire-based pause BEFORE attempt N+1, 2N+1, ... — retries
+                # and redirects count, so they shift pauses. Never after the
+                # final attempt: no further attempt follows in that case.
+                sleeper = wire_policy.sleep or self._sleep
+                await sleeper(wire_policy.pause_seconds)
         async with self._budget_lock:
             if reason := self._blocked_hosts.get(host):
                 raise HostCircuitOpenError(
@@ -485,13 +545,21 @@ class HttpFetcher:
             self._host_request_counts[host] = host_count + 1
             self._request_count += 1
 
-        response, content = await self._request_once(
-            url,
-            headers,
-            method=method,
-            json_body=json_body,
-            form_body=form_body,
-        )
+        try:
+            response, content = await self._request_once(
+                url,
+                headers,
+                method=method,
+                json_body=json_body,
+                form_body=form_body,
+            )
+        finally:
+            # Every outbound attempt counts — including ones that fail at
+            # the transport layer or exceed body budgets (bytes moved).
+            # Budget-exceeded/host-blocked raises above never reach a wire
+            # attempt, so they correctly do NOT increment.
+            if wire_policy is not None:
+                wire_policy.used_wire_attempts += 1
         if reason := self._blocking_reason(response, content):
             async with self._budget_lock:
                 self._blocked_hosts.setdefault(host, reason)

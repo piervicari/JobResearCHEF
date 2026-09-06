@@ -40,8 +40,13 @@ Requirement mapping (spec field -> class):
   (adapter wires the spec floor onto every FetchRequest; the fetcher
   applies max(global, floor); 429 excluded from retries as before)
 - ``max_requests_per_run`` ........ ENFORCED_PER_SCAN
-  (context wire-attempt budget: retries/redirects included; stop keeps
-  partial jobs, complete_snapshot=false, explicit warning)
+  (HARD cap on real outbound HTTP wire attempts for the scan:
+  initial requests, retries and redirect follow-ups all consume the
+  per-scan ScanWirePolicy budget enforced by HttpFetcher at the
+  outbound attempt point — wire attempt N+1 is impossible, overshoot
+  is 0. Stop keeps partial jobs, complete_snapshot=false, warning.
+  Cache conditional requests that touch the network count; nothing
+  else does — there is no zero-wire cache path in the fetcher.)
 - ``abort_on_http_403`` .......... ENFORCED_BY_EXISTING_FETCHER
   (fetcher circuit-breaker statuses always include 401/403/429; the
   adapter additionally stops at the first non-2xx with partial kept)
@@ -54,8 +59,10 @@ Requirement mapping (spec field -> class):
   {500,502,503,504} plus transport errors — 429 excluded)
 - ``long_pause_every_n_requests`` / ``long_pause_seconds``
   ............................... ENFORCED_PER_SCAN
-  (context pauses S seconds before request N+1, 2N+1, ... — never after
-  the final request; per-scan counter, injectable clock)
+  (WIRE-based: pause S before outbound attempt N+1, 2N+1, ... — every
+  real retry and redirect follow-up counts, so they shift pauses;
+  never after the final attempt; per-scan counter on ScanWirePolicy,
+  injectable clock; legacy requests without policy behave identically)
 - ``max_consecutive_errors`` ..... ENFORCED_PER_SCAN
   (context counts failed logical fetches after normal fetcher retries;
   success resets; at threshold the adapter stops with partial kept;

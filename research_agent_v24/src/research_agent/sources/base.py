@@ -2,9 +2,8 @@
 
 from __future__ import annotations
 
-import asyncio
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime
 from typing import Protocol
 
@@ -16,6 +15,7 @@ from research_agent.pipeline.http import (
     FetchResponse,
     HostCircuitOpenError,
     HttpFetcher,
+    ScanWirePolicy,
 )
 
 
@@ -83,38 +83,45 @@ class PortalScanContext:
     fetches: list[FetchResponse] = field(default_factory=list)
     attempt_groups: list[tuple[FetchAttempt, ...]] = field(default_factory=list)
     # Optional generic per-scan safety policies. All default to "legacy
-    # behavior" (no cap, no pause, first error propagates) so adapters that
-    # never configure them scan exactly as before. A context instance lives
-    # for exactly one portal scan, so every counter below is per-scan by
-    # construction. Units:
-    # - max_requests counts WIRE attempts (retries/redirects included);
-    # - long pauses count LOGICAL fetch() calls (retries do not shift pauses);
+    # behavior" (no cap, no consecutive budget, first error propagates) so
+    # adapters that never configure them scan exactly as before. A context
+    # instance lives for exactly one portal scan, so every counter below is
+    # per-scan by construction. Units:
+    # - max_requests is a HARD cap on WIRE attempts (retries/redirects
+    #   included), enforced by HttpFetcher at the real outbound attempt
+    #   point via the per-scan ScanWirePolicy — overshoot is impossible;
+    # - long pauses are WIRE-based (see ScanWirePolicy), not logical-fetch
+    #   based;
     # - consecutive errors count failed LOGICAL fetches after the fetcher's
     #   normal retry handling.
     max_requests: int | None = None
-    long_pause_every_n_requests: int = 0
-    long_pause_seconds: float = 0.0
     max_consecutive_errors: int | None = None
-    sleep: Callable[[float], Awaitable[None]] = asyncio.sleep
 
     def __post_init__(self) -> None:
         if self.max_requests is not None and self.max_requests < 1:
             raise ValueError("max_requests must be at least 1")
-        if self.long_pause_every_n_requests < 0 or self.long_pause_seconds < 0:
-            raise ValueError("long-pause policy values must be non-negative")
         if self.max_consecutive_errors is not None and self.max_consecutive_errors < 1:
             raise ValueError("max_consecutive_errors must be at least 1")
         self._wire_attempts = 0
-        self._completed_fetches = 0
         self._consecutive_errors = 0
+        self._wire_policy: ScanWirePolicy | None = None
 
     @property
     def wire_attempts(self) -> int:
+        """Post-hoc observation of wire attempts so far (always <= cap).
+
+        Enforcement source of truth is the ScanWirePolicy mutated by the
+        fetcher; this counter reconciles it from recorded attempts.
+        """
         return self._wire_attempts
 
     @property
     def consecutive_errors(self) -> int:
         return self._consecutive_errors
+
+    @property
+    def wire_policy(self) -> ScanWirePolicy | None:
+        return self._wire_policy
 
     def configure_scan_limits(
         self,
@@ -123,21 +130,33 @@ class PortalScanContext:
         long_pause_every_n_requests: int = 0,
         long_pause_seconds: float = 0.0,
         max_consecutive_errors: int | None = None,
+        sleep: Callable[[float], Awaitable[None]] | None = None,
     ) -> None:
         """Wire source-declared per-scan policy into this scan's funnel.
 
         Generic orchestration hook: any adapter may call it once before its
-        fetch loop with values from its own source contract. Values only
-        restrict (caps/pauses/budgets); they cannot loosen the shared
-        fetcher configuration. Must be called before the first fetch.
+        fetch loop with values from its own source contract. Builds the
+        per-scan ScanWirePolicy that HttpFetcher enforces (hard wire cap +
+        wire-based pauses). Values only restrict (caps/pauses/budgets); they
+        cannot loosen the shared fetcher configuration. Must be called
+        before the first fetch.
         """
-        if self._wire_attempts or self._completed_fetches:
+        if self._wire_attempts or self._consecutive_errors or self._wire_policy is not None:
             raise ValueError("scan limits must be configured before the first fetch")
         self.max_requests = max_requests
-        self.long_pause_every_n_requests = long_pause_every_n_requests
-        self.long_pause_seconds = long_pause_seconds
         self.max_consecutive_errors = max_consecutive_errors
         self.__post_init__()
+        if (
+            max_requests is not None
+            or long_pause_every_n_requests
+            or long_pause_seconds
+        ):
+            self._wire_policy = ScanWirePolicy(
+                max_wire_attempts=max_requests,
+                pause_every_n_attempts=long_pause_every_n_requests,
+                pause_seconds=long_pause_seconds,
+                sleep=sleep,
+            )
 
     async def fetch(self, request: FetchRequest) -> FetchResponse:
         if (
@@ -150,20 +169,13 @@ class PortalScanContext:
                 f"{self._consecutive_errors} consecutive fetch failures "
                 f"(budget {self.max_consecutive_errors}); stopping conservatively"
             )
-        if self.max_requests is not None and self._wire_attempts >= self.max_requests:
+        if self._wire_policy is not None and self._wire_policy.exhausted():
             raise ScanRequestBudgetExceeded(
-                f"per-scan request budget of {self.max_requests} wire attempts "
-                f"exhausted after {self._completed_fetches} fetches"
+                f"per-scan wire budget of {self._wire_policy.max_wire_attempts} "
+                f"exhausted after {self._wire_policy.used_wire_attempts} wire attempts"
             )
-        if (
-            self.long_pause_every_n_requests > 0
-            and self.long_pause_seconds > 0
-            and self._completed_fetches > 0
-            and self._completed_fetches % self.long_pause_every_n_requests == 0
-        ):
-            # Pause BEFORE request N+1, 2N+1, ... — never after the final
-            # request, since no further fetch follows.
-            await self.sleep(self.long_pause_seconds)
+        if self._wire_policy is not None and request.wire_policy is None:
+            request = replace(request, wire_policy=self._wire_policy)
         try:
             response = await self.fetcher.fetch(request)
         except (HostCircuitOpenError, AccessChallengeError) as exc:
@@ -186,7 +198,6 @@ class PortalScanContext:
             raise
         self._wire_attempts += len(response.attempts)
         self._consecutive_errors = 0
-        self._completed_fetches += 1
         self.fetches.append(response)
         self.attempt_groups.append(response.attempts)
         return response

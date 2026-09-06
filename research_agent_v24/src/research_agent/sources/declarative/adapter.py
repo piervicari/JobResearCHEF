@@ -51,6 +51,7 @@ from research_agent.pipeline.http import (
     AccessChallengeError,
     FetchError,
     HostCircuitOpenError,
+    RequestBudgetExceededError,
 )
 from research_agent.sources.base import (
     AdapterScanResult,
@@ -331,11 +332,16 @@ class DeclarativeSourceAdapter:
                 )
                 try:
                     response = await context.fetch(fetch_request)
-                except (ScanRequestBudgetExceeded, MaxConsecutiveErrorsExceeded) as exc:
-                    # Per-scan safety stop: no further request, partial jobs
-                    # preserved, snapshot not complete. (Immediate-abort
-                    # signals — 403/429/challenge — propagate instead: the
-                    # fetcher already blocked the host, zero extra requests.)
+                except (
+                    ScanRequestBudgetExceeded,
+                    MaxConsecutiveErrorsExceeded,
+                    RequestBudgetExceededError,
+                ) as exc:
+                    # Terminal safety stop: per-scan wire budget, consecutive
+                    # budget, or global/per-host fetcher budget exhausted.
+                    # NEVER a consecutive-error retry: no further logical
+                    # fetch, no further wire attempt, partial jobs preserved,
+                    # snapshot not complete.
                     warnings.append(f"{label}: {exc}; snapshot not complete")
                     stopped_early = True
                     break
