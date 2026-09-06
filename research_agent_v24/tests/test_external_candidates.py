@@ -230,3 +230,35 @@ def test_support_classification() -> None:
     assert support_class_for("eightfold") == "DECLARATIVE_SUPPORTED"
     assert support_class_for("bamboohr") == "UNSUPPORTED"
     assert support_class_for("") == "UNKNOWN"
+
+
+def test_importer_creates_table_on_preexisting_db_without_it(
+    tmp_path: Path,
+) -> None:
+    """§20: an older SQLite file lacking external_source_candidates gains
+    the table from the import path alone (create_schema/create_all) —
+    no migration file needed. Uses a scratch DB, never the user DB."""
+    from sqlalchemy import create_engine, inspect, text
+
+    from research_agent.db.migrations import create_schema
+    from research_agent.db.models import Base
+
+    url = f"sqlite:///{tmp_path / 'legacy.db'}"
+    engine = create_engine(url)
+    create_schema(engine)
+    with engine.begin() as conn:
+        conn.execute(text("DROP TABLE external_source_candidates"))
+    assert "external_source_candidates" not in inspect(engine).get_table_names()
+
+    result = import_external_candidates(
+        engine, _fixture_csv(tmp_path), dry_run=True
+    )
+
+    assert "external_source_candidates" in inspect(engine).get_table_names()
+    assert result.inserted_rows == 0
+    with Session(engine) as session:
+        assert session.scalar(select(func.count()).select_from(ExternalSourceCandidate)) == 0
+        assert session.scalar(select(func.count()).select_from(ImportBatch)) == 0
+    remaining = set(inspect(engine).get_table_names())
+    assert "external_source_candidates" in remaining
+    _ = Base  # model registry is what create_all consumes

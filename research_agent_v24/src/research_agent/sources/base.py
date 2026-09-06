@@ -2,15 +2,19 @@
 
 from __future__ import annotations
 
+import asyncio
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Protocol
 
 from research_agent.pipeline.http import (
+    AccessChallengeError,
     FetchAttempt,
     FetchError,
     FetchRequest,
     FetchResponse,
+    HostCircuitOpenError,
     HttpFetcher,
 )
 
@@ -52,6 +56,25 @@ class AdapterScanResult:
     is_complete_snapshot: bool = False
 
 
+class ScanRequestBudgetExceeded(RuntimeError):
+    """A per-scan wire-attempt budget was exhausted before the next fetch.
+
+    Raised by ``PortalScanContext.fetch`` instead of performing another
+    request. Not a ``FetchError``: no wire attempt was made. Adapters catch
+    it, keep partial results, and finish with ``is_complete_snapshot=False``.
+    """
+
+
+class MaxConsecutiveErrorsExceeded(RuntimeError):
+    """A per-scan consecutive-failure budget was exhausted.
+
+    Raised instead of the last fetch error once ``max_consecutive_errors``
+    logical fetches in a row have failed. Success resets the counter.
+    Immediate-abort signals (403/429/challenge) never pass through here:
+    they propagate unchanged with zero further requests.
+    """
+
+
 @dataclass
 class PortalScanContext:
     fetcher: HttpFetcher
@@ -59,13 +82,111 @@ class PortalScanContext:
     max_jobs_per_portal: int = 500
     fetches: list[FetchResponse] = field(default_factory=list)
     attempt_groups: list[tuple[FetchAttempt, ...]] = field(default_factory=list)
+    # Optional generic per-scan safety policies. All default to "legacy
+    # behavior" (no cap, no pause, first error propagates) so adapters that
+    # never configure them scan exactly as before. A context instance lives
+    # for exactly one portal scan, so every counter below is per-scan by
+    # construction. Units:
+    # - max_requests counts WIRE attempts (retries/redirects included);
+    # - long pauses count LOGICAL fetch() calls (retries do not shift pauses);
+    # - consecutive errors count failed LOGICAL fetches after the fetcher's
+    #   normal retry handling.
+    max_requests: int | None = None
+    long_pause_every_n_requests: int = 0
+    long_pause_seconds: float = 0.0
+    max_consecutive_errors: int | None = None
+    sleep: Callable[[float], Awaitable[None]] = asyncio.sleep
+
+    def __post_init__(self) -> None:
+        if self.max_requests is not None and self.max_requests < 1:
+            raise ValueError("max_requests must be at least 1")
+        if self.long_pause_every_n_requests < 0 or self.long_pause_seconds < 0:
+            raise ValueError("long-pause policy values must be non-negative")
+        if self.max_consecutive_errors is not None and self.max_consecutive_errors < 1:
+            raise ValueError("max_consecutive_errors must be at least 1")
+        self._wire_attempts = 0
+        self._completed_fetches = 0
+        self._consecutive_errors = 0
+
+    @property
+    def wire_attempts(self) -> int:
+        return self._wire_attempts
+
+    @property
+    def consecutive_errors(self) -> int:
+        return self._consecutive_errors
+
+    def configure_scan_limits(
+        self,
+        *,
+        max_requests: int | None = None,
+        long_pause_every_n_requests: int = 0,
+        long_pause_seconds: float = 0.0,
+        max_consecutive_errors: int | None = None,
+    ) -> None:
+        """Wire source-declared per-scan policy into this scan's funnel.
+
+        Generic orchestration hook: any adapter may call it once before its
+        fetch loop with values from its own source contract. Values only
+        restrict (caps/pauses/budgets); they cannot loosen the shared
+        fetcher configuration. Must be called before the first fetch.
+        """
+        if self._wire_attempts or self._completed_fetches:
+            raise ValueError("scan limits must be configured before the first fetch")
+        self.max_requests = max_requests
+        self.long_pause_every_n_requests = long_pause_every_n_requests
+        self.long_pause_seconds = long_pause_seconds
+        self.max_consecutive_errors = max_consecutive_errors
+        self.__post_init__()
 
     async def fetch(self, request: FetchRequest) -> FetchResponse:
+        if (
+            self.max_consecutive_errors is not None
+            and self._consecutive_errors >= self.max_consecutive_errors
+        ):
+            # Budget already exhausted by earlier failures: raise without
+            # touching the transport — zero requests after stop.
+            raise MaxConsecutiveErrorsExceeded(
+                f"{self._consecutive_errors} consecutive fetch failures "
+                f"(budget {self.max_consecutive_errors}); stopping conservatively"
+            )
+        if self.max_requests is not None and self._wire_attempts >= self.max_requests:
+            raise ScanRequestBudgetExceeded(
+                f"per-scan request budget of {self.max_requests} wire attempts "
+                f"exhausted after {self._completed_fetches} fetches"
+            )
+        if (
+            self.long_pause_every_n_requests > 0
+            and self.long_pause_seconds > 0
+            and self._completed_fetches > 0
+            and self._completed_fetches % self.long_pause_every_n_requests == 0
+        ):
+            # Pause BEFORE request N+1, 2N+1, ... — never after the final
+            # request, since no further fetch follows.
+            await self.sleep(self.long_pause_seconds)
         try:
             response = await self.fetcher.fetch(request)
-        except FetchError as exc:
+        except (HostCircuitOpenError, AccessChallengeError) as exc:
+            # Immediate-abort signals: propagate unchanged, no consecutive
+            # counting, zero further requests by the caller.
             self.attempt_groups.append(exc.attempts)
             raise
+        except FetchError as exc:
+            self._wire_attempts += len(exc.attempts)
+            self._consecutive_errors += 1
+            self.attempt_groups.append(exc.attempts)
+            if (
+                self.max_consecutive_errors is not None
+                and self._consecutive_errors >= self.max_consecutive_errors
+            ):
+                raise MaxConsecutiveErrorsExceeded(
+                    f"{self._consecutive_errors} consecutive fetch failures "
+                    f"(budget {self.max_consecutive_errors}); stopping conservatively"
+                ) from exc
+            raise
+        self._wire_attempts += len(response.attempts)
+        self._consecutive_errors = 0
+        self._completed_fetches += 1
         self.fetches.append(response)
         self.attempt_groups.append(response.attempts)
         return response

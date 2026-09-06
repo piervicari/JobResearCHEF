@@ -65,9 +65,11 @@ def _settings(**overrides) -> ScannerSettings:
     return ScannerSettings(**overrides)
 
 
-def test_blocked_preflight_reaches_no_network(sqlite_engine: Engine, tmp_path: Path):
-    """§7: bound Mercedes portal, active unsupported safety requirement
-    (long pauses) → FAILED before a single request."""
+def test_mercedes_preflight_passes_with_enforced_policies(sqlite_engine: Engine, tmp_path: Path):
+    """Bound Mercedes portal: long pauses and consecutive-error budgets are
+    now ENFORCED_PER_SCAN mechanisms, so the preflight no longer blocks —
+    the scan reaches the mock transport (which returns {} and fails parsing,
+    proving network was reached without UnsafeToRunError)."""
     from research_agent.sources.declarative import load_declarative_adapter
 
     calls: list[httpx.Request] = []
@@ -88,18 +90,11 @@ def test_blocked_preflight_reaches_no_network(sqlite_engine: Engine, tmp_path: P
         )
     )
     assert isinstance(summary, ScanSummary)
-    assert summary.success_count == 0
-    assert summary.failure_count == 1
     (result,) = summary.portal_results
-    assert result.status == "FAILED"
-    assert result.error_type == "UnsafeToRunError"
-    assert "UNSUPPORTED_SAFETY_REQUIREMENT" in (result.error_message or "")
-    assert "long_pause" in (result.error_message or "")
-    assert result.jobs == ()
-    assert result.fetch_attempts == ()
-    assert result.complete_snapshot is False
-    assert result.final_http_status is None
-    assert calls == []
+    assert result.error_type != "UnsafeToRunError"
+    assert calls != []
+    # The mock returns {} (zero jobs); what matters here is that the
+    # preflight let the scan reach the network instead of blocking.
 
 
 def _synthetic_spec(base_spec: dict) -> dict:
@@ -165,11 +160,12 @@ def _eightfold_pages(total: int):
     return handler
 
 
-def test_too_permissive_settings_blocked_with_zero_calls(
+def test_permissive_retry_settings_still_scan_via_ceiling(
     sqlite_engine: Engine, tmp_path: Path
 ):
-    """§8: spec allows max 1 retry, settings use 2 → TOO_PERMISSIVE,
-    UnsafeToRunError, zero HTTP calls, zero fetch attempts."""
+    """Spec allows max 1 retry, settings use 2: the per-request ceiling
+    enforces 1 at runtime, so the scan SUCCEEDS with 12 jobs instead of
+    failing preflight. Zero silent over-retry."""
     portal_url = "https://syn2.example.test/jobs"
     portal_id = _seed_portal(sqlite_engine, portal_url)
     calls: list[httpx.Request] = []
@@ -183,6 +179,35 @@ def test_too_permissive_settings_blocked_with_zero_calls(
             sqlite_engine,
             AdapterRegistry([_synthetic_adapter(tmp_path, portal_url)]),
             _settings(max_retries=2),
+            portal_ids={portal_id},
+            transport=httpx.MockTransport(handler),
+            cache_directory=tmp_path / "cache",
+        )
+    )
+    (result,) = summary.portal_results
+    assert result.status == "SUCCESS"
+    assert len(result.jobs) == 12
+    assert calls != []
+
+
+def test_nonsequential_settings_still_block_with_zero_calls(
+    sqlite_engine: Engine, tmp_path: Path
+):
+    """sequential_only cannot be enforced per-request: concurrency=2 →
+    FAILED UnsafeToRunError, zero HTTP calls, zero fetch attempts."""
+    portal_url = "https://syn4.example.test/jobs"
+    portal_id = _seed_portal(sqlite_engine, portal_url)
+    calls: list[httpx.Request] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls.append(request)
+        return _eightfold_pages(12)(request)
+
+    summary = asyncio.run(
+        scan_portals(
+            sqlite_engine,
+            AdapterRegistry([_synthetic_adapter(tmp_path, portal_url)]),
+            _settings(per_domain_concurrency=2),
             portal_ids={portal_id},
             transport=httpx.MockTransport(handler),
             cache_directory=tmp_path / "cache",

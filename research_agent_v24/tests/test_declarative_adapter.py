@@ -537,18 +537,35 @@ def test_conditional_probe_on_generic_synthetic_spec():
 # Safety preflight: fail closed, never silently ignored (§2)
 # ============================================================
 
-def test_spec_safety_currently_ignored_by_scan():
-    """Documents CURRENT STATE: scan() never reads the spec's safety
-    section (only the word 'safety' in cap warnings exists). The
-    preflight module exists precisely because of this gap."""
-    import inspect
+def test_scan_applies_spec_safety_limits(tmp_path):
+    """scan() wires spec safety into the generic funnel: a spec budget of
+    max_requests_per_run=1 stops the catalog after one request with partial
+    results kept, complete_snapshot=false and an explicit warning."""
+    from research_agent.sources.declarative.adapter import (
+        DeclarativeSourceAdapter,
+        DeclarativeSourceBinding,
+    )
 
-    scan_source = inspect.getsource(DeclarativeSourceAdapter.scan)
-    for accessor in ('["safety"]', "['safety']", 'get("safety")', "get('safety')"):
-        assert accessor not in scan_source, f"scan() reads spec safety via {accessor}"
+    base = json.loads((DECLARATIVE_DIR / "specs" / "nvidia.json").read_text(encoding="utf-8"))
+    spec = copy.deepcopy(base)
+    spec["safety"]["max_requests_per_run"] = 1
+    spec["safety"]["max_consecutive_errors"] = 0
+    tmp_spec = tmp_path / "budget_spec.json"
+    tmp_spec.write_text(json.dumps(spec), encoding="utf-8")
+    adapter = DeclarativeSourceAdapter(
+        [DeclarativeSourceBinding(NVIDIA_PORTAL, tmp_spec.name)],
+        base_dir=tmp_path,
+    )
+    result, requested = _run_scan(adapter, _target(NVIDIA_PORTAL), _eightfold_handler(25))
+    assert len(requested) == 1
+    assert len(result.jobs) == 10
+    assert result.is_complete_snapshot is False
+    assert any("budget" in warning for warning in result.warnings)
 
 
-def test_mercedes_preflight_fails_on_unsupported_long_pause():
+def test_mercedes_preflight_passes_with_enforced_long_pause():
+    """Long pauses are now ENFORCED_PER_SCAN (context mechanism wired by
+    the adapter), so even strict settings reach SAFE_TO_RUN on Mercedes."""
     from research_agent.sources.declarative import safety as safety_module
 
     spec = _spec("mercedes.json")
@@ -560,23 +577,36 @@ def test_mercedes_preflight_fails_on_unsupported_long_pause():
         max_retries=1,
     )
     result = safety_module.preflight_safety(spec, strict)
-    assert result.verdict == "UNSUPPORTED_SAFETY_REQUIREMENT"
-    assert any("long_pause" in reason for reason in result.reasons)
+    assert result.verdict == "SAFE_TO_RUN"
+    assert result.reasons == ()
 
 
-def test_default_scanner_settings_fail_preflight_as_too_permissive():
-    """Default ScannerSettings (interval 1.0s, 2 retries) are weaker than
-    what the NVIDIA spec demands (0.5s is fine, but max 1 retry): the
-    preflight must say so instead of scanning silently."""
+def test_default_scanner_settings_pass_nvidia_preflight():
+    """Default ScannerSettings (interval 1.0s, 2 retries) used to be weaker
+    than the NVIDIA spec (max 1 retry). Retry ceiling and interval floor are
+    now enforced per-request by the adapter wiring, so defaults are SAFE."""
     from research_agent.config import ScannerSettings
     from research_agent.sources.declarative import safety as safety_module
 
-    spec = copy.deepcopy(_spec("nvidia.json"))
-    spec["safety"].pop("max_consecutive_errors", None)  # isolate the settings check
+    spec = _spec("nvidia.json")
     effective = safety_module.effective_safety_from_settings(ScannerSettings())
     result = safety_module.preflight_safety(spec, effective)
+    assert result.verdict == "SAFE_TO_RUN"
+    assert result.reasons == ()
+
+
+def test_nonsequential_settings_still_block_preflight():
+    """sequential_only is the one requirement no per-request override may
+    loosen: per_domain_concurrency=2 must stay SCANNER_SETTINGS_TOO_PERMISSIVE."""
+    from research_agent.config import ScannerSettings
+    from research_agent.sources.declarative import safety as safety_module
+
+    spec = _spec("nvidia.json")
+    settings = ScannerSettings(per_domain_concurrency=2)
+    effective = safety_module.effective_safety_from_settings(settings)
+    result = safety_module.preflight_safety(spec, effective)
     assert result.verdict == "SCANNER_SETTINGS_TOO_PERMISSIVE"
-    assert any("max_retries" in reason for reason in result.reasons)
+    assert any("sequential_only" in reason for reason in result.reasons)
 
 
 def test_strict_settings_pass_supported_requirements():
@@ -601,45 +631,46 @@ def test_strict_settings_pass_supported_requirements():
 
 
 def test_unsupported_active_requirement_blocks_before_any_http():
-    """assert_safe_to_run raises without touching the network: the
-    preflight is pure (no fetcher, no transport), so 'before HTTP' is
+    """assert_safe_to_run raises without touching the network on a genuinely
+    unsupported setup: per_domain_concurrency=2 violates sequential_only.
+    The preflight is pure (no fetcher, no transport), so 'before HTTP' is
     structural, not a race."""
     from research_agent.sources.declarative import safety as safety_module
 
     spec = _spec("microsoft.json")
-    strict = safety_module.EffectiveScannerSafety(
-        per_domain_concurrency=1,
+    nonsequential = safety_module.EffectiveScannerSafety(
+        per_domain_concurrency=2,
         per_domain_min_interval_seconds=5.0,
         max_requests_per_run=10,
         max_requests_per_host_per_run=5,
         max_retries=0,
     )
     with pytest.raises(safety_module.UnsafeToRunError):
-        safety_module.assert_safe_to_run(spec, strict)
+        safety_module.assert_safe_to_run(spec, nonsequential)
 
 
 def test_adapter_preflight_delegates_to_bound_spec():
-    """Raise-None contract: unsafe bound spec raises UnsafeToRunError
-    (verdict-object diagnostics stay available via
-    safety.preflight_safety, covered by the module-level tests above)."""
+    """Raise-None contract: non-sequential settings raise UnsafeToRunError
+    for the bound spec (verdict-object diagnostics stay available via
+    safety.preflight_safety, covered by the module-level tests above);
+    default settings pass without raising."""
     adapter = _adapter()
     from research_agent.sources.declarative import safety as safety_module
 
-    strict = safety_module.EffectiveScannerSafety(
-        per_domain_concurrency=1,
+    nonsequential = safety_module.EffectiveScannerSafety(
+        per_domain_concurrency=2,
         per_domain_min_interval_seconds=5.0,
         max_requests_per_run=10,
         max_requests_per_host_per_run=5,
         max_retries=0,
     )
     with pytest.raises(safety_module.UnsafeToRunError) as raised:
-        adapter.preflight(_target(NVIDIA_PORTAL), strict)
-    assert "UNSUPPORTED_SAFETY_REQUIREMENT" in str(raised.value)
+        adapter.preflight(_target(NVIDIA_PORTAL), nonsequential)
+    assert "SCANNER_SETTINGS_TOO_PERMISSIVE" in str(raised.value)
 
     from research_agent.config import ScannerSettings
 
-    with pytest.raises(safety_module.UnsafeToRunError):
-        adapter.preflight(_target(NVIDIA_PORTAL), ScannerSettings())
+    assert adapter.preflight(_target(NVIDIA_PORTAL), ScannerSettings()) is None
 
 
 # ============================================================
@@ -769,13 +800,45 @@ def test_changing_total_marks_snapshot_not_authoritative():
     assert any("total changed" in warning for warning in result.warnings)
 
 
-def test_http_403_uses_the_standard_failure_path():
+def test_http_403_stops_immediately_with_partial_kept():
+    """HTTP 403 stops the scan at the first page: zero further requests,
+    partial jobs preserved, complete_snapshot=false, explicit warning.
+    The fetcher still blocks the host (unchanged circuit-breaker path)."""
+
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(403, content=b"denied", request=request)
 
     adapter = _adapter()
-    with pytest.raises(AdapterHttpError):
-        _run_scan(adapter, _target(NVIDIA_PORTAL), handler)
+    from research_agent.pipeline.http import HttpFetcher
+
+    requested: list[httpx.Request] = []
+
+    def recording_handler(request: httpx.Request) -> httpx.Response:
+        requested.append(request)
+        return handler(request)
+
+    async def run():
+        fetcher = HttpFetcher(
+            max_retries=0,
+            per_domain_min_interval_seconds=0,
+            jitter_seconds=0,
+            resolve_dns=False,
+            transport=httpx.MockTransport(recording_handler),
+        )
+        async with fetcher:
+            context = PortalScanContext(
+                fetcher=fetcher,
+                max_pages_per_portal=30,
+                max_jobs_per_portal=500,
+            )
+            result = await adapter.scan(_target(NVIDIA_PORTAL), context)
+            return result, fetcher
+
+    result, fetcher = asyncio.run(run())
+    assert len(requested) == 1
+    assert result.is_complete_snapshot is False
+    assert any("403" in warning for warning in result.warnings)
+    assert fetcher.blocked_hosts, "403 must still block the host in the fetcher"
 
 
 def test_http_429_opens_circuit_without_retry():

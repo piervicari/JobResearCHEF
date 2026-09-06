@@ -58,6 +58,13 @@ class FetchRequest:
     method: str = "GET"
     json_body: dict[str, object] | None = None
     form_body: dict[str, str] | None = None
+    # Optional per-request safety ceilings, wired by adapters from
+    # source-declared policy. None means "use the fetcher globals".
+    # min_interval_seconds is a FLOOR (effective >= value); max_retries
+    # is a CEILING (effective <= value). Both are conservative-only:
+    # they can never loosen the shared fetcher configuration.
+    min_interval_seconds: float | None = None
+    max_retries: int | None = None
 
 
 @dataclass(frozen=True)
@@ -103,6 +110,8 @@ class _HostState:
     semaphore: asyncio.Semaphore
     start_lock: asyncio.Lock
     next_start_at: float = 0.0
+    last_start_at: float = 0.0
+    started: bool = False
 
 
 class DomainRateLimiter:
@@ -134,15 +143,36 @@ class DomainRateLimiter:
             )
         return self._hosts[host]
 
-    async def run(self, host: str, operation: Callable[[], Awaitable[Any]]) -> Any:
+    async def run(
+        self,
+        host: str,
+        operation: Callable[[], Awaitable[Any]],
+        *,
+        min_interval_seconds: float | None = None,
+    ) -> Any:
         state = self._host_state(host)
+        effective_interval = self._interval
+        if min_interval_seconds is not None and min_interval_seconds > effective_interval:
+            # Per-request floor: a source may demand MORE spacing than the
+            # global setting, never less. Jitter still applies on top.
+            effective_interval = min_interval_seconds
         async with self._global, state.semaphore:
             async with state.start_lock:
-                wait_seconds = max(0.0, state.next_start_at - self._monotonic())
+                now = self._monotonic()
+                wait_seconds = max(0.0, state.next_start_at - now)
+                if min_interval_seconds is not None and state.started:
+                    # The floor binds consecutive wire starts even when the
+                    # previous request ran under a smaller interval.
+                    wait_seconds = max(
+                        wait_seconds, state.last_start_at + min_interval_seconds - now
+                    )
                 if wait_seconds:
                     await self._sleep(wait_seconds)
+                started_at = self._monotonic()
+                state.last_start_at = started_at
+                state.started = True
                 state.next_start_at = (
-                    self._monotonic() + self._interval + self._jitter * self._random()
+                    started_at + effective_interval + self._jitter * self._random()
                 )
             return await operation()
 
@@ -285,7 +315,12 @@ class HttpFetcher:
                 headers.setdefault(key, value)
 
         attempts: list[FetchAttempt] = []
-        for retry_index in range(self._max_retries + 1):
+        allowed_retries = self._max_retries
+        if request.max_retries is not None and request.max_retries < allowed_retries:
+            # Per-request ceiling: a source may demand FEWER retries than the
+            # global setting, never more.
+            allowed_retries = max(0, request.max_retries)
+        for retry_index in range(allowed_retries + 1):
             current_url = request.url
             current_method = method
             current_json = request.json_body
@@ -311,6 +346,7 @@ class HttpFetcher:
                             json_body=target_json,
                             form_body=target_form,
                         ),
+                        min_interval_seconds=request.min_interval_seconds,
                     )
                 except (RequestBudgetExceededError, HostCircuitOpenError) as exc:
                     raise type(exc)(str(exc), attempts=tuple(attempts)) from exc
@@ -404,7 +440,7 @@ class HttpFetcher:
                     cached,
                     tuple(attempts),
                 )
-            if retry_index >= self._max_retries:
+            if retry_index >= allowed_retries:
                 break
             delay = self._retry_delay(response, retry_index)
             await self._sleep(delay)

@@ -34,7 +34,7 @@ for new/changed/candidate jobs is a later phase. Use
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any, Iterable
@@ -47,11 +47,18 @@ from research_agent.sources.ats.common import (
     require_success,
     string_value,
 )
+from research_agent.pipeline.http import (
+    AccessChallengeError,
+    FetchError,
+    HostCircuitOpenError,
+)
 from research_agent.sources.base import (
     AdapterScanResult,
+    MaxConsecutiveErrorsExceeded,
     PortalScanContext,
     PortalTarget,
     RawJob,
+    ScanRequestBudgetExceeded,
 )
 from research_agent.sources.declarative import bridge, executor
 
@@ -281,10 +288,28 @@ class DeclarativeSourceAdapter:
         job_cap = context.max_jobs_per_portal
         seen_at = datetime.now(UTC).isoformat()
 
+        # Orchestration only: wire the spec's own safety requirements into
+        # the generic per-scan funnel (context) and per-request ceilings.
+        # No networking policy lives here — the fetcher/context enforce it.
+        # All wirings are conservative-only (floors/ceilings/budgets).
+        safety = spec.get("safety") or {}
+        if not isinstance(safety, dict):
+            raise AdapterSchemaError(f"{label}: spec safety section must be an object")
+        context.configure_scan_limits(
+            max_requests=safety.get("max_requests_per_run") or None,
+            long_pause_every_n_requests=safety.get("long_pause_every_n_requests") or 0,
+            long_pause_seconds=safety.get("long_pause_seconds") or 0.0,
+            max_consecutive_errors=safety.get("max_consecutive_errors") or None,
+        )
+        request_min_interval = safety.get("min_seconds_between_requests")
+        request_max_retries = safety.get("max_retries_on_5xx")
+        consecutive_budget = safety.get("max_consecutive_errors") or None
+
         first_total: Any = None
         total_changed = False
         truncated_by_cap = False
         pagination_anomaly = False
+        stopped_early = False
 
         try:
             current: Any = first
@@ -299,11 +324,48 @@ class DeclarativeSourceAdapter:
                     break
                 rendered = executor.render_catalog_request(spec, current)
                 fetch_request = bridge.to_fetch_request(rendered)
-                response = await context.fetch(fetch_request)
+                fetch_request = replace(
+                    fetch_request,
+                    min_interval_seconds=request_min_interval,
+                    max_retries=request_max_retries,
+                )
+                try:
+                    response = await context.fetch(fetch_request)
+                except (ScanRequestBudgetExceeded, MaxConsecutiveErrorsExceeded) as exc:
+                    # Per-scan safety stop: no further request, partial jobs
+                    # preserved, snapshot not complete. (Immediate-abort
+                    # signals — 403/429/challenge — propagate instead: the
+                    # fetcher already blocked the host, zero extra requests.)
+                    warnings.append(f"{label}: {exc}; snapshot not complete")
+                    stopped_early = True
+                    break
+                except (HostCircuitOpenError, AccessChallengeError):
+                    # 429 / access-challenge: immediate abort, unchanged
+                    # legacy semantics (FAILED isolation, host blocked).
+                    raise
+                except FetchError:
+                    if consecutive_budget is None:
+                        # No consecutive-error budget declared: legacy
+                        # behavior, first error fails the scan.
+                        raise
+                    # Retry the SAME offset; the context counts consecutive
+                    # failures and stops us at the budget via
+                    # MaxConsecutiveErrorsExceeded, success resets it.
+                    continue
                 # Reuse the standard ATS failure path: non-2xx raises
-                # AdapterHttpError, the fetcher/scanner own retry,
-                # circuit-breaker and cooldown. No custom handling here.
-                require_success(response)
+                # AdapterHttpError. Any HTTP error stops the scan
+                # immediately with partial results kept (never silently
+                # complete); the fetcher/scanner still own retry,
+                # circuit-breaker and cooldown.
+                try:
+                    require_success(response)
+                except AdapterHttpError as exc:
+                    warnings.append(
+                        f"{label}: {exc}; stopping immediately, "
+                        "snapshot not complete"
+                    )
+                    stopped_early = True
+                    break
                 payload = response.json()
                 if not isinstance(payload, dict):
                     raise AdapterSchemaError(
@@ -389,6 +451,7 @@ class DeclarativeSourceAdapter:
             and not truncated_by_cap
             and not pagination_anomaly
             and not total_changed
+            and not stopped_early
         )
         if not collected and is_complete_snapshot:
             warnings.append(f"{label}: upstream reports zero active jobs")
