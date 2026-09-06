@@ -73,18 +73,21 @@ qualifications-only change alters the hash (tested).
   (`require_success` → `AdapterHttpError`); 429 opens the fetcher host
   circuit immediately without retry. No custom recovery here.
 
-## Safety preflight (fail closed)
+## Safety preflight (fail closed, mandatory in the normal scan path)
 
 `scan()` deliberately does not read `spec["safety"]` — network safety
-is owned solely by `HttpFetcher`/`Scanner`. Before any live run, the
-pure function `safety.preflight_safety(spec, effective)` (also exposed
-as `adapter.preflight(target, effective)`) compares spec requirements
-against the effective scanner configuration:
+is owned solely by `HttpFetcher`/`Scanner`. The normal `scan_portals()`
+path invokes the optional generic adapter hook `preflight(target,
+settings)` after select() and before anything that could touch the
+network; the declarative implementation compares the bound spec's
+requirements against the effective scanner configuration
+(`safety.preflight_safety`, also callable directly for diagnostics):
 
 - SAFE_TO_RUN / UNSUPPORTED_SAFETY_REQUIREMENT / SCANNER_SETTINGS_TOO_PERMISSIVE.
 - `long_pause_*` and `max_consecutive_errors` are NOT_CURRENTLY_SUPPORTED:
   active values fail the preflight honestly instead of being ignored.
-- There is no bypass flag; `assert_safe_to_run` raises `UnsafeToRunError`.
+- There is no bypass flag; a failing hook yields a FAILED portal scan
+  with zero requests (`UnsafeToRunError`), never UNSUPPORTED.
 
 ## Language status
 

@@ -212,17 +212,25 @@ class DeclarativeSourceAdapter:
                 f"no declarative binding for {target.normalized_jobs_url!r}"
             ) from None
 
-    def preflight(self, target: PortalTarget, effective: Any) -> Any:
-        """Fail-closed safety verdict for one bound target (no I/O).
+    def preflight(self, target: PortalTarget, settings: Any) -> None:
+        """Fail-closed safety gate for one bound target (no I/O).
 
-        Compares the bound spec's safety requirements against the
-        effective scanner safety (see safety.preflight_safety). Future
-        live harnesses must call this before scan(); scan() itself
-        stays settings-free on purpose.
+        Invoked automatically by the normal Scanner path before scan()
+        (optional generic adapter hook — see SourceAdapter contract
+        notes). Returns None when the bound spec is safe to run under
+        the given scanner settings, otherwise raises
+        safety.UnsafeToRunError. Accepts a ScannerSettings or an
+        already-projected EffectiveScannerSafety. There is no bypass:
+        the only way to scan is to satisfy the spec.
         """
         from research_agent.sources.declarative import safety as _safety
 
-        return _safety.preflight_safety(self.spec_for(target), effective)
+        spec = self.spec_for(target)
+        if isinstance(settings, _safety.EffectiveScannerSafety):
+            effective = settings
+        else:
+            effective = _safety.effective_safety_from_settings(settings)
+        _safety.assert_safe_to_run(spec, effective)
 
     def render_detail_fetch(self, target: PortalTarget, stable_id: str) -> Any:
         """Render (not send) the detail FetchRequest for one stable id.

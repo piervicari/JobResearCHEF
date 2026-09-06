@@ -207,6 +207,58 @@ async def scan_portals(
                 error_message=f"No adapter supports ATS metadata {target.ats_families}",
             )
 
+        # Optional generic adapter preflight: runs BEFORE anything that
+        # could touch the network. An adapter exposing `preflight(target,
+        # settings)` gets fail-closed gating for free; adapters without
+        # the hook (all legacy adapters) scan exactly as before. The
+        # hook contract is return-None-if-safe / raise-if-unsafe — the
+        # scanner never interprets verdict strings, and a non-None
+        # return is itself a contract violation (fail closed, so a
+        # verdict object can never be silently ignored).
+        preflight = getattr(adapter, "preflight", None)
+        if callable(preflight):
+            try:
+                preflight_outcome = preflight(target, settings)
+            except Exception as exc:
+                return PortalScanResult(
+                    target=target,
+                    adapter=adapter.name,
+                    status="FAILED",
+                    started_at=started_at,
+                    finished_at=utc_now(),
+                    jobs=(),
+                    fetch_attempts=(),
+                    retry_count=0,
+                    final_http_status=None,
+                    response_sha256=None,
+                    cache_hit=False,
+                    complete_snapshot=False,
+                    warnings=(),
+                    error_type=type(exc).__name__,
+                    error_message=str(exc)[:2000],
+                )
+            if preflight_outcome is not None:
+                return PortalScanResult(
+                    target=target,
+                    adapter=adapter.name,
+                    status="FAILED",
+                    started_at=started_at,
+                    finished_at=utc_now(),
+                    jobs=(),
+                    fetch_attempts=(),
+                    retry_count=0,
+                    final_http_status=None,
+                    response_sha256=None,
+                    cache_hit=False,
+                    complete_snapshot=False,
+                    warnings=(),
+                    error_type="PreflightContractViolation",
+                    error_message=(
+                        "adapter preflight must return None when safe and "
+                        "raise when unsafe; refusing to ignore its verdict"
+                    ),
+                )
+
         # For one-shot structured catalog APIs (for example Greenhouse/Ashby),
         # receiving hundreds of records does not mean hundreds of network requests.
         # Preserve the full response while keeping the same strict request/page budget.

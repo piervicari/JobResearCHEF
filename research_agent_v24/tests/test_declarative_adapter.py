@@ -619,6 +619,9 @@ def test_unsupported_active_requirement_blocks_before_any_http():
 
 
 def test_adapter_preflight_delegates_to_bound_spec():
+    """Raise-None contract: unsafe bound spec raises UnsafeToRunError
+    (verdict-object diagnostics stay available via
+    safety.preflight_safety, covered by the module-level tests above)."""
     adapter = _adapter()
     from research_agent.sources.declarative import safety as safety_module
 
@@ -629,8 +632,14 @@ def test_adapter_preflight_delegates_to_bound_spec():
         max_requests_per_host_per_run=5,
         max_retries=0,
     )
-    result = adapter.preflight(_target(NVIDIA_PORTAL), strict)
-    assert result.verdict == "UNSUPPORTED_SAFETY_REQUIREMENT"
+    with pytest.raises(safety_module.UnsafeToRunError) as raised:
+        adapter.preflight(_target(NVIDIA_PORTAL), strict)
+    assert "UNSUPPORTED_SAFETY_REQUIREMENT" in str(raised.value)
+
+    from research_agent.config import ScannerSettings
+
+    with pytest.raises(safety_module.UnsafeToRunError):
+        adapter.preflight(_target(NVIDIA_PORTAL), ScannerSettings())
 
 
 # ============================================================

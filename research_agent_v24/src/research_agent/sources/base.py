@@ -84,6 +84,15 @@ class SourceAdapter(Protocol):
     ) -> AdapterScanResult: ...
 
 
+# Optional generic preflight hook (NOT part of the Protocol on purpose:
+# legacy adapters must not be forced to implement it). An adapter MAY
+# define `preflight(target, settings) -> None`, which the normal Scanner
+# path invokes after select() and before anything that could touch the
+# network. Contract: return None when safe, raise when unsafe (fail
+# closed); any non-None return is itself treated as a contract
+# violation. Adapters without the hook scan exactly as before.
+
+
 class AdapterRegistry:
     def __init__(self, adapters: list[SourceAdapter]) -> None:
         self._adapters = tuple(adapters)
