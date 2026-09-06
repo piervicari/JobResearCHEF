@@ -1,0 +1,442 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hermes-agent.local/source_spec.schema.json",
+  "title": "Hermes Source Spec v0.1",
+  "description": "Declarative contract for a job-source adapter. Describes WHAT to do (HTTP, pagination, extraction paths, safety policy, completeness rules). Contains NO executable code. The runtime evaluates the spec; the source provider only contributes the JSON. v0.1 supports offset pagination only — page_number and cursor are intentionally NOT advertised; they will land in v0.2 when a real source needs them.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "company", "platform", "request", "extraction", "paging", "completeness", "safety"],
+  "properties": {
+    "schema_version": {
+      "description": "Version of this contract that this spec targets.",
+      "type": "string",
+      "const": "source_spec/v0.1"
+    },
+    "company": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stable lowercase slug (e.g. 'mercedes-benz', 'nvidia').",
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
+        "name": {"type": "string"},
+        "career_site": {
+          "type": "string",
+          "format": "uri",
+          "description": "Public-facing careers homepage."
+        }
+      }
+    },
+    "platform": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Identifier for the ATS / vendor (e.g. 'beesite', 'eightfold_pcsx', 'workday', 'greenhouse', 'lever')."
+        },
+        "notes": {"type": "string"}
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "url"],
+      "properties": {
+        "method": {"type": "string", "enum": ["GET", "POST"]},
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Absolute URL of the catalog endpoint. May contain {{stable_id}}-style placeholders only when paging.inject.target = 'url_path'."
+        },
+        "headers": {
+          "type": "object",
+          "description": "Static request headers (string → string).",
+          "additionalProperties": {"type": "string"}
+        },
+        "query": {
+          "type": "object",
+          "description": "Static query parameters. Values may be primitives.",
+          "additionalProperties": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "number"},
+              {"type": "boolean"}
+            ]
+          }
+        },
+        "body": {
+          "type": "object",
+          "description": "Static JSON body for POST requests. Plain JSON — values may include {{var}} placeholders that the runtime interpolates as strings."
+        },
+        "templates": {
+          "type": "object",
+          "description": "Overrides / dynamic parts of the request. Each key is a dotted path that, when resolved against the request, replaces the static value at that location with the template value. Template values may be: a string with {{var}} placeholders (string interpolation), a number, a boolean, an array, or a nested object. They are NEVER stringified JSON that needs json.loads — they are direct JSON values.",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["at", "value"],
+            "properties": {
+              "at": {
+                "type": "string",
+                "description": "Dotted path to the slot to override. Examples: 'headers.User-Agent', 'query.start', 'body.SearchParameters.FirstItem', 'body.SearchCriteria'. For 'url_path' paging.inject this is 'url'."
+              },
+              "value": {
+                "description": "The template value. Any JSON-serialisable value. Strings may contain {{var}} placeholders."
+              }
+            }
+          }
+        },
+        "variables": {
+          "type": "object",
+          "description": "Defaults for {{var}} placeholders used in template values.",
+          "additionalProperties": true
+        }
+      }
+    },
+    "extraction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["item_path", "stable_id_path", "title_path"],
+      "properties": {
+        "page_wrapper": {
+          "type": "object",
+          "description": "JSON paths to extract the page-level counters and the list of items. All paths use dotted notation (e.g. 'data.positions') or JSON-pointer-style ('/data/positions').",
+          "additionalProperties": false,
+          "required": ["items", "total"],
+          "properties": {
+            "items": {"type": "string"},
+            "total": {"type": "string"}
+          }
+        },
+        "item_path": {"type": "string"},
+        "total_path": {"type": "string"},
+        "stable_id_path": {"type": "string"},
+        "secondary_id_paths": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "title_path": {"type": "string"},
+        "department_path": {"type": ["string", "null"]},
+        "organization_path": {"type": ["string", "null"]},
+        "publication_date_path": {"type": ["string", "null"]},
+        "expiration_date_path": {"type": ["string", "null"]},
+        "official_url_path": {"type": ["string", "null"]},
+        "official_url_template": {"type": ["string", "null"]},
+        "apply_url_path": {"type": ["string", "null"]},
+        "language_path": {"type": ["string", "null"]},
+        "preferred_language_codes": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "date_format": {
+          "type": "string",
+          "enum": ["iso_date", "iso_datetime", "unix_seconds"]
+        },
+        "locations": {
+          "type": "object",
+          "description": "Declarative description of how to extract a list of human-readable location strings.",
+          "additionalProperties": false,
+          "required": ["path"],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Dotted path to the raw locations value."
+            },
+            "shape": {
+              "type": "string",
+              "enum": ["list_of_strings", "list_of_objects"],
+              "default": "list_of_strings",
+              "description": "If 'list_of_strings' the raw list is taken as-is. If 'list_of_objects' the runtime renders each item using 'item_template'."
+            },
+            "item_template": {
+              "type": "string",
+              "description": "Template for each object item. Placeholders are dotted paths RELATIVE to the item, e.g. '{DisplayName}' or '{CityName} ({CountryCode})'. Used only when shape=list_of_objects."
+            },
+            "fallback_paths": {
+              "type": "array",
+              "description": "Optional ordered list of dotted paths to try when the primary 'path' is missing or empty.",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "description": {
+          "type": "object",
+          "description": "How to extract the full description text. May be sourced from the catalog item OR from a detail response (see detail.description_path).",
+          "additionalProperties": false,
+          "required": ["path"],
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Dotted path within the item to the description. If the value is a LIST of {Tasks, Qualifications} objects (e.g. Mercedes), use 'shape: list_of_blocks' to extract both halves."
+            },
+            "shape": {
+              "type": "string",
+              "enum": ["string", "list_of_blocks"],
+              "default": "string",
+              "description": "'string' = the value at 'path' is the description. 'list_of_blocks' = the value at 'path' is a list of objects each with 'Tasks' and 'Qualifications' fields; the runtime joins them into description + qualifications using the optional relative keys."
+            },
+            "tasks_relative_key": {
+              "type": "string",
+              "default": "Tasks",
+              "description": "Relative key inside each block that holds the tasks text (used only when shape=list_of_blocks)."
+            },
+            "qualifications_relative_key": {
+              "type": "string",
+              "default": "Qualifications",
+              "description": "Relative key inside each block that holds the qualifications text (used only when shape=list_of_blocks)."
+            },
+            "join_separator": {
+              "type": "string",
+              "default": "\n\n",
+              "description": "Separator used when shape=list_of_blocks joins multiple Tasks/Qualifications blocks."
+            },
+            "strip_html": {
+              "type": "boolean",
+              "default": true,
+              "description": "If true, the runtime strips HTML tags and collapses whitespace before storing."
+            },
+            "fallback_paths": {
+              "type": "array",
+              "description": "Optional ordered list of dotted paths to try when the primary 'path' is missing or empty (catalog or detail).",
+              "items": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "description_in_catalog": {
+      "type": "boolean",
+      "description": "True if the catalog response already contains the full job description. If false, the runtime MUST issue a detail request per NEW or CHANGED item."
+    },
+    "detail": {
+      "type": "object",
+      "description": "Optional detail-request block. Required only when description_in_catalog is false.",
+      "additionalProperties": false,
+      "required": ["method", "url", "interpolation"],
+      "properties": {
+        "method": {"type": "string", "enum": ["GET", "POST"]},
+        "url": {"type": "string", "format": "uri"},
+        "headers": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        },
+        "query": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              {"type": "string"},
+              {"type": "number"},
+              {"type": "boolean"}
+            ]
+          }
+        },
+        "body": {"type": "object"},
+        "templates": {
+          "type": "object",
+          "description": "Same semantics as request.templates: dotted-path overrides with direct JSON values.",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["at", "value"],
+            "properties": {
+              "at": {"type": "string"},
+              "value": {"description": "Any JSON-serialisable value. Strings may contain {{var}} placeholders."}
+            }
+          }
+        },
+        "interpolation": {
+          "type": "object",
+          "description": "Where the stable_id is interpolated. 'query_param' (uses interpolation.name as key), 'body_path' (writes into body at the dotted path interpolation.name), 'url_path' (URL must contain {{stable_id}} placeholder).",
+          "required": ["target", "name"],
+          "properties": {
+            "target": {"type": "string", "enum": ["query_param", "body_path", "url_path"]},
+            "name": {
+              "type": "string",
+              "description": "Key name (query_param) or dotted body path (body_path) or '{{stable_id}}' marker (url_path)."
+            }
+          }
+        },
+        "description_path": {"type": "string"},
+        "description_is_html": {"type": "boolean"}
+      }
+    },
+    "paging": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["strategy", "page_size", "inject"],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "const": "offset",
+          "description": "v0.1 supports offset pagination only. page_number and cursor are not advertised in this version."
+        },
+        "page_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "page_param": {
+          "type": "string",
+          "description": "Query/body parameter name that carries the offset. For 'url_path' inject targets this is the {{page_param}} placeholder in the URL template.",
+          "default": "start"
+        },
+        "first_page_value": {
+          "type": ["integer", "string"],
+          "description": "Offset of the first page. Most sources start at 0 or 1.",
+          "default": 1
+        },
+        "inject": {
+          "type": "object",
+          "description": "WHERE the runtime must put the offset value when building a request. Exhaustive — no inference.",
+          "additionalProperties": false,
+          "required": ["target"],
+          "properties": {
+            "target": {
+              "type": "string",
+              "enum": ["query_param", "body_path"],
+              "description": "Where the value is written. 'url_path' is intentionally excluded in v0.1 — we have no real source that needs it."
+            },
+            "path": {
+              "type": "string",
+              "description": "For 'body_path': dotted JSON path within the request body (e.g. 'SearchParameters.FirstItem'). For 'query_param': leave empty, the runtime uses paging.page_param."
+            }
+          }
+        }
+      }
+    },
+    "language": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "default": {
+          "type": "string",
+          "description": "Language code (e.g. 'en', 'EN') that the runtime injects into the request when the source expects one."
+        },
+        "where": {
+          "type": "string",
+          "enum": ["query", "body"],
+          "description": "Where the language code goes in the request."
+        },
+        "param": {
+          "type": "string",
+          "description": "Parameter name. Defaults to 'language' / 'hl' / 'LanguageCode' depending on convention.",
+          "default": "language"
+        }
+      }
+    },
+    "source_of_truth": {
+      "type": "string",
+      "enum": ["full_catalog", "filtered_catalog"],
+      "description": "Whether this source represents the COMPLETE company catalog (and is therefore authoritative for OPEN/CLOSED) or a FILTERED candidate view (which MUST NOT be used for CLOSED).",
+      "default": "full_catalog"
+    },
+    "open_closed_authoritative": {
+      "type": "boolean",
+      "description": "If true and source_of_truth == 'full_catalog', the runtime may use this source to compute authoritative CLOSED transitions (PIDs that disappeared from the full catalog are marked is_open=0).",
+      "default": true
+    },
+    "completeness": {
+      "type": "object",
+      "description": "Rigorously positive evidence that the catalog was traversed to the end.",
+      "additionalProperties": false,
+      "required": ["rules"],
+      "properties": {
+        "rules": {
+          "type": "array",
+          "description": "List of rules that must ALL hold true for catalog_complete = true. Each rule is a named check evaluated by the runtime.",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "kind"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Human-readable rule name (e.g. 'offset_advanced_past_total')."
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "next_offset_ge_total",
+                  "last_page_shorter_than_page_size",
+                  "cursor_absent",
+                  "items_path_empty_after_total",
+                  "page_size_equals_expected"
+                ]
+              },
+              "config": {
+                "type": "object",
+                "description": "Optional rule-specific config. For 'last_page_shorter_than_page_size': whether the protocol guarantees this (default true).",
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "on_incomplete": {
+          "type": "string",
+          "enum": ["skip_closed", "abort_run"],
+          "description": "What the runtime must do when ANY rule fails. 'skip_closed' (the safe default) means the source is treated as authoritative for the PIDs we DID see, but CLOSED transitions are NOT computed for missing PIDs.",
+          "default": "skip_closed"
+        }
+      }
+    },
+    "safety": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sequential_only", "abort_on_http_403", "abort_on_http_429", "max_requests_per_run"],
+      "properties": {
+        "sequential_only": {
+          "type": "boolean",
+          "const": true,
+          "description": "Always true. No concurrency against this source."
+        },
+        "min_seconds_between_requests": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Minimum seconds between two requests. The runtime may add jitter on top."
+        },
+        "long_pause_every_n_requests": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "long_pause_seconds": {
+          "type": "number",
+          "minimum": 0
+        },
+        "max_requests_per_run": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Hard ceiling on real HTTP attempts in a single run (including 5xx retries)."
+        },
+        "abort_on_http_403": {"type": "boolean", "const": true},
+        "abort_on_http_429": {"type": "boolean", "const": true},
+        "max_retries_on_5xx": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Number of retries AFTER the original attempt. max_retries_on_5xx=1 means 1 original + 1 retry = 2 wire attempts."
+        },
+        "max_consecutive_errors": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "not": {
+        "description": "Forbidden keys — if any of these appears, the spec is rejected.",
+        "anyOf": [
+          {"required": ["proxy_rotation"]},
+          {"required": ["ip_rotation"]},
+          {"required": ["user_agent_rotation"]},
+          {"required": ["captcha_bypass"]},
+          {"required": ["anti_bot_evasion"]}
+        ]
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-text notes (unresolved gaps, caveats, etc.)."
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "notes": "Explicit bindings from careers-portal URL to source_spec JSON. Exact match only: DeclarativeSourceAdapter.supports() compares PortalTarget.normalized_jobs_url against these keys with plain string equality. No host similarity, no ATS-family inference, no substring or regex matching. normalized_jobs_url values are the spec-owned career_site URLs (operator-configured). Adding a source means appending one entry here; nothing else infers it.",
+  "bindings": [
+    {
+      "normalized_jobs_url": "https://jobs.mercedes-benz.com",
+      "spec": "specs/mercedes.json"
+    },
+    {
+      "normalized_jobs_url": "https://jobs.nvidia.com/careers",
+      "spec": "specs/nvidia.json"
+    },
+    {
+      "normalized_jobs_url": "https://careers.microsoft.com",
+      "spec": "specs/microsoft.json"
+    }
+  ]
+}

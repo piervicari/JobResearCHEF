@@ -1,0 +1,141 @@
+{
+  "schema_version": "source_spec/v0.1",
+  "company": {
+    "id": "microsoft",
+    "name": "Microsoft",
+    "career_site": "https://careers.microsoft.com"
+  },
+  "platform": {
+    "name": "eightfold_pcsx",
+    "notes": "Microsoft careers runs on Eightfold.ai PCSX. Indicators: microsoft.eightfold.ai subdomain, static.vscdn.net scripts, ?domain=microsoft.com query param, /api/pcsx/* URLs. Backed internally by SuccessFactors (position.system_id:successfactors in the Solr query embedded in the Eightfold config). Identical wire protocol to NVIDIA — same JSON envelope (status/error/data/metadata), same data.positions array, same detail endpoint shape."
+  },
+  "source_of_truth": "full_catalog",
+  "open_closed_authoritative": true,
+  "request": {
+    "method": "GET",
+    "url": "https://microsoft.eightfold.ai/api/pcsx/search",
+    "headers": {
+      "Accept": "application/json",
+      "Accept-Language": "en-US,en;q=0.9"
+    },
+    "query": {
+      "domain": "microsoft.com"
+    },
+    "body": {},
+    "templates": {
+      "User-Agent": {
+        "at": "headers.User-Agent",
+        "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+      },
+      "start": {
+        "at": "query.start",
+        "value": "{{start}}"
+      },
+      "language": {
+        "at": "query.hl",
+        "value": "{{language}}"
+      }
+    },
+    "variables": {
+      "start": "0",
+      "language": "en"
+    }
+  },
+  "language": {
+    "default": "en",
+    "where": "query",
+    "param": "hl"
+  },
+  "extraction": {
+    "page_wrapper": {
+      "items": "data.positions",
+      "total": "data.count"
+    },
+    "item_path": "data.positions",
+    "total_path": "data.count",
+    "stable_id_path": "id",
+    "secondary_id_paths": ["displayJobId", "atsJobId"],
+    "title_path": "name",
+    "department_path": "department",
+    "organization_path": null,
+    "publication_date_path": "postedTs",
+    "expiration_date_path": null,
+    "official_url_path": "publicUrl",
+    "official_url_template": "https://apply.careers.microsoft.com/careers/job/{{stable_id}}",
+    "apply_url_path": "positionUserActions.applyAction.applyUrl",
+    "language_path": null,
+    "preferred_language_codes": ["en"],
+    "date_format": "unix_seconds",
+    "locations": {
+      "path": "locations",
+      "shape": "list_of_strings"
+    },
+    "description": {
+      "path": "jobDescription",
+      "shape": "string",
+      "strip_html": true,
+      "fallback_paths": []
+    }
+  },
+  "description_in_catalog": false,
+  "detail": {
+    "method": "GET",
+    "url": "https://microsoft.eightfold.ai/api/pcsx/position_details",
+    "headers": {
+      "Accept": "application/json",
+      "Accept-Language": "en-US,en;q=0.9"
+    },
+    "query": {
+      "domain": "microsoft.com"
+    },
+    "body": {},
+    "templates": {
+      "User-Agent": {
+        "at": "headers.User-Agent",
+        "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+      },
+      "position_id": {
+        "at": "query.position_id",
+        "value": "{{stable_id}}"
+      },
+      "language": {
+        "at": "query.hl",
+        "value": "{{language}}"
+      }
+    },
+    "interpolation": {
+      "target": "query_param",
+      "name": "position_id"
+    },
+    "description_path": "data.jobDescription"
+  },
+  "paging": {
+    "strategy": "offset",
+    "page_size": 10,
+    "first_page_value": 0,
+    "page_param": "start",
+    "inject": {
+      "target": "query_param",
+      "path": ""
+    }
+  },
+  "completeness": {
+    "rules": [
+      {"name": "next_offset_ge_total", "kind": "next_offset_ge_total"},
+      {"name": "last_page_shorter", "kind": "last_page_shorter_than_page_size"}
+    ],
+    "on_incomplete": "skip_closed"
+  },
+  "safety": {
+    "sequential_only": true,
+    "min_seconds_between_requests": 0.5,
+    "long_pause_every_n_requests": 0,
+    "long_pause_seconds": 0,
+    "max_requests_per_run": 600,
+    "abort_on_http_403": true,
+    "abort_on_http_429": true,
+    "max_retries_on_5xx": 1,
+    "max_consecutive_errors": 8
+  },
+  "notes": "Full catalog source (verified total=2252 via single probe). Description is NOT in the catalog; a per-item detail request is required. Stable ID is the numeric `id`. officialUrl pattern is `https://apply.careers.microsoft.com/careers/job/{id}` (also returned as `publicUrl` in detail response). The wire protocol is byte-for-byte identical to NVIDIA — same envelope, same paths, same field names. The only differences are the host (microsoft.eightfold.ai vs jobs.nvidia.com), the domain query value (microsoft.com vs nvidia.com), and the official URL template. Eightfold throttles at ~0.5s/request."
+}
