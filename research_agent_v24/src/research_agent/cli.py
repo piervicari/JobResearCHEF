@@ -28,6 +28,7 @@ from research_agent.ai.job_triage import (
     triage_pending_jobs,
 )
 from research_agent.company.aliases import import_company_aliases, propose_company_aliases
+from research_agent.company.external_candidates import import_external_candidates
 from research_agent.company.importer import import_master
 from research_agent.company.registry_changes import (
     apply_registry_changes,
@@ -159,6 +160,32 @@ def import_master_command(
     typer.echo(f"Master {action}; batch={result.import_batch_id} sha256={result.source_sha256}")
     for metric, value in asdict(result.metrics).items():
         typer.echo(f"{metric}: {value}")
+
+
+@app.command("import-external-candidates")
+def import_external_candidates_command(
+    candidates_path: Annotated[Path, typer.Argument(exists=True, dir_okay=False)],
+    database_url: Annotated[
+        str | None, typer.Option(help="Override the configured database URL.")
+    ] = None,
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Report counts without writing anything.")
+    ] = False,
+) -> None:
+    """Import HIGH_CONFIDENCE external candidates as unverified evidence (offline)."""
+
+    result = import_external_candidates(_engine(database_url), candidates_path, dry_run=dry_run)
+    action = "already present" if result.already_imported else ("would import" if dry_run else "imported")
+    typer.echo(f"External candidates {action}; batch={result.import_batch_id} sha256={result.source_sha256}")
+    typer.echo(f"input_rows: {result.input_rows}")
+    typer.echo(f"valid_high_rows: {result.valid_high_rows}")
+    typer.echo(f"skipped_non_high: {result.skipped_non_high}")
+    typer.echo(f"duplicate_rows: {result.duplicate_rows}")
+    typer.echo(f"inserted_rows: {result.inserted_rows}")
+    typer.echo(f"companies_affected: {result.companies_affected}")
+    typer.echo(f"multi_source_companies: {result.multi_source_companies}")
+    typer.echo(f"ats_distribution: {result.ats_distribution}")
+    typer.echo(f"support_distribution: {result.support_distribution}")
 
 
 @app.command("apply-registry-changes")

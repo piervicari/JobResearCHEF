@@ -516,4 +516,52 @@ def model_table_names() -> list[str]:
     return sorted(Base.metadata.tables)
 
 
+class ExternalSourceCandidate(Base):
+    """Unverified external-registry source evidence; never a binding.
+
+    Rows are candidates (provider + ATS + board URL + match evidence) with
+    provenance. ``verified`` stays False until a future lazy, on-demand,
+    single-company validation promotes the candidate through the normal
+    audited registry path. Nothing in the scan path reads this table, so
+    importing candidates cannot queue scans or select adapters.
+    """
+
+    __tablename__ = "external_source_candidates"
+    __table_args__ = (
+        UniqueConstraint(
+            "internal_company_id",
+            "provider",
+            "ats_family",
+            "normalized_external_url",
+            "slug",
+            name="uq_external_candidate_identity",
+        ),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    internal_company_id: Mapped[str] = mapped_column(String(32), nullable=False, index=True)
+    internal_company_name: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    internal_domain: Mapped[str] = mapped_column(String(255), nullable=False, default="")
+    internal_country: Mapped[str] = mapped_column(String(128), nullable=False, default="")
+    provider: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    provider_commit: Mapped[str] = mapped_column(String(64), nullable=False, default="")
+    ats_family: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    external_company_name: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    slug: Mapped[str] = mapped_column(String(500), nullable=False, default="")
+    external_url: Mapped[str] = mapped_column(Text, nullable=False)
+    normalized_external_url: Mapped[str] = mapped_column(Text, nullable=False)
+    match_class: Mapped[str] = mapped_column(String(32), nullable=False)
+    match_basis: Mapped[str] = mapped_column(String(32), nullable=False, default="")
+    confidence_reason: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    support_class: Mapped[str] = mapped_column(String(32), nullable=False, default="UNKNOWN")
+    verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    import_batch_id: Mapped[int] = mapped_column(
+        ForeignKey("import_batches.id", ondelete="RESTRICT"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=utc_now
+    )
+
+
 JSONMapping = dict[str, Any]
