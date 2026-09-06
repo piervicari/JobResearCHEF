@@ -23,7 +23,12 @@
       "SearchParameters": {
         "FirstItem": 1,
         "CountItem": 50,
-        "Sort": [{"Criterion": "PublicationStartDate", "Direction": "DESC"}]
+        "Sort": [
+          {
+            "Criterion": "PublicationStartDate",
+            "Direction": "DESC"
+          }
+        ]
       },
       "SearchCriteria": []
     },
@@ -56,7 +61,9 @@
     "item_path": "SearchResult.SearchResultItems",
     "total_path": "SearchResult.SearchResultCountAll",
     "stable_id_path": "PositionID",
-    "secondary_id_paths": ["ID"],
+    "secondary_id_paths": [
+      "ID"
+    ],
     "title_path": "PositionTitle",
     "department_path": "DepartmentName",
     "organization_path": "ParentOrganizationName",
@@ -65,7 +72,9 @@
     "official_url_path": "PositionURI",
     "apply_url_path": "ApplyURI.0",
     "language_path": "PublicationLanguage.Code",
-    "preferred_language_codes": ["1"],
+    "preferred_language_codes": [
+      "1"
+    ],
     "date_format": "iso_date",
     "locations": {
       "path": "PositionLocation",
@@ -94,8 +103,14 @@
   },
   "completeness": {
     "rules": [
-      {"name": "next_offset_ge_total", "kind": "next_offset_ge_total"},
-      {"name": "items_path_empty_after_total", "kind": "items_path_empty_after_total"}
+      {
+        "name": "next_offset_ge_total",
+        "kind": "next_offset_ge_total"
+      },
+      {
+        "name": "items_path_empty_after_total",
+        "kind": "items_path_empty_after_total"
+      }
     ],
     "on_incomplete": "skip_closed"
   },
@@ -110,5 +125,5 @@
     "max_retries_on_5xx": 1,
     "max_consecutive_errors": 8
   },
-  "notes": "Full catalog source. Verified via single offline probe (--probe-full-catalog) that empty SearchCriteria returns SearchResultCountAll=2798. Description and qualifications are extracted from the catalog item via extraction.description (shape=list_of_blocks). Stable ID is PositionID; the catalog may return one PID in multiple language variants (DE/EN/HU); preferred_language_codes collapses to English."
+  "notes": "Full catalog source. Verified via single offline probe (--probe-full-catalog) that empty SearchCriteria returns SearchResultCountAll=2798. Description and qualifications are extracted from the catalog item via extraction.description (shape=list_of_blocks). Stable ID is PositionID. The catalog was once suspected of returning one PID in multiple language variants (DE/EN/HU), but 347 real catalog items inspected offline (mb/all_jobs_full.json: 114, mb/all_jobs_full2.json: 119, mb/all_jobs_raw.json: 114) show only PublicationLanguage Code 1 and zero duplicate PositionIDs, so preferred_language_codes is DECLARED_BUT_UNEXERCISED: the runtime does not read it and performs no cross-language dedup. Completeness is decided on traversed catalog items and page history, never on unique-job counts."
 }

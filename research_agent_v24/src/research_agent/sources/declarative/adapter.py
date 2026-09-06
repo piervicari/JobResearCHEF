@@ -212,6 +212,18 @@ class DeclarativeSourceAdapter:
                 f"no declarative binding for {target.normalized_jobs_url!r}"
             ) from None
 
+    def preflight(self, target: PortalTarget, effective: Any) -> Any:
+        """Fail-closed safety verdict for one bound target (no I/O).
+
+        Compares the bound spec's safety requirements against the
+        effective scanner safety (see safety.preflight_safety). Future
+        live harnesses must call this before scan(); scan() itself
+        stays settings-free on purpose.
+        """
+        from research_agent.sources.declarative import safety as _safety
+
+        return _safety.preflight_safety(self.spec_for(target), effective)
+
     def render_detail_fetch(self, target: PortalTarget, stable_id: str) -> Any:
         """Render (not send) the detail FetchRequest for one stable id.
 
@@ -309,6 +321,17 @@ class DeclarativeSourceAdapter:
                     pagination_anomaly = True
                     break
 
+                if items and current > total >= 0:
+                    # Items beyond the stated total: upstream under-reports
+                    # (or grew mid-run without updating total). Treat like
+                    # a total change — snapshot not authoritative.
+                    warnings.append(
+                        f"{label}: page at offset {current} returned "
+                        f"{len(items)} items beyond stated total={total}: "
+                        "snapshot not authoritative"
+                    )
+                    total_changed = True
+
                 for index, raw in enumerate(items):
                     item = require_mapping(
                         raw, context=f"{label} catalog page {current}[{index}]"
@@ -329,7 +352,9 @@ class DeclarativeSourceAdapter:
                     total_changed = True
 
                 upcoming = self._upcoming_offsets(
-                    spec, first, page_size, current, total, probe_rule, fetched
+                    spec, first, page_size, current, total, probe_rule, fetched,
+                    last_page_items=len(items),
+                    short_page_rule=("last_page_shorter_than_page_size" in rule_kinds),
                 )
                 if len(collected) > job_cap or (
                     len(collected) == job_cap and upcoming
@@ -374,6 +399,9 @@ class DeclarativeSourceAdapter:
         total: int,
         probe_rule: bool,
         fetched: set[Any],
+        *,
+        last_page_items: int = 0,
+        short_page_rule: bool = False,
     ) -> list[Any]:
         """Data offsets after `current` (+ terminal probe), minus fetched.
 
@@ -381,6 +409,15 @@ class DeclarativeSourceAdapter:
         the single empty-after-total probe when the spec's rules require
         it), recomputed from the latest observed total so a changing
         total cannot loop forever; the fetched-set guarantees progress.
+
+        The unconditional probe covers specs whose rules REQUIRE the
+        empty-after-total page (``items_path_empty_after_total``). Specs
+        whose rules merely ACCEPT it as an alternative
+        (``last_page_shorter_than_page_size``: partial final page OR
+        empty-after-total) get a CONDITIONAL probe: only when the last
+        data page came back full — the only case where the rule cannot
+        be satisfied without one. A partial final page stops the scan
+        with no extra request.
         """
         if not isinstance(total, int) or total < 0:
             return []
@@ -400,7 +437,12 @@ class DeclarativeSourceAdapter:
             first + kilopage * page_size
             for kilopage in range(current_index + 1, n_data)
         ]
-        if probe_rule and n_data >= 0 and total >= 0:
+        last_data = first + (n_data - 1) * page_size if n_data else None
+        at_end = last_data is not None and current >= last_data
+        probe_needed = probe_rule or (
+            short_page_rule and at_end and total > 0 and last_page_items == page_size
+        )
+        if probe_needed:
             probe = first + n_data * page_size
             upcoming.append(probe)
         return [offset for offset in upcoming if offset not in fetched]

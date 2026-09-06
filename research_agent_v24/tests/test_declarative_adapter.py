@@ -222,6 +222,56 @@ def test_legacy_registry_behavior_unchanged_without_config():
     assert isinstance(registry.select(_target(NVIDIA_PORTAL)), type(None))
 
 
+def _family_target(portal_url: str, family: str, portal_id: int = 1) -> PortalTarget:
+    return PortalTarget(
+        portal_id=portal_id,
+        jobs_search_url=portal_url,
+        normalized_jobs_url=portal_url,
+        host=httpx.URL(portal_url).host,
+        ats_families=(family,),
+        ats_confidences=("Verified",),
+    )
+
+
+def test_bound_portal_beats_legacy_family_heuristic():
+    """Conflict A: the bound Microsoft portal also carries a family marker
+    that SuccessFactorsRmkAdapter.supports matches (substring, any URL).
+    First-match order must still select the explicit binding."""
+    from research_agent.sources.ats.successfactors import SuccessFactorsRmkAdapter
+
+    heuristic = _family_target(MICROSOFT_PORTAL, "SuccessFactors Recruiting Marketing")
+    assert SuccessFactorsRmkAdapter().supports(heuristic) is True
+    registry = structured_adapter_registry(declarative_adapters=[_adapter()])
+    assert isinstance(registry.select(heuristic), DeclarativeSourceAdapter)
+
+
+def test_unbound_portal_with_same_marker_stays_legacy():
+    """Conflict B: same family marker but no binding → legacy adapter."""
+    from research_agent.sources.ats.successfactors import SuccessFactorsRmkAdapter
+
+    target = _family_target("https://jobs.other-example.test/search", "SuccessFactors Recruiting Marketing")
+    registry = structured_adapter_registry(declarative_adapters=[_adapter()])
+    assert isinstance(registry.select(target), SuccessFactorsRmkAdapter)
+
+
+def test_exact_binding_beats_direct_host_legacy_match():
+    """Conflict C: even a legacy adapter matching host+family loses to the
+    exact binding (precedence is structural, not company-specific)."""
+    from research_agent.sources.ats.greenhouse import GreenhouseAdapter
+
+    target = PortalTarget(
+        portal_id=1,
+        jobs_search_url=MICROSOFT_PORTAL,
+        normalized_jobs_url=MICROSOFT_PORTAL,
+        host="boards.greenhouse.io",
+        ats_families=("Greenhouse",),
+        ats_confidences=("Verified",),
+    )
+    assert GreenhouseAdapter().supports(target) is True
+    registry = structured_adapter_registry(declarative_adapters=[_adapter()])
+    assert isinstance(registry.select(target), DeclarativeSourceAdapter)
+
+
 def test_duplicate_binding_is_rejected():
     with pytest.raises(ValueError):
         DeclarativeSourceAdapter(
@@ -372,8 +422,219 @@ def test_render_detail_fetch_helper_is_explicit_and_not_used_by_scan():
     assert fetch_request.method == "GET"
 
 
+def _requested_starts(requested: list[httpx.Request]) -> list[int]:
+    starts = []
+    for request in requested:
+        query = dict(httpx.QueryParams(request.url.query))
+        starts.append(int(query.get("start", -1)))
+    return starts
+
+
+def test_exact_boundary_total_20_probes_once_then_complete():
+    """total=20, page_size=10: two full data pages cannot satisfy
+    last_page_shorter_than_page_size alone, so exactly one terminal
+    probe (start=20, empty) is required — and sufficient."""
+    adapter = _adapter()
+    result, requested = _run_scan(adapter, _target(NVIDIA_PORTAL), _eightfold_handler(20))
+    assert _requested_starts(requested) == [0, 10, 20]
+    assert len(result.jobs) == 20
+    assert result.is_complete_snapshot is True
+
+
+def test_exact_boundary_total_10_probes_once_then_complete():
+    adapter = _adapter()
+    result, requested = _run_scan(adapter, _target(NVIDIA_PORTAL), _eightfold_handler(10))
+    assert _requested_starts(requested) == [0, 10]
+    assert len(result.jobs) == 10
+    assert result.is_complete_snapshot is True
+
+
+def test_partial_final_page_needs_no_probe():
+    """total=12: the partial final page (2 items) already satisfies the
+    rule — no unnecessary empty probe may follow it."""
+    adapter = _adapter()
+    result, requested = _run_scan(adapter, _target(NVIDIA_PORTAL), _eightfold_handler(12))
+    assert _requested_starts(requested) == [0, 10]
+    assert len(result.jobs) == 12
+    assert result.is_complete_snapshot is True
+
+
+def test_traversal_completeness_ignores_unique_job_count():
+    """INVARIANT (§5): catalog traversal completeness != downstream
+    unique-job count. Upstream may repeat a stable ID across pages
+    (e.g. unexercised language variants would); the adapter must NOT
+    dedup silently — history counts traversed ITEMS, and completeness
+    is decided on history, never on unique RawJobs. Any future
+    stable-ID dedup must happen downstream of this accounting."""
+    def handler(request: httpx.Request) -> httpx.Response:
+        query = dict(httpx.QueryParams(request.url.query))
+        start = int(query.get("start", 0))
+        # Second page repeats the first page's stable IDs verbatim.
+        items = [_eightfold_item(i % 10) for i in range(start, min(start + 10, 20))]
+        return httpx.Response(
+            200, json={"data": {"positions": items, "count": 20}}, request=request
+        )
+
+    adapter = _adapter()
+    result, requested = _run_scan(adapter, _target(NVIDIA_PORTAL), handler)
+    assert _requested_starts(requested) == [0, 10, 20]
+    assert len(result.jobs) == 20  # traversed items, NOT unique ids
+    assert len({job.source_job_id for job in result.jobs}) == 10
+    assert result.is_complete_snapshot is True
+
+
+def test_conditional_probe_on_generic_synthetic_spec():
+    """Same conditional-probe semantics on a non-Eightfold-shaped spec:
+    zero-based offset in query, string ids, no detail block."""
+    spec = _spec("nvidia.json")
+    spec = copy.deepcopy(spec)
+    spec["company"] = {"id": "synthetic", "name": "Synthetic Co"}
+    spec["paging"]["page_size"] = 5
+    spec["extraction"]["page_wrapper"] = {"items": "rows", "total": "total"}
+    spec["extraction"]["item_path"] = "rows"
+    spec["extraction"]["total_path"] = "total"
+    spec["extraction"]["stable_id_path"] = "uid"
+    spec["extraction"]["secondary_id_paths"] = []
+    spec["extraction"]["title_path"] = "title"
+    spec["extraction"]["department_path"] = None
+    spec["extraction"]["organization_path"] = None
+    spec["extraction"]["publication_date_path"] = None
+    spec["extraction"]["expiration_date_path"] = None
+    spec["extraction"]["official_url_path"] = None
+    spec["extraction"]["official_url_template"] = "https://syn.example.test/j/{{stable_id}}"
+    spec["extraction"]["apply_url_path"] = None
+    spec["extraction"]["language_path"] = None
+    spec["extraction"]["locations"] = {"path": "loc", "shape": "list_of_strings"}
+    spec["extraction"]["description"] = {"path": "body", "shape": "string", "strip_html": True}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        query = dict(httpx.QueryParams(request.url.query))
+        start = int(query.get("start", 0))
+        rows = [
+            {"uid": f"S-{i}", "title": f"Role {i}", "loc": ["Nowhere"]}
+            for i in range(start, min(start + 5, 10))
+        ]
+        return httpx.Response(200, json={"rows": rows, "total": 10}, request=request)
+
+    adapter = DeclarativeSourceAdapter(
+        [DeclarativeSourceBinding("https://syn.example.test/jobs", "specs/nvidia.json")],
+        base_dir=DECLARATIVE_DIR,
+    )
+    # Swap in the synthetic spec for the bound URL (same object identity
+    # the loader built; keeps the test offline and binding-exact).
+    adapter._specs["https://syn.example.test/jobs"] = spec
+    target = _target("https://syn.example.test/jobs")
+    result, requested = _run_scan(adapter, target, handler)
+    # total=10 with page_size=5 is an exact boundary: two full data pages
+    # plus the single conditional terminal probe (start=10, empty).
+    assert _requested_starts(requested) == [0, 5, 10]
+    assert [job.source_job_id for job in result.jobs] == [f"S-{i}" for i in range(10)]
+    assert {job.source for job in result.jobs} == {"declarative:synthetic"}
+    assert result.is_complete_snapshot is True
+
+
 # ============================================================
-# Qualifications semantics: composition + hash (§9, mandatory)
+# Safety preflight: fail closed, never silently ignored (§2)
+# ============================================================
+
+def test_spec_safety_currently_ignored_by_scan():
+    """Documents CURRENT STATE: scan() never reads the spec's safety
+    section (only the word 'safety' in cap warnings exists). The
+    preflight module exists precisely because of this gap."""
+    import inspect
+
+    scan_source = inspect.getsource(DeclarativeSourceAdapter.scan)
+    for accessor in ('["safety"]', "['safety']", 'get("safety")', "get('safety')"):
+        assert accessor not in scan_source, f"scan() reads spec safety via {accessor}"
+
+
+def test_mercedes_preflight_fails_on_unsupported_long_pause():
+    from research_agent.sources.declarative import safety as safety_module
+
+    spec = _spec("mercedes.json")
+    strict = safety_module.EffectiveScannerSafety(
+        per_domain_concurrency=1,
+        per_domain_min_interval_seconds=1.2,
+        max_requests_per_run=600,
+        max_requests_per_host_per_run=30,
+        max_retries=1,
+    )
+    result = safety_module.preflight_safety(spec, strict)
+    assert result.verdict == "UNSUPPORTED_SAFETY_REQUIREMENT"
+    assert any("long_pause" in reason for reason in result.reasons)
+
+
+def test_default_scanner_settings_fail_preflight_as_too_permissive():
+    """Default ScannerSettings (interval 1.0s, 2 retries) are weaker than
+    what the NVIDIA spec demands (0.5s is fine, but max 1 retry): the
+    preflight must say so instead of scanning silently."""
+    from research_agent.config import ScannerSettings
+    from research_agent.sources.declarative import safety as safety_module
+
+    spec = copy.deepcopy(_spec("nvidia.json"))
+    spec["safety"].pop("max_consecutive_errors", None)  # isolate the settings check
+    effective = safety_module.effective_safety_from_settings(ScannerSettings())
+    result = safety_module.preflight_safety(spec, effective)
+    assert result.verdict == "SCANNER_SETTINGS_TOO_PERMISSIVE"
+    assert any("max_retries" in reason for reason in result.reasons)
+
+
+def test_strict_settings_pass_supported_requirements():
+    from research_agent.sources.declarative import safety as safety_module
+
+    spec = copy.deepcopy(_spec("nvidia.json"))
+    # Neutralize the two NOT_CURRENTLY_SUPPORTED requirements to prove
+    # the mechanism itself can reach SAFE_TO_RUN.
+    spec["safety"]["long_pause_every_n_requests"] = 0
+    spec["safety"]["long_pause_seconds"] = 0
+    spec["safety"]["max_consecutive_errors"] = 0
+    strict = safety_module.EffectiveScannerSafety(
+        per_domain_concurrency=1,
+        per_domain_min_interval_seconds=0.5,
+        max_requests_per_run=600,
+        max_requests_per_host_per_run=30,
+        max_retries=1,
+    )
+    result = safety_module.preflight_safety(spec, strict)
+    assert result.verdict == "SAFE_TO_RUN"
+    assert result.reasons == ()
+
+
+def test_unsupported_active_requirement_blocks_before_any_http():
+    """assert_safe_to_run raises without touching the network: the
+    preflight is pure (no fetcher, no transport), so 'before HTTP' is
+    structural, not a race."""
+    from research_agent.sources.declarative import safety as safety_module
+
+    spec = _spec("microsoft.json")
+    strict = safety_module.EffectiveScannerSafety(
+        per_domain_concurrency=1,
+        per_domain_min_interval_seconds=5.0,
+        max_requests_per_run=10,
+        max_requests_per_host_per_run=5,
+        max_retries=0,
+    )
+    with pytest.raises(safety_module.UnsafeToRunError):
+        safety_module.assert_safe_to_run(spec, strict)
+
+
+def test_adapter_preflight_delegates_to_bound_spec():
+    adapter = _adapter()
+    from research_agent.sources.declarative import safety as safety_module
+
+    strict = safety_module.EffectiveScannerSafety(
+        per_domain_concurrency=1,
+        per_domain_min_interval_seconds=5.0,
+        max_requests_per_run=10,
+        max_requests_per_host_per_run=5,
+        max_retries=0,
+    )
+    result = adapter.preflight(_target(NVIDIA_PORTAL), strict)
+    assert result.verdict == "UNSUPPORTED_SAFETY_REQUIREMENT"
+
+
+# ============================================================
+# Qualifications semantics: composition + hash (Phase 2, mandatory)
 # ============================================================
 
 def _converter_job(*, description: str, qualifications: str) -> RawJob:

@@ -649,8 +649,14 @@ def evaluate_completeness(spec: dict, history: list[dict]) -> tuple[bool, str]:
             return False, "no non-empty page observed"
         last = max(non_empty, key=lambda h: h["page_value"])
         last_is_partial = last["items_count"] < page_size
+        # BUGFIX (Phase 2 hardening, generic — same family as the
+        # next_offset_ge_total fix above): the terminal empty-after-total
+        # probe sits exactly AT total on an exact page boundary
+        # (zero-based: probe offset == total), so `>` never sees it.
+        # `>=` recognizes the probe without changing any non-boundary
+        # outcome (there the probe is always strictly greater).
         observed_empty_after = any(
-            h["items_count"] == 0 and h["page_value"] > final_total
+            h["items_count"] == 0 and h["page_value"] >= final_total
             for h in history
         )
         if not last_is_partial and not observed_empty_after:

@@ -23,13 +23,18 @@ def structured_adapter_registry(
     """Legacy structured registry, optionally extended with declarative siblings.
 
     With no arguments the registry — and its adapter order — is exactly
-    what it was before declarative sources existed. Declarative adapters
-    are appended AFTER the legacy adapters: they only match explicitly
-    bound portal URLs, so order is irrelevant to them, and legacy
-    priority is preserved for everything else.
+    what it was before declarative sources existed. When declarative
+    adapters are provided, they come FIRST: an explicit portal binding
+    is an operator decision and must win over any legacy ATS-family
+    heuristic (AdapterRegistry.select uses first-match semantics, so
+    appending declarative adapters after legacy ones would let a legacy
+    heuristic shadow an explicit binding). Declarative adapters only
+    match exactly-bound portal URLs, so unbound portals still fall
+    through to the legacy adapters in their original order.
     """
     return AdapterRegistry(
         [
+            *declarative_adapters,
             GreenhouseAdapter(),
             GoogleCareersAdapter(),
             LeverAdapter(),
@@ -41,7 +46,6 @@ def structured_adapter_registry(
             PhenomAdapter(),
             OracleRecruitingCloudAdapter(),
             AvatureAdapter(),
-            *declarative_adapters,
         ]
     )
 

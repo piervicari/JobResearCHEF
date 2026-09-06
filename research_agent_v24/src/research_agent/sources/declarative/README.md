@@ -56,10 +56,42 @@ qualifications-only change alters the hash (tested).
   force `is_complete_snapshot=false` with a warning (never bypassed
   for completeness).
 - `is_complete_snapshot` is true only when `evaluate_completeness`
-  passes AND the spec is open/closed-authoritative AND no cap truncated
-  the run AND no pagination anomaly AND total stayed constant.
+  passes AND the spec is authoritative AND no cap/anomaly/total-change occurred —
+  which is exactly what the legacy close-jobs logic requires.
+- Terminal probe rule: specs whose completeness rules REQUIRE the
+  empty-after-total page always get exactly one terminal probe; specs
+  whose rules merely ACCEPT it (`last_page_shorter_than_page_size`)
+  get one ONLY when the last data page came back full. A partial final
+  page stops the scan with no extra request.
+- INVARIANT: catalog traversal completeness != downstream unique-job
+  count. History records traversed upstream ITEMS per page; the adapter
+  never dedups by stable id. Any future language/variant dedup must
+  happen downstream of this accounting (tested).
 - Detail endpoints are never fetched during `scan()` (no N+1);
   `render_detail_fetch()` is an explicit one-off helper.
 - Non-2xx responses use the standard ATS failure path
   (`require_success` → `AdapterHttpError`); 429 opens the fetcher host
   circuit immediately without retry. No custom recovery here.
+
+## Safety preflight (fail closed)
+
+`scan()` deliberately does not read `spec["safety"]` — network safety
+is owned solely by `HttpFetcher`/`Scanner`. Before any live run, the
+pure function `safety.preflight_safety(spec, effective)` (also exposed
+as `adapter.preflight(target, effective)`) compares spec requirements
+against the effective scanner configuration:
+
+- SAFE_TO_RUN / UNSUPPORTED_SAFETY_REQUIREMENT / SCANNER_SETTINGS_TOO_PERMISSIVE.
+- `long_pause_*` and `max_consecutive_errors` are NOT_CURRENTLY_SUPPORTED:
+  active values fail the preflight honestly instead of being ignored.
+- There is no bypass flag; `assert_safe_to_run` raises `UnsafeToRunError`.
+
+## Language status
+
+`preferred_language_codes` is DECLARED_BUT_UNEXERCISED: declared in
+the v0.1 schema and the Mercedes spec, read by no runtime code, with
+zero fixture evidence (347 real Mercedes items inspected across three
+artifacts: only
+`PublicationLanguage` Code 1, zero duplicate PositionIDs). No
+cross-language dedup engine exists on purpose; see the Mercedes spec
+notes for the evidence reference.
