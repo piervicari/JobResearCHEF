@@ -1,0 +1,8 @@
+{
+ "url": "https://api.ashbyhq.com/posting-api/job-board/snyk?includeCompensation=true",
+ "status": 200,
+ "final_url": "https://api.ashbyhq.com/posting-api/job-board/snyk?includeCompensation=true",
+ "bytes": 28,
+ "attempts": 1,
+ "challenge": []
+}

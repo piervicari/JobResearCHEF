@@ -1,0 +1,8 @@
+{
+ "url": "https://api.lever.co/v0/postings/sophos?mode=json&skip=0&limit=1",
+ "status": 200,
+ "final_url": "https://api.lever.co/v0/postings/sophos?mode=json&skip=0&limit=1",
+ "bytes": 33803,
+ "attempts": 1,
+ "challenge": []
+}

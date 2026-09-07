@@ -1,0 +1,8 @@
+{
+ "url": "https://ibqbjb.fa.ocs.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList&finder=findReqs;siteNumber=CX_1,limit=200,offset=0",
+ "status": 200,
+ "final_url": "https://ibqbjb.fa.ocs.oraclecloud.com/hcmRestApi/resources/latest/recruitingCEJobRequisitions?onlyData=true&expand=requisitionList&finder=findReqs;siteNumber=CX_1,limit=200,offset=0",
+ "bytes": 334317,
+ "attempts": 1,
+ "challenge": []
+}
