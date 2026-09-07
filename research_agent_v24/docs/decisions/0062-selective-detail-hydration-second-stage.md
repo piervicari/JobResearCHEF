@@ -27,7 +27,8 @@ providers; catalog scans stay detail-free.
   `...Details?finder=ById;Id=` → ExternalDescription/Responsibilities/
   Qualifications; Eightfold `position_details` rendered AND parsed purely
   through the frozen SourceSpec detail block (`render_detail_request` +
-  `merge_detail_into_job`, `data`-unwrapped).
+  `merge_detail_into_job`, `data`-unwrapped). *[Superseded by Phase 3.1
+  addendum below: paths evaluate on the full response root.]*
 - Semantic hash (`_store_detail`, unchanged) drives AI requeue: first
   hydration → `PENDING_AI` + clear `ai_last_error`; identical detail →
   no requeue; description- or qualifications-only change → requeue.
@@ -36,6 +37,8 @@ providers; catalog scans stay detail-free.
 - Identity preserved: no `source_job_id`/URL/`requisition_id` changes;
   unrenderable rows are skipped, never guessed; same-host rule kept with
   one sanctioned exception (SmartRecruiters first-party API host).
+  *[Superseded by Phase 3.1 addendum below: an explicit detail host
+  declared by the bound SourceSpec is likewise sanctioned.]*
 - No DB migration (all `detail_*` fields pre-existed), no new service/
   queue/scheduler/client, no SourceSpec change, no catalog change.
 
@@ -84,3 +87,24 @@ cannot fetch more than 5 (+robots).
   the same endpoint family, and the saved detail fixture — the NVIDIA
   value was the inconsistent one. `merge_detail_into_job` has no other
   consumer. No schema change.
+
+## Addendum (2026-09-07): final consistency (no behavior redesign)
+
+- Detail-host safety (current): same-host is the default, but an
+  explicit detail host declared by the bound SourceSpec is sanctioned
+  (SmartRecruiters API host; Microsoft `microsoft.eightfold.ai`).
+- Declarative response parsing (current): SourceSpec extraction paths
+  are evaluated against the full response root.
+- Request fidelity (current): the full rendered declarative request
+  passes through the existing bridge to HttpFetcher.
+- `max_jobs_per_host` (current): keyed on the ACTUAL detail request
+  hostname (the host that receives the HTTP request), not the portal
+  host. Portal/source identity, HttpFetcher budgets, and catalog
+  scanning are unchanged. Suite: 404 PASS / 0 FAIL.
+- Eightfold qualifications (current): `jobDescription` has
+  `shape = string`, so the full text — including any embedded
+  requirements/qualifications prose — is preserved whole in
+  `description` for AI; `qualifications` remains empty as a separate
+  normalized field unless a spec declares a separate path. No HTML
+  splitting heuristics: semantic completeness is the goal, and the
+  full `jobDescription` already provides it.

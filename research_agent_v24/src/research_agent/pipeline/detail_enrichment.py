@@ -102,8 +102,9 @@ _DETAIL_ADAPTERS = ("official_html", "workday", "smartrecruiters", "oracle", "de
 _STRUCTURED_ADAPTERS = ("workday", "smartrecruiters", "oracle", "declarative")
 
 # SmartRecruiters serves its public API on a dedicated first-party host while
-# portals live on careers.smartrecruiters.com. This is the only sanctioned
-# cross-host exception; everything else must stay same-host.
+# portals live on other hosts; a SourceSpec may likewise declare an explicit
+# detail host (e.g. Microsoft → microsoft.eightfold.ai). Both are sanctioned
+# cross-host cases (see selection below); everything else must stay same-host.
 _SMARTRECRUITERS_API_HOST = "api.smartrecruiters.com"
 
 
@@ -601,8 +602,17 @@ def select_detail_candidates(
                 continue
             structured = False
             fetch_request = None
-        host_key = portal.host.casefold()
-        if host_counts.get(host_key, 0) >= max_jobs_per_host:
+        # max_jobs_per_host caps the host that ACTUALLY receives the HTTP
+        # detail request — the CLI promises "detail pages fetched from one
+        # host", and HttpFetcher budgets that same actual host. Sanctioned
+        # cross-host requests (SmartRecruiters API, SourceSpec-declared
+        # detail hosts such as microsoft.eightfold.ai) therefore count
+        # against the detail host, not the portal host. Portal/source
+        # identity is untouched; only this run cap uses the actual host.
+        actual_host = (urlsplit(request_url).hostname or "").casefold()
+        if not actual_host:
+            continue  # malformed detail URL: never hide it behind portal host
+        if host_counts.get(actual_host, 0) >= max_jobs_per_host:
             continue
         candidates.append(
             DetailCandidate(
@@ -613,7 +623,7 @@ def select_detail_candidates(
                 ai_status=row.ai_status,
                 source_url=url,
                 request_url=request_url,
-                host=portal.host,
+                host=actual_host,
                 description_chars=len(effective_description),
                 adapter=row.adapter,
                 structured=structured,
@@ -621,7 +631,7 @@ def select_detail_candidates(
                 fetch_request=fetch_request,
             )
         )
-        host_counts[host_key] = host_counts.get(host_key, 0) + 1
+        host_counts[actual_host] = host_counts.get(actual_host, 0) + 1
         if len(candidates) >= limit:
             break
     return candidates
@@ -639,7 +649,7 @@ async def enrich_official_html_details(
     progress_callback=None,
     portal_ids: set[int] | None = None,
 ) -> DetailEnrichmentSummary:
-    """Fetch a tiny bounded set of same-host official job pages and requeue changed jobs."""
+    """Fetch a tiny bounded set of sanctioned-host detail pages and requeue changed jobs."""
 
     candidates = select_detail_candidates(
         engine,

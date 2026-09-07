@@ -652,7 +652,7 @@ def enrich_details_command(
         int, typer.Option(min=0, help="Only enrich jobs with shorter effective descriptions."),
     ] = 500,
     max_jobs_per_host: Annotated[
-        int, typer.Option(min=1, max=5, help="Safety cap for detail pages fetched from one host per run."),
+        int, typer.Option(min=1, max=5, help="Safety cap for detail pages fetched from one actual detail host per run."),
     ] = 2,
     portal_ids: Annotated[
         list[int] | None,

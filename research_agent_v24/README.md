@@ -56,9 +56,11 @@ Auxiliary commands used in the same path:
 - `research-agent adapter-coverage` — zero-network adapter selection check.
 - `research-agent prepare-v2-source-jobs --dry-run` — backfill legacy source
   jobs into the V2 schema before any live LLM call.
-- `research-agent enrich-details` — selective, same-host detail enrichment
+- `research-agent enrich-details` — selective, sanctioned-host detail enrichment
   for CYBER / NEEDS_MORE_DETAIL jobs whose listing response lacks
-  description.
+  description. Same-host is the default; explicitly declared/bound detail
+  hosts (SmartRecruiters API, SourceSpec detail URLs) are allowed;
+  arbitrary hosts are rejected.
 - `research-agent ingest-linkedin-csv path/to/linkedin_jobs.csv` — manual
   LinkedIn import (no scraping, no automation).
 - `research-agent llm-preflight` — verify LLM credentials without external

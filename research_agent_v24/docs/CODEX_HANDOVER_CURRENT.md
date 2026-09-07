@@ -1,6 +1,6 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-07 — Phase 3.1: Microsoft/Eightfold declarative detail fixed (spec-sanctioned cross-host, full rendered-request fidelity); suite 401/0
+**Updated:** 2026-09-07 — Phase 3 final consistency: actual-host `max_jobs_per_host`, sanctioned-host wording, Eightfold qualifications clarified; suite 404/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-07
@@ -65,9 +65,8 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 398 passed / 0 failed at Phase 3 close; Phase 3.1 (Microsoft
-  declarative detail fix + rendered-request fidelity) adds coverage on top
-  (real count re-verified at close).
+- 404 passed / 0 failed (full suite 2026-09-07: 401 at Phase 3.1 close
+  + 3 actual-host cap tests).
 
 ### Current development focus
 

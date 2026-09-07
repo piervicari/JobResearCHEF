@@ -376,6 +376,77 @@ def test_unrenderable_structured_row_skipped(
     assert select_detail_candidates(sqlite_engine, limit=5) == []
 
 
+# ---------- actual-host cap (Phase 3 final consistency) ----------
+
+def test_shared_actual_detail_host_cap_across_portals(
+    sqlite_engine: Engine,
+) -> None:
+    """Two DIFFERENT portal hosts whose sanctioned detail requests land on
+    one shared actual host (api.smartrecruiters.com): max_jobs_per_host=1
+    yields exactly 1 candidate. The cap follows the HTTP host, not portals."""
+    create_schema(sqlite_engine)
+    _seed_portal(sqlite_engine, 801,
+                 "careers-a.example.test",
+                 "https://careers-a.example.test/AcmeA")
+    _seed_portal(sqlite_engine, 802,
+                 "careers-b.example.test",
+                 "https://careers-b.example.test/AcmeB")
+    _add_structured_job(
+        sqlite_engine, 801, adapter="smartrecruiters", source="smartrecruiters",
+        source_url="https://jobs.example.test/AcmeA/1",
+        native_id="1", ats_id="1", ai_status="CYBER")
+    _add_structured_job(
+        sqlite_engine, 802, adapter="smartrecruiters", source="smartrecruiters",
+        source_url="https://jobs.example.test/AcmeB/2",
+        native_id="2", ats_id="2", ai_status="CYBER")
+    candidates = select_detail_candidates(
+        sqlite_engine, limit=5, max_jobs_per_host=1)
+    assert len(candidates) == 1
+    assert candidates[0].host == "api.smartrecruiters.com"
+
+
+def test_same_host_cap_regression(sqlite_engine: Engine) -> None:
+    """Portal host == detail host (workday): 3 eligible jobs with
+    max_jobs_per_host=2 yield exactly 2 candidates. No behavior change."""
+    create_schema(sqlite_engine)
+    _seed_portal(sqlite_engine, 811,
+                 "acme.wd3.myworkdayjobs.com",
+                 "https://acme.wd3.myworkdayjobs.com/AcmeSite")
+    for n in ("1", "2", "3"):
+        _add_structured_job(
+            sqlite_engine, 811, adapter="workday", source="workday",
+            source_url=f"https://acme.wd3.myworkdayjobs.com/AcmeSite/job/x/{n}",
+            native_id=f"R-{n}",
+            raw_payload='{"externalPath": "/job/x/%s"}' % n,
+            ai_status="CYBER")
+    candidates = select_detail_candidates(
+        sqlite_engine, limit=5, max_jobs_per_host=2)
+    assert len(candidates) == 2
+    assert {c.host for c in candidates} == {"acme.wd3.myworkdayjobs.com"}
+
+
+def test_microsoft_cap_keyed_on_actual_detail_host(
+    sqlite_engine: Engine,
+) -> None:
+    """Microsoft portal careers.microsoft.com renders detail to
+    microsoft.eightfold.ai: cap accounting AND candidate host use the
+    actual detail host, while portal identity stays unchanged."""
+    create_schema(sqlite_engine)
+    _seed_portal(sqlite_engine, 821, "careers.microsoft.com",
+                 "https://careers.microsoft.com")
+    _add_structured_job(
+        sqlite_engine, 821, adapter="declarative",
+        source="declarative:microsoft",
+        source_url="https://careers.microsoft.com/us/en/job/123",
+        native_id="910117342851777", ai_status="CYBER")
+    candidates = select_detail_candidates(
+        sqlite_engine, limit=5, max_jobs_per_host=2)
+    assert len(candidates) == 1
+    assert candidates[0].host == "microsoft.eightfold.ai"
+    assert "microsoft.eightfold.ai" in candidates[0].request_url
+    assert candidates[0].portal_id == 821
+
+
 # ---------- enrich flow via fake fetcher (no network) ----------
 
 class _FakeResponse:
