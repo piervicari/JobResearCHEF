@@ -1,4 +1,14 @@
-"""Ashby public Job Postings API adapter."""
+"""Ashby public Job Postings API adapter.
+
+Wave 2.1 parser reuse (ats-scrapers @ 6b44a1b, ats-jobs @ 9edd4a6, MIT):
+`?includeCompensation=true` expansion flag (proven accepted live, Wave 2
+probe: menlosecurity 200, 17 jobs); `descriptionHtml` preferred over
+`descriptionPlain` (proven richer live: 7329 vs 5500 chars); employment /
+department / team / secondaryLocations / address / compensation ride along
+in the full `raw_payload` (no house fields for those — Teamtailor
+precedent). Source identity (jobUrl) is UNCHANGED — the external bare `id`
+is deliberately not adopted.
+"""
 
 from __future__ import annotations
 
@@ -41,7 +51,7 @@ class AshbyAdapter:
         self, target: PortalTarget, context: PortalScanContext
     ) -> AdapterScanResult:
         board = quote(self.board_name(target), safe="")
-        api_url = f"https://api.ashbyhq.com/posting-api/job-board/{board}"
+        api_url = f"https://api.ashbyhq.com/posting-api/job-board/{board}?includeCompensation=true"
         response = await context.fetch(
             FetchRequest(api_url, headers={"Accept": "application/json"})
         )
@@ -74,7 +84,7 @@ class AshbyAdapter:
                     location=string_value(job.get("location")),
                     country=string_value(postal.get("addressCountry")) or None,
                     city=string_value(postal.get("addressLocality")) or None,
-                    description=string_value(job.get("descriptionPlain")),
+                    description=(string_value(job.get("descriptionHtml")) or string_value(job.get("descriptionPlain"))),
                     posted_at=parse_datetime(job.get("publishedAt")),
                     employment_type=string_value(job.get("employmentType")) or None,
                     workplace_type=string_value(job.get("workplaceType")) or None,

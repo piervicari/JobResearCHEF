@@ -1,0 +1,9 @@
+{
+  "rss_items": 202,
+  "rss_bytes": 4266154,
+  "rmk_jobs": null,
+  "rmk_complete": null,
+  "note": "RMK production-adapter walk exceeded the 12-wire ceiling (1 RSS + 11 RMK page attempts, walk unfinished) -> STOP per Wave 2.1 section 2 rule. No further live requests made.",
+  "new_wire_requests": 12,
+  "verdict": "PARITY_UNRESOLVED"
+}

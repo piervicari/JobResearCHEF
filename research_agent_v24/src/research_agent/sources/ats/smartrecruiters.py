@@ -118,11 +118,17 @@ class SmartRecruitersAdapter:
             country = string_value(location_value.get("country")) or None
             city = string_value(location_value.get("city")) or None
         employment = job.get("typeOfEmployment") or {}
-        employment_type = (
-            string_value(employment.get("label"))
-            if isinstance(employment, dict)
-            else ""
-        )
+        # Wave 2.1 (ats-scrapers): the `id` is the canonical stable enum
+        # (permanent/intern/contract/temporary...), the label is localized
+        # display text. Prefer the id as a raw house string; no enum mapping.
+        # NOTE: refNumber is NOT promoted to requisition_id: requisition_id
+        # feeds the variant identity digest, so that would be an identity
+        # migration, not parser reuse. Consciously deferred.
+        employment_type = ""
+        if isinstance(employment, dict):
+            employment_type = string_value(employment.get("id")) or string_value(
+                employment.get("label")
+            )
         ref = string_value(job.get("ref"))
         return RawJob(
             source=self.name,

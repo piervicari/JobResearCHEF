@@ -5,8 +5,10 @@ from __future__ import annotations
 from urllib.parse import quote, urlsplit
 
 from research_agent.pipeline.http import FetchRequest
+from research_agent.pipeline.normalizer import html_to_text
 from research_agent.sources.ats.common import (
     AdapterSchemaError,
+    parse_epoch_millis,
     require_list,
     require_mapping,
     require_success,
@@ -113,9 +115,46 @@ class LeverAdapter:
             title=title,
             location=location,
             country=string_value(job.get("country")) or None,
-            description=string_value(job.get("descriptionPlain")),
+            description=_assemble_description(job),
+            posted_at=parse_epoch_millis(job.get("createdAt")),
             employment_type=string_value(categories.get("commitment")) or None,
             workplace_type=string_value(job.get("workplaceType")) or None,
             ats_job_id=job_id,
             raw_payload=job,
         )
+
+
+def _assemble_description(job: dict[str, object]) -> str:
+    """Deterministic semantic description (Wave 2.1, ats-scrapers protocol knowledge).
+
+    Lever splits the body across the HTML `description` intro and the `lists[]`
+    sections; `descriptionPlain` alone silently drops most of the content.
+    Parts are joined in fixed order (intro first); exact normalized duplicates
+    are skipped. Raw payload is untouched; downstream `normalize_job` strips
+    HTML via the existing `html_to_text` contract.
+    """
+    parts: list[str] = []
+    seen: set[str] = set()
+
+    def push(html: str) -> None:
+        text = html_to_text(html)
+        if text and text not in seen:
+            seen.add(text)
+            parts.append(html.strip())
+
+    intro = string_value(job.get("description"))
+    if intro:
+        push(intro)
+    lists = job.get("lists")
+    if isinstance(lists, list):
+        for section in lists:
+            if not isinstance(section, dict):
+                continue
+            heading = string_value(section.get("text"))
+            content = string_value(section.get("content"))
+            if not content:
+                continue
+            push(f"{heading}\n{content}" if heading else content)
+    if parts:
+        return "\n\n".join(parts)
+    return string_value(job.get("descriptionPlain"))

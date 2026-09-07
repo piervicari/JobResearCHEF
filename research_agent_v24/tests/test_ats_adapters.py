@@ -101,7 +101,7 @@ def test_ashby_adapter_uses_public_posting_api_and_skips_unlisted(fixtures: Path
     target = _target("https://jobs.ashbyhq.com/example", "Ashby")
     result, requested = _scan(adapter, target, _fixture(fixtures, "ashby_jobs.json"))
 
-    assert requested == ["https://api.ashbyhq.com/posting-api/job-board/example"]
+    assert requested == ["https://api.ashbyhq.com/posting-api/job-board/example?includeCompensation=true"]
     assert len(result.jobs) == 1
     job = result.jobs[0]
     assert job.title == "Cybersecurity Graduate"

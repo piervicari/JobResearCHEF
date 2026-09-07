@@ -1,6 +1,6 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-07 — Wave 1.1 external ATS reuse integrated (Teamtailor + Workable); Phase 3 paused behind Wave 2 reuse benchmark
+**Updated:** 2026-09-07 — Wave 2.1 implemented (Oracle adaptive, Lever assembly, 5 parser ATS); SF parity unresolved, RMK stays authoritative; suite 380/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-07
@@ -39,32 +39,39 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   (`verified=false`, idempotent importer, no automatic binding, no portal
   promotion). Off-repo evidence in `../../external_reuse_audit/`.
 
-### ATS reuse (ADR 0060, Wave 1.1 `PASS_EXTERNAL_REUSE_WAVE1`)
+### ATS reuse (ADR 0060, Wave 1.1 `PASS_EXTERNAL_REUSE_WAVE1`; ADR 0061, Wave 2 `READY_FOR_REUSE_WAVE2_1` → implemented)
 
 - Teamtailor INTEGRATED (`sources/ats/teamtailor.py` — `/jobs.json`,
   single request, numeric-ID-from-URL, inline description).
 - Workable INTEGRATED (`sources/ats/workable.py` —
   widget `?details=true`, single request, shortcode dedup 104 rows → 49).
-- BambooHR NOT integrated: `READY_PENDING_VALIDATION` (only empty boards
-  observed live; no brute-force).
+- Wave 2.1 adopted: Oracle requested limit 200 + total-driven adaptive
+  pagination (skip-proof) + employment/workplace parser; Lever description
+  assembly + `createdAt` posted_at; parser enrichment for Workday
+  (timeType/remoteType), SmartRecruiters (employment-id),
+  Greenhouse (unescape + req filter), Ashby (comp flag + descriptionHtml).
+  All identities preserved (requisition changes deferred — identity digest).
+- BambooHR NOT integrated: `READY_PENDING_VALIDATION`.
+- SuccessFactors feed NOT implemented: parity PARITY_UNRESOLVED (RSS 202
+  items confirmed live; RMK walk exceeded the 12-wire ceiling → STOP).
+  RMK HTML stays the sole authoritative path. No fallback engine built.
 - Reuse rule: external repos are protocol/parser reference only —
   JobResearCHEF keeps HTTP, safety, lifecycle ownership.
 
 ### Current test baseline
 
-- 363 passed / 0 failed (full suite rerun 2026-09-07 after the
-  `test_declarative_adapter.py` repo-root path fix and the `runtime/`
-  symlink correction).
+- 380 passed / 0 failed (full suite 2026-09-07: 363 baseline + 17 Wave 2.1
+  reuse tests, 1 intended Ashby flag-URL assertion update).
 
 ### Current development focus
 
-- PHASE 3 REMAINS PAUSED. Next: Wave 2 benchmark of ALREADY-SUPPORTED ATS
-  implementations against ats-scrapers / ats-jobs (per-ATS verdict:
-  KEEP_JRC / ADAPT_EXTERNAL / REPLACE_PROTOCOL / DECLARATIVE / REJECT).
-- Then: finish BambooHR validation only when a non-empty known tenant is
-  available (no brute-force); selective declarative detail enrichment where
-  still necessary; controlled live operation only after source-specific
-  evidence/safety.
+- Wave 2 complete, Wave 2.1 implemented. Next functional task: Phase 3
+  selective detail enrichment (recorded inputs: Workday CXS detail,
+  SmartRecruiters `jobAd.sections`, Oracle ById, Eightfold
+  `position_details`), unless new evidence reorders it.
+- Open follow-ups (not started): SF parity retry on a smaller tenant;
+  BambooHR non-empty validation (no brute-force); Workday >2K subdivision
+  (NEEDS_DESIGN).
 
 ---
 

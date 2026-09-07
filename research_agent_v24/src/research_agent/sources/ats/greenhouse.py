@@ -1,7 +1,17 @@
-"""Greenhouse public Job Board API adapter."""
+"""Greenhouse public Job Board API adapter.
+
+Wave 2.1 parser reuse (ats-scrapers @ 6b44a1b, ats-jobs @ 9edd4a6, MIT):
+departments/offices/metadata/internal_job_id ride along in the full
+`raw_payload` (no house department field exists — same precedent as the
+Teamtailor decision); `content` is unescaped once from its double-encoded
+form (downstream `normalize_job`/`html_to_text` finishes the job);
+placeholder requisition strings are filtered. Strict shape guards and
+source identity (`id`) are unchanged.
+"""
 
 from __future__ import annotations
 
+import html as html_mod
 from urllib.parse import quote, urlsplit
 
 from research_agent.pipeline.http import FetchRequest
@@ -75,17 +85,13 @@ class GreenhouseAdapter:
                     apply_url=absolute_url,
                     title=title,
                     location=location,
-                    description=string_value(job.get("content")),
+                    description=_unescape_content(job.get("content")),
                     posted_at=(
                         parse_datetime(job.get("first_published"))
                         or parse_datetime(job.get("updated_at"))
                     ),
                     ats_job_id=str(job_id),
-                    requisition_id=(
-                        str(job["requisition_id"])
-                        if job.get("requisition_id") is not None
-                        else None
-                    ),
+                    requisition_id=_requisition_id(job.get("requisition_id")),
                     raw_payload=job,
                 )
             )
@@ -102,3 +108,31 @@ class GreenhouseAdapter:
         return AdapterScanResult(
             jobs=tuple(parsed), warnings=warnings, is_complete_snapshot=complete
         )
+
+
+# Placeholder requisition strings employers leave in the field (ats-scrapers
+# protocol knowledge). Only real identifiers are kept.
+_REQUISITION_PLACEHOLDERS = frozenset({"see opening id", "tbd", "n/a", "tba"})
+
+
+def _requisition_id(value: object) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() in _REQUISITION_PLACEHOLDERS:
+        return None
+    return text
+
+
+def _unescape_content(value: object) -> str:
+    """Unescape Greenhouse's double-encoded `content` once.
+
+    `&lt;div&gt;` becomes real HTML; content without entities is returned
+    unchanged (unescape is identity there), so no meaningful content is
+    double-transformed. Downstream `html_to_text` strips tags and unescapes
+    the second layer.
+    """
+    text = string_value(value)
+    if not text:
+        return ""
+    return html_mod.unescape(text)

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 from research_agent.pipeline.http import FetchResponse
@@ -49,6 +49,19 @@ def parse_datetime(value: object) -> datetime | None:
     try:
         return datetime.fromisoformat(normalized)
     except ValueError:
+        return None
+
+
+def parse_epoch_millis(value: object) -> datetime | None:
+    """Smallest deterministic epoch-milliseconds conversion (e.g. Lever createdAt).
+
+    Invalid input yields None, never a scan failure.
+    """
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        return None
+    try:
+        return datetime.fromtimestamp(value / 1000, tz=timezone.utc)
+    except (ValueError, OSError, OverflowError):
         return None
 
 

@@ -154,6 +154,10 @@ class WorkdayAdapter:
                 "",
             )
         source_job_id = requisition or external_path
+        # Wave 2.1 parser reuse (ats-scrapers protocol knowledge): timeType is
+        # the canonical employment signal, remoteType the workplace signal.
+        # Stored as house raw strings (no enum mapping, per project
+        # convention); identity fields above are untouched.
         return RawJob(
             source=self.name,
             source_job_id=source_job_id,
@@ -161,6 +165,8 @@ class WorkdayAdapter:
             apply_url=job_url,
             title=title,
             location=string_value(job.get("locationsText")),
+            employment_type=string_value(job.get("timeType")) or None,
+            workplace_type=string_value(job.get("remoteType")) or None,
             ats_job_id=source_job_id,
             requisition_id=requisition or None,
             raw_payload=job,

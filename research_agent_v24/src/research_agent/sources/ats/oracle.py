@@ -25,7 +25,11 @@ from research_agent.sources.base import (
 
 class OracleRecruitingCloudAdapter:
     name = "oracle_recruiting_cloud"
-    page_size = 25
+    # Requested page size. Proven live (Wave 2, Honeywell tenant: total 1361,
+    # 200 rows returned for limit=200). Pagination below is total-driven and
+    # adaptive: if a tenant silently returns fewer rows than requested, the
+    # offset advances by the ACTUAL received count, so no records are skipped.
+    page_size = 200
     max_pages = 100
 
     def supports(self, target: PortalTarget) -> bool:
@@ -65,8 +69,19 @@ class OracleRecruitingCloudAdapter:
         total: int | None = None
         complete = True
         page_limit = context.page_limit(self.max_pages)
-        for page_index in range(page_limit):
-            offset = page_index * self.page_size
+        # Total-driven adaptive pagination: the offset advances by the ACTUAL
+        # received row count, never by blind page_index * requested_limit, so a
+        # tenant that silently caps below the requested limit cannot cause
+        # skipped records. Termination is decided by TotalJobsCount only.
+        offset = 0
+        pages = 0
+        while True:
+            if pages >= page_limit:
+                complete = False
+                warnings.append(
+                    f"Oracle pagination stopped at safety cap of {page_limit} pages"
+                )
+                break
             finder = (
                 f"findReqs;siteNumber={quote(site_number, safe='')},"
                 f"limit={self.page_size},offset={offset}"
@@ -99,12 +114,14 @@ class OracleRecruitingCloudAdapter:
             values = require_list(
                 search.get("requisitionList"), context="Oracle requisitionList"
             )
+            received = len(values)
             for index, value in enumerate(values):
                 job = require_mapping(value, context=f"Oracle requisitionList[{index}]")
                 parsed_jobs.append(
                     self._parse_job(job, candidate_base=candidate_base, index=index)
                 )
-            natural_end = offset + len(values) >= total or len(values) < self.page_size
+            pages += 1
+            natural_end = offset + received >= total
             if len(parsed_jobs) > context.max_jobs_per_portal or (
                 len(parsed_jobs) == context.max_jobs_per_portal and not natural_end
             ):
@@ -117,15 +134,11 @@ class OracleRecruitingCloudAdapter:
                 break
             if natural_end:
                 break
-            if not values:
+            if received == 0:
                 raise AdapterSchemaError(
                     f"Oracle returned an empty page before total at offset {offset}"
                 )
-        else:
-            complete = False
-            warnings.append(
-                f"Oracle pagination stopped at safety cap of {page_limit} pages"
-            )
+            offset += received
 
         if total == 0:
             warnings.append("upstream reports zero active jobs")
@@ -182,6 +195,13 @@ class OracleRecruitingCloudAdapter:
                 )
                 if value
             )
+        # Wave 2.1 parser reuse (ats-scrapers protocol knowledge): employment
+        # chain WorkerType -> JobType -> ContractType -> JobSchedule as house
+        # raw strings (no enum mapping, per project convention); locale-
+        # independent WorkplaceTypeCode preferred with text fallback.
+        # Identity (Id + constructed URL) and the richer JRC secondary-
+        # Locations expand are untouched. RequisitionNumber variants are NOT
+        # adopted: requisition_id feeds the variant identity digest.
         return RawJob(
             source=self.name,
             source_job_id=job_id,
@@ -191,13 +211,22 @@ class OracleRecruitingCloudAdapter:
             location=string_value(job.get("PrimaryLocation")),
             country=string_value(job.get("PrimaryLocationCountry")) or None,
             description=description,
-            posted_at=parse_datetime(job.get("PostedDate")),
+            posted_at=(
+                parse_datetime(job.get("PostedDate"))
+                or parse_datetime(job.get("CreatedOn"))
+            ),
             employment_type=(
-                string_value(job.get("JobType"))
-                or string_value(job.get("WorkerType"))
+                string_value(job.get("WorkerType"))
+                or string_value(job.get("JobType"))
+                or string_value(job.get("ContractType"))
+                or string_value(job.get("JobSchedule"))
                 or None
             ),
-            workplace_type=string_value(job.get("WorkplaceType")) or None,
+            workplace_type=(
+                string_value(job.get("WorkplaceTypeCode"))
+                or string_value(job.get("WorkplaceType"))
+                or None
+            ),
             ats_job_id=job_id,
             requisition_id=job_id,
             raw_payload=job,
