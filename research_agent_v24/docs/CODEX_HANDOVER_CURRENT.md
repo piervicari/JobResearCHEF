@@ -52,12 +52,9 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 361 passed / 2 failed (rerun 2026-09-07): both failures are pre-existing
-  `test_declarative_adapter.py` path assumptions pointing at
-  `hermes-job-benchmark/runtime/fixtures` (one nesting level above the real
-  `JobResearCHEF/runtime/fixtures`); unrelated to Wave 1.1, production code
-  untouched. (Wave 1.1 session reported 363/0 from a layout where that path
-  resolved.)
+- 363 passed / 0 failed (full suite rerun 2026-09-07 after the
+  `test_declarative_adapter.py` repo-root path fix and the `runtime/`
+  symlink correction).
 
 ### Current development focus
 

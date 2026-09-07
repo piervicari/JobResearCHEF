@@ -60,7 +60,9 @@ DECLARATIVE_DIR = Path(__file__).resolve().parent.parent / "src" / "research_age
 SPECS_DIR = DECLARATIVE_DIR / "specs"
 
 # Frozen offline fixtures from the runtime experiment (read-only).
-_REPO_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+# Repo root is JobResearCHEF/ = parents[2] of this file
+# (tests -> research_agent_v24 -> JobResearCHEF).
+_REPO_ROOT = Path(__file__).resolve().parents[2]
 RUNTIME_FIXTURES = _REPO_ROOT / "runtime" / "fixtures"
 
 MERCEDES_PORTAL = "https://jobs.mercedes-benz.com"

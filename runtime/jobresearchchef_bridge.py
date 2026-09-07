@@ -1,1 +1,1 @@
-../JobResearCHEF/research_agent_v24/src/research_agent/sources/declarative/bridge.py
+../research_agent_v24/src/research_agent/sources/declarative/bridge.py
