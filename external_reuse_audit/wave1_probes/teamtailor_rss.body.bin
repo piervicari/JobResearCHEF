@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Teamtailor — 404 the page you are looking for could not be found</title>
+
+    <link
+      href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap"
+      rel="stylesheet"
+    >
+
+    <link rel="stylesheet" type="text/css" href="/error/style.css">
+  </head>
+
+  <body>
+    
+
+    <header>
+      <img class="logo" src="/error/logo.png" alt="Teamtailor logo">
+    </header>
+
+    <main class="hero">
+      <div class="hero-copy u-primary-text-color">  <div>
+    <div class="emoji">😢</div>
+    <h1>Ooops.</h1>
+
+    <p>
+      We couldn’t find the page you were looking for. Go back to
+      <a href="https://www.teamtailor.com/">Teamtailor</a> or
+      <a href="mailto:support@teamtailor.com">contact us</a> about a problem.
+    </p>
+
+    <strong>404</strong>
+  </div>
+</div>
+
+        <p class="be-happy">
+          Thanks for your patience <span class="emoji">😊</span>
+        </p>
+    </main>
+  </body>
+</html>

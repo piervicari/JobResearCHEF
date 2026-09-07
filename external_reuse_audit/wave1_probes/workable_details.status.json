@@ -1,0 +1,8 @@
+{
+ "url": "https://apply.workable.com/api/v1/widget/accounts/starling-bank?details=true",
+ "status": 200,
+ "final_url": "https://apply.workable.com/api/v1/widget/accounts/starling-bank?details=true",
+ "bytes": 971636,
+ "attempts": 1,
+ "challenge": []
+}

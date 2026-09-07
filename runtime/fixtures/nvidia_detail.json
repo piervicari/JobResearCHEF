@@ -1,0 +1,82 @@
+{
+  "id": 893397562188,
+  "displayJobId": "JR2024826",
+  "name": "ASIC Verification Engineer - Clocks",
+  "locations": [
+    "India, Bengaluru"
+  ],
+  "standardizedLocations": [
+    "Bengaluru, KA, IN"
+  ],
+  "postedTs": 1788480000,
+  "stars": 0,
+  "department": "Engineer, Verification",
+  "creationTs": 1788134400,
+  "jobDescription": "<p>The NVIDIA Clocks Team is looking for an excellent Senior ASIC Verification engineer with extensive experience in Design Verification. The NVIDIA Clocks Team is committed to deliver high-quality clocking and reset logic to various units in SOC automotive and datacenter ASICs. The complexity of the clocks and resets design has increased many folds. This requires sophisticated verification to deliver a bug free clocks/resets design to power our product lines ranging from Data Centers, Consumer graphics to Self-driving cars and the growing field of artificial intelligence. Modern clocking veri",
+  "location": "India, Bengaluru",
+  "isHot": 0,
+  "workLocationOption": "onsite",
+  "locationFlexibility": null,
+  "atsJobId": "JR2024826",
+  "positionUrl": "/careers/job/893397562188",
+  "publicUrl": "https://jobs.nvidia.com/careers/job/893397562188",
+  "efcustomTextJobFmailyGroup": [
+    "Engineering"
+  ],
+  "efcustomTextTimeType": [
+    "Full time"
+  ],
+  "jdHighlight": [],
+  "positionExtraDetails": {
+    "videos": [
+      {
+        "url": "https://www.youtube.com/embed/jqdnOjOnoCY?si=ZD3rhENVDwB9Ryma",
+        "title": "Meet NVIDIA—The Engine of AI",
+        "description": "From gaming to data science, self-driving cars to climate change, see how we’re tackling the world’s greatest challenges and transforming everyday lif..."
+      },
+      {
+        "url": "https://www.youtube.com/embed/I5AOnsSPpYo?si=mEYg9u6d_majlCk_",
+        "title": "A Team of Extraordinary Technologists",
+        "description": "Watch an NVIDIAN's research in action. https://nvda.ws/2txazmI"
+      },
+      {
+        "url": "https://www.youtube.com/embed/DVvEzFHty1A?si=gOW40rF0SKXbEIHV",
+        "title": "NVIDIA's Culture",
+        "description": "A glimpse of why NVIDIA is like no place you've ever worked. https://nvda.ws/2txazmI"
+      }
+    ],
+    "blogs": [
+      {
+        "title": "How an NVIDIA Engineer Unplugs to Recharge During Free Days",
+        "description": "At NVIDIA, we do what we love at work — and in our free time. NVIDIA offers employees two free days each quarter, when we all disconnect from work to recharge. Here’s a look at how NVIDIANs spend their extra time off.",
+        "image": "https://static.vscdn.net/images/careers/demo/nvidia-sandbox/1729887844::PCSix+Article+1",
+        "url": "https://blogs.nvidia.com/blog/nvidia-life-free-days-2024/"
+      },
+      {
+        "title": "NVIDIA Leaders Honored for Outstanding Achievements by Silicon Valley YWCA",
+        "description": "NVIDIA Founder and CEO Jensen Huang Returns to Denny’s Where NVIDIA Launched a Trillion-Dollar Vision",
+        "image": "https://static.vscdn.net/images/careers/demo/nvidia-sandbox/1729887935::PCSix+Article+2",
+        "url": "https://blogs.nvidia.com/blog/nvidia-dennys-trillion/"
+      },
+      {
+        "title": "How to Land an Internship at NVIDIA: Inside Tips From a Top Recruiter",
+        "description": "Land an internship at NVIDIA: Linh Nguyen, who leads our campus recruiting teams, shares inside tips about how to stand out from the crowd. #NVIDIAlife",
+        "image": "https://static.vscdn.net/images/careers/demo/nvidia-sandbox/1729887983::PCSix+Article+3",
+        "url": "https://blogs.nvidia.com/blog/nvidia-life-linh-nguyen/"
+      }
+    ],
+    "perks": [],
+    "pymww": {
+      "people": [],
+      "count": 0
+    },
+    "customContent": []
+  },
+  "positionUserActions": {
+    "isSaved": false,
+    "applyAction": {
+      "status": "link_off",
+      "applyUrl": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/India-Bengaluru/ASIC-Verification-Engineer---Clocks_JR2024826/apply?source=Eightfold"
+    }
+  }
+}

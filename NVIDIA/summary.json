@@ -1,0 +1,24 @@
+{
+  "career_site": "https://jobs.nvidia.com/careers",
+  "ats_backend": "Eightfold PCSX (static.vscdn.net)",
+  "search_endpoint": "/api/pcsx/search",
+  "detail_endpoint": "/api/pcsx/position_details",
+  "page_size": 10,
+  "declared_total_count": 2674,
+  "catalog_total_returned": 44,
+  "catalog_unique_ids": 44,
+  "duplicates_in_catalog": 0,
+  "details_downloaded_sample": 5,
+  "description_min_chars": 2888,
+  "description_max_chars": 5121,
+  "auth_required": false,
+  "headers_required": [
+    "User-Agent (any desktop UA)",
+    "Accept: application/json"
+  ],
+  "browser_required": false,
+  "paging_strategy": "offset 'start' parameter, 10 per page",
+  "notes": [
+    "8fold enforces light anti-bot: rapid pagination triggers 403. Use SLEEP >= 0.4s or rotate UA per request."
+  ]
+}

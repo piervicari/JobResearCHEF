@@ -1,0 +1,114 @@
+{
+  "schema_version": "source_spec/v0.1",
+  "company": {
+    "id": "amazon",
+    "name": "Amazon",
+    "career_site": "https://www.amazon.jobs"
+  },
+  "platform": {
+    "name": "amazon_jobs_public_api",
+    "notes": "Amazon runs an undocumented but publicly accessible JSON endpoint at https://www.amazon.jobs/en/search.json. The same shape powers /en/jobs/{id}/{slug}.json but the per-job detail endpoint returns 406 Not Acceptable for the JSON Accept header — the description/qualifications live inline in the catalog response, not behind a per-job detail fetch."
+  },
+  "source_of_truth": "filtered_catalog",
+  "open_closed_authoritative": false,
+  "request": {
+    "method": "GET",
+    "url": "https://www.amazon.jobs/en/search.json",
+    "headers": {
+      "Accept": "application/json",
+      "Accept-Language": "en-US,en;q=0.9"
+    },
+    "query": {
+      "offset": "0",
+      "result_limit": "10",
+      "sort": "relevant"
+    },
+    "body": {},
+    "templates": {
+      "User-Agent": {
+        "at": "headers.User-Agent",
+        "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+      },
+      "offset": {
+        "at": "query.offset",
+        "value": "{{offset}}"
+      },
+      "result_limit": {
+        "at": "query.result_limit",
+        "value": "{{result_limit}}"
+      }
+    },
+    "variables": {
+      "offset": "0",
+      "result_limit": "10"
+    }
+  },
+  "language": {
+    "default": "en",
+    "where": "query",
+    "param": "hl"
+  },
+  "extraction": {
+    "page_wrapper": {
+      "items": "jobs",
+      "total": "hits"
+    },
+    "item_path": "jobs",
+    "total_path": "hits",
+    "stable_id_path": "id_icims",
+    "secondary_id_paths": ["id"],
+    "title_path": "title",
+    "department_path": "job_category",
+    "organization_path": "company_name",
+    "publication_date_path": null,
+    "expiration_date_path": null,
+    "official_url_path": null,
+    "official_url_template": "https://www.amazon.jobs/en/jobs/{{stable_id}}",
+    "apply_url_path": "url_next_step",
+    "language_path": null,
+    "preferred_language_codes": ["en"],
+    "date_format": "iso_date",
+    "locations": {
+      "path": "normalized_location",
+      "shape": "list_of_strings",
+      "fallback_paths": ["location"]
+    },
+    "description": {
+      "path": "description",
+      "shape": "string",
+      "strip_html": true,
+      "fallback_paths": ["basic_qualifications", "preferred_qualifications"]
+    }
+  },
+  "description_in_catalog": true,
+  "paging": {
+    "strategy": "offset",
+    "page_size": 10,
+    "first_page_value": 0,
+    "page_param": "offset",
+    "inject": {
+      "target": "query_param",
+      "path": ""
+    }
+  },
+  "completeness": {
+    "rules": [
+      {"name": "next_offset_ge_total", "kind": "next_offset_ge_total"},
+      {"name": "last_page_shorter", "kind": "last_page_shorter_than_page_size"},
+      {"name": "items_path_empty_after_total", "kind": "items_path_empty_after_total"}
+    ],
+    "on_incomplete": "skip_closed"
+  },
+  "safety": {
+    "sequential_only": true,
+    "min_seconds_between_requests": 0.6,
+    "long_pause_every_n_requests": 0,
+    "long_pause_seconds": 0,
+    "max_requests_per_run": 600,
+    "abort_on_http_403": true,
+    "abort_on_http_429": true,
+    "max_retries_on_5xx": 1,
+    "max_consecutive_errors": 8
+  },
+  "notes": "HARD LIMIT discovered at the wire level: the public endpoint caps at 10000 results per query — hitting offset=10000 returns {error: 'Cannot return more than 10000 results at once', hits: 0, jobs: null}. Amazon has more than 10000 openings across all teams; this endpoint exposes a filtered slice. Therefore source_of_truth=filtered_catalog, open_closed_authoritative=false. v0.1-known limitations for Amazon, all documented and accepted: (1) locations[] in the payload is a list of JSON-encoded strings (not real objects), so we extract only the primary 'normalized_location' field which is a single string — secondary locations on multi-location postings are lost. (2) basic_qualifications and preferred_qualifications are flattened into the description field because v0.1's description extraction has no primitive to split two paths into description+qualifications. (3) publication_date_path is null because posted_date is a free-text string like 'May 28, 2026' that v0.1's date_format enum (iso_date / iso_datetime / unix_seconds) cannot parse — preserving the field as null avoids lying about a date. (4) Amazon exposes locale via URL path (/en/, /de/), not via a query/body parameter; the language block is declared with a no-op default. estimated full reconciliation: 1000 requests (10000 hits / 10 per page) for the cap-bound sweep; the on_incomplete=skip_closed policy ensures we never mark positions closed that we didn't see."
+}

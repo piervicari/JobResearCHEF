@@ -1,0 +1,50 @@
+{
+  "_comment": "Minimal catalog page fixture for Mercedes-Benz, derived from the real item mer000484n found in mb/all_jobs_full2.json. SearchResultCountAll=2798 comes from the offline probe (--probe-full-catalog) recorded in mb/README_HARVESTER.md.",
+  "LanguageCode": "EN",
+  "SearchResult": {
+    "SearchResultCount": 1,
+    "SearchResultCountAll": 2798,
+    "SearchResultItems": [
+      {
+        "MatchedObjectDescriptor": {
+          "ID": "237103",
+          "PositionID": "mer000484n",
+          "PositionTitle": "Executive, Digital Apps & Online Platforms",
+          "PositionURI": "https://jobs.mercedes-benz.com/executive-digital-apps-online-platforms--237103-MER000484N",
+          "ApplyURI": ["https://tas-DAIMLER.taleo.net/careersection/ex/jobapply.ftl?job=MER000484N&lang=en"],
+          "DepartmentName": "Brand & Communications Strategy",
+          "ParentOrganizationName": "Mercedes-Benz Taiwan Ltd.",
+          "PositionLocation": [
+            {
+              "Continent": "5",
+              "ContinentName": "Asia",
+              "Country": "516",
+              "CountryName": "Taiwan, China",
+              "CountryCode": "TW",
+              "CountrySubDivision": "4870",
+              "CountrySubDivisionName": "Taiwan, China",
+              "City": "1896",
+              "CityName": "Taipei",
+              "PostalCode": "105",
+              "StreetName": "13F, No. 129 Minsheng E. Road Sec. 3",
+              "Longitude": 121.54767,
+              "Latitude": 25.05794,
+              "DisplayName": "Mercedes-Benz Taiwan Ltd., Taipei"
+            }
+          ],
+          "PublicationStartDate": "2026-09-04",
+          "PublicationEndDate": "2026-10-04",
+          "PositionStartDate": "2026-09-04",
+          "CareerLevel": [{"Code": "12", "Name": "Salaried"}],
+          "JobCategory": [{"Code": "37", "Name": "IT/Telecom"}],
+          "TargetGroup": [{"Code": "4", "Name": "Berufserfahrene"}],
+          "PublicationLanguage": {"Code": "1"},
+          "PositionFormattedDescription": [
+            {"Tasks": "<p>Lead the regional digital apps and online platforms portfolio across APAC.</p>", "Qualifications": "<p>10+ years in digital product leadership.</p>"}
+          ]
+        }
+      }
+    ],
+    "UserArea": {"ExecutionError": 0}
+  }
+}

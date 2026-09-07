@@ -1,0 +1,964 @@
+[
+  {
+    "id": 893397562188,
+    "displayJobId": "JR2024826",
+    "name": "ASIC Verification Engineer - Clocks",
+    "locations": [
+      "India, Bengaluru"
+    ],
+    "standardizedLocations": [
+      "Bengaluru, KA, IN"
+    ],
+    "postedTs": 1788480000,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Verification",
+    "creationTs": 1788134400,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2024826",
+    "positionUrl": "/careers/job/893397562188"
+  },
+  {
+    "id": 893397561016,
+    "displayJobId": "JR2024695",
+    "name": "Senior High-Performance Storage Architect - NVIS",
+    "locations": [
+      "Remote - Australia"
+    ],
+    "standardizedLocations": [
+      "AU"
+    ],
+    "postedTs": 1788480000,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Architect, Professional Services",
+    "creationTs": 1787875200,
+    "isHot": 0,
+    "workLocationOption": "remote_local",
+    "locationFlexibility": null,
+    "atsJobId": "JR2024695",
+    "positionUrl": "/careers/job/893397561016"
+  },
+  {
+    "id": 893397561063,
+    "displayJobId": "JR2025050",
+    "name": "Software Test Developer - Robotics",
+    "locations": [
+      "India, Pune"
+    ],
+    "standardizedLocations": [
+      "Pune, MH, IN"
+    ],
+    "postedTs": 1788480000,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, SW QA Test Dev",
+    "creationTs": 1788307200,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2025050",
+    "positionUrl": "/careers/job/893397561063"
+  },
+  {
+    "id": 893397561022,
+    "displayJobId": "JR2024865",
+    "name": "Software Engineering Manager, Agentic Transformation for Graphics Systems",
+    "locations": [
+      "India, Pune",
+      "India, Bengaluru"
+    ],
+    "standardizedLocations": [
+      "Pune, MH, IN",
+      "Bengaluru, KA, IN"
+    ],
+    "postedTs": 1788480000,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Mgmt, Sys SW",
+    "creationTs": 1788134400,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2024865",
+    "positionUrl": "/careers/job/893397561022"
+  },
+  {
+    "id": 893397561050,
+    "displayJobId": "JR2025032",
+    "name": "HWQA Engineer",
+    "locations": [
+      "India, Bengaluru"
+    ],
+    "standardizedLocations": [
+      "Bengaluru, KA, IN"
+    ],
+    "postedTs": 1788480000,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, SW QA",
+    "creationTs": 1788307200,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2025032",
+    "positionUrl": "/careers/job/893397561050"
+  },
+  {
+    "id": 893397561041,
+    "displayJobId": "JR2024703",
+    "name": "Senior Solutions Architect, InfiniBand and Networking Ethernet - NVIS",
+    "locations": [
+      "Remote - Australia"
+    ],
+    "standardizedLocations": [
+      "AU"
+    ],
+    "postedTs": 1788480000,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Architect, Professional Services",
+    "creationTs": 1787875200,
+    "isHot": 0,
+    "workLocationOption": "remote_local",
+    "locationFlexibility": null,
+    "atsJobId": "JR2024703",
+    "positionUrl": "/careers/job/893397561041"
+  },
+  {
+    "id": 893397564840,
+    "displayJobId": "JR2024946",
+    "name": "Senior HR Operation Manager - APAC",
+    "locations": [
+      "Taiwan, Taipei"
+    ],
+    "standardizedLocations": [
+      "Taipei City,TW"
+    ],
+    "postedTs": 1788480000,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Mgmt, HR Generalist",
+    "creationTs": 1788220800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2024946",
+    "positionUrl": "/careers/job/893397564840"
+  },
+  {
+    "id": 893397566236,
+    "displayJobId": "JR2024209",
+    "name": "Senior Mask Layout Design Engineer",
+    "locations": [
+      "Taiwan, Hsinchu",
+      "Taiwan, Taipei"
+    ],
+    "standardizedLocations": [
+      "Hsinchu, Hsinchu City, TW",
+      "Taipei City,TW"
+    ],
+    "postedTs": 1788480000,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Mask Design",
+    "creationTs": 1787356800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2024209",
+    "positionUrl": "/careers/job/893397566236"
+  },
+  {
+    "id": 893397566238,
+    "displayJobId": "JR2024494",
+    "name": "Senior System Integration and Validation Engineer",
+    "locations": [
+      "India, Bengaluru"
+    ],
+    "standardizedLocations": [
+      "Bengaluru, KA, IN"
+    ],
+    "postedTs": 1788480000,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, ASIC",
+    "creationTs": 1788134400,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2024494",
+    "positionUrl": "/careers/job/893397566238"
+  },
+  {
+    "id": 893397566255,
+    "displayJobId": "JR2024628",
+    "name": "Israel Country Sales Leader",
+    "locations": [
+      "Israel, Tel Aviv"
+    ],
+    "standardizedLocations": [
+      "Tel Aviv-Yafo, Tel Aviv District, IL"
+    ],
+    "postedTs": 1788480000,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Mgmt, Sales (Sales)",
+    "creationTs": 1787788800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2024628",
+    "positionUrl": "/careers/job/893397566255"
+  },
+  {
+    "id": 893391948984,
+    "displayJobId": "JR2007439",
+    "name": "Software Architect, Advanced Development",
+    "locations": [
+      "Israel, Yokneam"
+    ],
+    "standardizedLocations": [
+      "Yokne'am Illit, North District, IL"
+    ],
+    "postedTs": 1788307200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Architect",
+    "creationTs": 1762128000,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2007439",
+    "positionUrl": "/careers/job/893391948984"
+  },
+  {
+    "id": 893392135148,
+    "displayJobId": "JR2008177",
+    "name": "SOC Design Engineer, ASIC Tools and Methodology Development",
+    "locations": [
+      "US, TX, Austin"
+    ],
+    "standardizedLocations": [
+      "Austin, TX, US"
+    ],
+    "postedTs": 1788307200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, CAD",
+    "creationTs": 1762992000,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2008177",
+    "positionUrl": "/careers/job/893392135148"
+  },
+  {
+    "id": 893375061894,
+    "displayJobId": "JR1973423",
+    "name": "Distinguished Engineer – Data Center System Software Architect",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1788307200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Distinguished Engineer",
+    "creationTs": 1696464000,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": "flexible_within_country",
+    "atsJobId": "JR1973423",
+    "positionUrl": "/careers/job/893375061894"
+  },
+  {
+    "id": 893394013952,
+    "displayJobId": "JR2014628",
+    "name": "Senior Hardware Systems Architect - LPU",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1788307200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Architect",
+    "creationTs": 1773100800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2014628",
+    "positionUrl": "/careers/job/893394013952"
+  },
+  {
+    "id": 893394351134,
+    "displayJobId": "JR2015186",
+    "name": "Senior IP Verification Engineer",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1788307200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Verification",
+    "creationTs": 1773964800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2015186",
+    "positionUrl": "/careers/job/893394351134"
+  },
+  {
+    "id": 893393288255,
+    "displayJobId": "JR2012877",
+    "name": "Senior Account Manager, Consumer Sales",
+    "locations": [
+      "Korea, Seoul"
+    ],
+    "standardizedLocations": [
+      "Seoul,KR"
+    ],
+    "postedTs": 1788307200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Account Manager",
+    "creationTs": 1770595200,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2012877",
+    "positionUrl": "/careers/job/893393288255"
+  },
+  {
+    "id": 893394072885,
+    "displayJobId": "JR2014698",
+    "name": "Senior Hardware Systems Engineer - LPU Platform Pathfinding",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1788307200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Sys SW",
+    "creationTs": 1773187200,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2014698",
+    "positionUrl": "/careers/job/893394072885"
+  },
+  {
+    "id": 893394324682,
+    "displayJobId": "JR2014621",
+    "name": "Senior System Software Engineer - DRIVEOS Platform Team",
+    "locations": [
+      "India, Bengaluru"
+    ],
+    "standardizedLocations": [
+      "Bengaluru, KA, IN"
+    ],
+    "postedTs": 1788307200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Sys SW",
+    "creationTs": 1773100800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2014621",
+    "positionUrl": "/careers/job/893394324682"
+  },
+  {
+    "id": 893396117673,
+    "displayJobId": "JR2020844",
+    "name": "Senior Storage Software Engineer, DGXC Data Services",
+    "locations": [
+      "US, CA, Santa Clara",
+      "US, TX, Remote",
+      "US, NC, Remote",
+      "Remote - US",
+      "US, WA, Remote",
+      "US, CA, Remote"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US",
+      "TX,US",
+      "NC,US",
+      "US",
+      "WA,US",
+      "CA,US"
+    ],
+    "postedTs": 1788307200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Sys SW",
+    "creationTs": 1782950400,
+    "isHot": 0,
+    "workLocationOption": "remote_local",
+    "locationFlexibility": null,
+    "atsJobId": "JR2020844",
+    "positionUrl": "/careers/job/893396117673"
+  },
+  {
+    "id": 893396031136,
+    "displayJobId": "JR2020550",
+    "name": "Senior SOCD Applied AI Engineer",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1788307200,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, CAD",
+    "creationTs": 1782691200,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2020550",
+    "positionUrl": "/careers/job/893396031136"
+  },
+  {
+    "id": 893392526136,
+    "displayJobId": "JR2007596",
+    "name": "Manager, Fixed Asset Tracking and Recovery",
+    "locations": [
+      "US, CA, Santa Clara",
+      "US, TX, Austin"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US",
+      "Austin, TX, US"
+    ],
+    "postedTs": 1786406400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Mgmt, Accounting",
+    "creationTs": 1762214400,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2007596",
+    "positionUrl": "/careers/job/893392526136"
+  },
+  {
+    "id": 893392289597,
+    "displayJobId": "JR2009008",
+    "name": "Hardware Performance Modeling Architect",
+    "locations": [
+      "Israel, Tel Aviv",
+      "Israel, Yokneam"
+    ],
+    "standardizedLocations": [
+      "Tel Aviv-Yafo, Tel Aviv District, IL",
+      "Yokne'am Illit, North District, IL"
+    ],
+    "postedTs": 1786406400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Architect",
+    "creationTs": 1764201600,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2009008",
+    "positionUrl": "/careers/job/893392289597"
+  },
+  {
+    "id": 893394697190,
+    "displayJobId": "JR2016435",
+    "name": "Senior Post Silicon HSIO Bringup Lead",
+    "locations": [
+      "India, Bengaluru",
+      "India, Hyderabad"
+    ],
+    "standardizedLocations": [
+      "Bengaluru, KA, IN",
+      "Hyderabad, Telangana, IN"
+    ],
+    "postedTs": 1786406400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, ASIC",
+    "creationTs": 1776124800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2016435",
+    "positionUrl": "/careers/job/893394697190"
+  },
+  {
+    "id": 893394407536,
+    "displayJobId": "JR2015588",
+    "name": "Senior Thermal Solutions Design Engineer",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1786406400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, ASIC",
+    "creationTs": 1774828800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": "flexible_within_country",
+    "atsJobId": "JR2015588",
+    "positionUrl": "/careers/job/893394407536"
+  },
+  {
+    "id": 893393316864,
+    "displayJobId": "JR2012736",
+    "name": "Senior Deep Learning Performance Architect - LPU",
+    "locations": [
+      "US, CA, Remote",
+      "US, TX, Remote"
+    ],
+    "standardizedLocations": [
+      "CA,US",
+      "TX,US"
+    ],
+    "postedTs": 1786406400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Architect",
+    "creationTs": 1770076800,
+    "isHot": 0,
+    "workLocationOption": "remote_local",
+    "locationFlexibility": null,
+    "atsJobId": "JR2012736",
+    "positionUrl": "/careers/job/893393316864"
+  },
+  {
+    "id": 893395241918,
+    "displayJobId": "JR2018385",
+    "name": "Senior HPC AI Cluster Engineer",
+    "locations": [
+      "Remote - Switzerland",
+      "Switzerland, Zurich"
+    ],
+    "standardizedLocations": [
+      "CH",
+      "Zürich, ZH, CH"
+    ],
+    "postedTs": 1786406400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Dev Ops",
+    "creationTs": 1779062400,
+    "isHot": 0,
+    "workLocationOption": "remote_local",
+    "locationFlexibility": "flexible_within_country",
+    "atsJobId": "JR2018385",
+    "positionUrl": "/careers/job/893395241918"
+  },
+  {
+    "id": 893396971682,
+    "displayJobId": "JR2022670",
+    "name": "Director, Product Management, CPO and Silicon Photonics",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1786406400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Mgmt, Marketing (Marketing)",
+    "creationTs": 1785628800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2022670",
+    "positionUrl": "/careers/job/893396971682"
+  },
+  {
+    "id": 893396965662,
+    "displayJobId": "JR2022809",
+    "name": "Senior PCB Layout Engineer",
+    "locations": [
+      "Israel, Yokneam"
+    ],
+    "standardizedLocations": [
+      "Yokne'am Illit, North District, IL"
+    ],
+    "postedTs": 1786406400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Mask Design",
+    "creationTs": 1785801600,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2022809",
+    "positionUrl": "/careers/job/893396965662"
+  },
+  {
+    "id": 893396970618,
+    "displayJobId": "JR2022843",
+    "name": "OEM Account Manager - NVIDIA Networking Products",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1786406400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Account Manager",
+    "creationTs": 1785801600,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2022843",
+    "positionUrl": "/careers/job/893396970618"
+  },
+  {
+    "id": 893396253494,
+    "displayJobId": "JR2020330",
+    "name": "Senior Structural Test Engineer",
+    "locations": [
+      "US, TX, Remote",
+      "US, TX, Dallas",
+      "US, TX, Houston"
+    ],
+    "standardizedLocations": [
+      "TX,US",
+      "Dallas, TX, US",
+      "Houston, TX, US"
+    ],
+    "postedTs": 1786406400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Test",
+    "creationTs": 1782864000,
+    "isHot": 0,
+    "workLocationOption": "remote_local",
+    "locationFlexibility": null,
+    "atsJobId": "JR2020330",
+    "positionUrl": "/careers/job/893396253494"
+  },
+  {
+    "id": 893394426552,
+    "displayJobId": "JR2015726",
+    "name": "Principal Software Engineer — Agentic AI Applications and Foundations",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1780876800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Sys SW",
+    "creationTs": 1775001600,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2015726",
+    "positionUrl": "/careers/job/893394426552"
+  },
+  {
+    "id": 893391914089,
+    "displayJobId": "JR2007081",
+    "name": "System Software Engineer - Tegra",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1780876800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Sys SW",
+    "creationTs": 1761609600,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2007081",
+    "positionUrl": "/careers/job/893391914089"
+  },
+  {
+    "id": 893392032785,
+    "displayJobId": "JR2007464",
+    "name": "Senior Verification Engineer, Chip Design",
+    "locations": [
+      "Israel, Yokneam"
+    ],
+    "standardizedLocations": [
+      "Yokne'am Illit, North District, IL"
+    ],
+    "postedTs": 1780876800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, ASIC",
+    "creationTs": 1762128000,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2007464",
+    "positionUrl": "/careers/job/893392032785"
+  },
+  {
+    "id": 893395478744,
+    "displayJobId": "JR2018150",
+    "name": "Senior Digital Design Engineer - High-Speed I/O and Photonics",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1780876800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, ASIC Mixed Signal Design",
+    "creationTs": 1778630400,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2018150",
+    "positionUrl": "/careers/job/893395478744"
+  },
+  {
+    "id": 893395478499,
+    "displayJobId": "JR2019262",
+    "name": "Senior Solution Architect, AI Compute Engineer - NVIS",
+    "locations": [
+      "Singapore, Singapore-Suntec Tower",
+      "Remote - Singapore"
+    ],
+    "standardizedLocations": [
+      "Singapore, SG",
+      "SG"
+    ],
+    "postedTs": 1780876800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Architect, Professional Services",
+    "creationTs": 1780444800,
+    "isHot": 0,
+    "workLocationOption": "remote_local",
+    "locationFlexibility": null,
+    "atsJobId": "JR2019262",
+    "positionUrl": "/careers/job/893395478499"
+  },
+  {
+    "id": 893395478665,
+    "displayJobId": "JR2019269",
+    "name": "GPU System Architect",
+    "locations": [
+      "India, Bengaluru"
+    ],
+    "standardizedLocations": [
+      "Bengaluru, KA, IN"
+    ],
+    "postedTs": 1780876800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Architect",
+    "creationTs": 1780444800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2019269",
+    "positionUrl": "/careers/job/893395478665"
+  },
+  {
+    "id": 893395478752,
+    "displayJobId": "JR2019306",
+    "name": "Senior High-Speed IO Validation Engineer",
+    "locations": [
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1780876800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Sys Design",
+    "creationTs": 1780444800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR2019306",
+    "positionUrl": "/careers/job/893395478752"
+  },
+  {
+    "id": 893395482353,
+    "displayJobId": "JR2019258",
+    "name": "Senior Solutions Architect, Energy Sector",
+    "locations": [
+      "US, TX, Remote"
+    ],
+    "standardizedLocations": [
+      "TX,US"
+    ],
+    "postedTs": 1780876800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Architect, Solutions",
+    "creationTs": 1780358400,
+    "isHot": 0,
+    "workLocationOption": "remote_local",
+    "locationFlexibility": null,
+    "atsJobId": "JR2019258",
+    "positionUrl": "/careers/job/893395482353"
+  },
+  {
+    "id": 893395490623,
+    "displayJobId": "JR2019517",
+    "name": "Senior Quantum Applied Research Scientist, Calibration and Decoding",
+    "locations": [
+      "US, WA, Redmond",
+      "US, CA, Remote",
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Redmond, WA, US",
+      "CA,US",
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1780876800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Research Staff Member",
+    "creationTs": 1780790400,
+    "isHot": 0,
+    "workLocationOption": "remote_local",
+    "locationFlexibility": null,
+    "atsJobId": "JR2019517",
+    "positionUrl": "/careers/job/893395490623"
+  },
+  {
+    "id": 893395490624,
+    "displayJobId": "JR2019518",
+    "name": "Senior Quantum Applied Research Scientist, Physics Modeling",
+    "locations": [
+      "US, WA, Redmond",
+      "US, CA, Remote",
+      "US, CA, Santa Clara"
+    ],
+    "standardizedLocations": [
+      "Redmond, WA, US",
+      "CA,US",
+      "Santa Clara, CA, US"
+    ],
+    "postedTs": 1780876800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Research Staff Member",
+    "creationTs": 1780790400,
+    "isHot": 0,
+    "workLocationOption": "remote_local",
+    "locationFlexibility": null,
+    "atsJobId": "JR2019518",
+    "positionUrl": "/careers/job/893395490624"
+  },
+  {
+    "id": 893382396163,
+    "displayJobId": "JR1997193",
+    "name": "Senior SRAM Circuit Design Engineer",
+    "locations": [
+      "India, Bengaluru"
+    ],
+    "standardizedLocations": [
+      "Bengaluru, KA, IN"
+    ],
+    "postedTs": 1747094400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, ASIC",
+    "creationTs": 1746144000,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR1997193",
+    "positionUrl": "/careers/job/893382396163"
+  },
+  {
+    "id": 893382396167,
+    "displayJobId": "JR1996865",
+    "name": "Senior SRAM Circuit Design Engineer",
+    "locations": [
+      "India, Bengaluru"
+    ],
+    "standardizedLocations": [
+      "Bengaluru, KA, IN"
+    ],
+    "postedTs": 1747094400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, ASIC",
+    "creationTs": 1745366400,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR1996865",
+    "positionUrl": "/careers/job/893382396167"
+  },
+  {
+    "id": 893380511336,
+    "displayJobId": "JR1995504",
+    "name": "Senior Analog Layout Design Engineer",
+    "locations": [
+      "Israel, Yokneam"
+    ],
+    "standardizedLocations": [
+      "Yokne'am Illit, North District, IL"
+    ],
+    "postedTs": 1742774400,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Engineer, Mask Design",
+    "creationTs": 1739836800,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR1995504",
+    "positionUrl": "/careers/job/893380511336"
+  },
+  {
+    "id": 893379882775,
+    "displayJobId": "JR1993430",
+    "name": "Senior Solutions Architect - Generative AI",
+    "locations": [
+      "India, Bengaluru"
+    ],
+    "standardizedLocations": [
+      "Bengaluru, KA, IN"
+    ],
+    "postedTs": 1735516800,
+    "solrScore": null,
+    "stars": 0,
+    "department": "Architect, Solutions",
+    "creationTs": 1734912000,
+    "isHot": 0,
+    "workLocationOption": "onsite",
+    "locationFlexibility": null,
+    "atsJobId": "JR1993430",
+    "positionUrl": "/careers/job/893379882775"
+  }
+]

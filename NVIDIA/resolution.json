@@ -1,0 +1,95 @@
+{
+  "company": "NVIDIA",
+  "discovered_via": "https://www.nvidia.com/en-us/about-nvidia/careers/",
+  "career_site": "https://jobs.nvidia.com/careers",
+  "ats": {
+    "name": "Eightfold.ai (PCSX — Personalized Career Site eXperience)",
+    "indicators": [
+      "static.vscdn.net (Eightfold CDN) hosts i18n/asset bundles",
+      "URL pattern /api/pcsx/* (Eightfold PCSX module)",
+      "ef-*.js bundles (Eightfold frontend chunks)"
+    ]
+  },
+  "endpoints": {
+    "catalog": {
+      "method": "GET",
+      "url": "https://jobs.nvidia.com/api/pcsx/search",
+      "query_params": {
+        "domain": "nvidia.com",
+        "query": "optional keyword, empty for all",
+        "location": "optional location string, empty for all",
+        "start": "integer offset, page size = 10"
+      },
+      "response_shape": {
+        "status": 200,
+        "data": {
+          "positions": "list of position objects",
+          "count": "int total declared by backend",
+          "filterDef": {"facets": "...", "smartFilters": "...", "allFilters": "..."},
+          "resultsMetaData": {"usedFuzzSearch": "bool", "mocTitle": "string|null"},
+          "appliedFilters": "list",
+          "sortBy": "default ordering, e.g. timestamp"
+        }
+      }
+    },
+    "detail": {
+      "method": "GET",
+      "url": "https://jobs.nvidia.com/api/pcsx/position_details",
+      "query_params": {
+        "position_id": "numeric stable ID, also present in path /careers/job/{id}",
+        "domain": "nvidia.com",
+        "hl": "language code, e.g. en or it"
+      },
+      "response_fields": [
+        "id stable numeric",
+        "displayJobId / atsJobId NVIDIA JR-code",
+        "name title",
+        "department",
+        "locations / location / standardizedLocations",
+        "postedTs / creationTs unix seconds",
+        "jobDescription full HTML with responsibilities and requirements",
+        "efcustomTextJobFmailyGroup",
+        "efcustomTextTimeType",
+        "workLocationOption onsite/hybrid/remote",
+        "locationFlexibility",
+        "isHot",
+        "positionUrl /careers/job/{id}",
+        "publicUrl absolute",
+        "positionExtraDetails videos/blogs/perks",
+        "positionUserActions.applyAction.applyUrl redirect to Workday ATS"
+      ]
+    }
+  },
+  "paging": {
+    "strategy": "offset",
+    "page_size": 10,
+    "param": "start",
+    "termination": "last page returns less than page_size items OR offset >= count",
+    "verified": {
+      "start_0_returns": 10,
+      "start_100_returns": 10,
+      "start_1000_returns": 10,
+      "start_2000_returns": 10,
+      "start_2670_returns": 4,
+      "declared_total": 2674,
+      "last_page_consistent_with_total": true
+    }
+  },
+  "auth": {
+    "required": false,
+    "headers_required": ["User-Agent any desktop UA", "Accept: application/json"],
+    "cookies": "none observed",
+    "tokens": "none observed",
+    "captcha": "not triggered by slow polite HTTP requests"
+  },
+  "rate_limits": {
+    "observed": "HTTP 429 after ~15-20 fast requests, HTTP 403 after a long burst",
+    "mitigation": "SLEEP >= 0.4s between requests, backoff on 429/403"
+  },
+  "stable_id": "id (numeric). displayJobId/atsJobId is the public JRxxxxxx code.",
+  "official_url_template": "https://jobs.nvidia.com/careers/job/{id}",
+  "redirect_target_for_application": "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite/job/... (Workday)",
+  "browser_required": false,
+  "reproduction_command": "python3 replay.py",
+  "reproduction_artifacts": ["catalog.json", "details.jsonl", "summary.json", "replay.log"]
+}

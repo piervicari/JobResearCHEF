@@ -1,0 +1,231 @@
+{
+  "status": 200,
+  "error": {
+    "message": "",
+    "body": ""
+  },
+  "data": {
+    "positions": [
+      {
+        "id": 893397562188,
+        "displayJobId": "JR2024826",
+        "name": "ASIC Verification Engineer - Clocks",
+        "locations": [
+          "India, Bengaluru"
+        ],
+        "standardizedLocations": [
+          "Bengaluru, KA, IN"
+        ],
+        "postedTs": 1788480000,
+        "solrScore": null,
+        "stars": 0,
+        "department": "Engineer, Verification",
+        "creationTs": 1788134400,
+        "isHot": 0,
+        "workLocationOption": "onsite",
+        "locationFlexibility": null,
+        "atsJobId": "JR2024826",
+        "positionUrl": "/careers/job/893397562188"
+      },
+      {
+        "id": 893397561016,
+        "displayJobId": "JR2024695",
+        "name": "Senior High-Performance Storage Architect - NVIS",
+        "locations": [
+          "Remote - Australia"
+        ],
+        "standardizedLocations": [
+          "AU"
+        ],
+        "postedTs": 1788480000,
+        "solrScore": null,
+        "stars": 0,
+        "department": "Architect, Professional Services",
+        "creationTs": 1787875200,
+        "isHot": 0,
+        "workLocationOption": "remote_local",
+        "locationFlexibility": null,
+        "atsJobId": "JR2024695",
+        "positionUrl": "/careers/job/893397561016"
+      },
+      {
+        "id": 893397561063,
+        "displayJobId": "JR2025050",
+        "name": "Software Test Developer - Robotics",
+        "locations": [
+          "India, Pune"
+        ],
+        "standardizedLocations": [
+          "Pune, MH, IN"
+        ],
+        "postedTs": 1788480000,
+        "solrScore": null,
+        "stars": 0,
+        "department": "Engineer, SW QA Test Dev",
+        "creationTs": 1788307200,
+        "isHot": 0,
+        "workLocationOption": "onsite",
+        "locationFlexibility": null,
+        "atsJobId": "JR2025050",
+        "positionUrl": "/careers/job/893397561063"
+      },
+      {
+        "id": 893397561022,
+        "displayJobId": "JR2024865",
+        "name": "Software Engineering Manager, Agentic Transformation for Graphics Systems",
+        "locations": [
+          "India, Pune",
+          "India, Bengaluru"
+        ],
+        "standardizedLocations": [
+          "Pune, MH, IN",
+          "Bengaluru, KA, IN"
+        ],
+        "postedTs": 1788480000,
+        "solrScore": null,
+        "stars": 0,
+        "department": "Mgmt, Sys SW",
+        "creationTs": 1788134400,
+        "isHot": 0,
+        "workLocationOption": "onsite",
+        "locationFlexibility": null,
+        "atsJobId": "JR2024865",
+        "positionUrl": "/careers/job/893397561022"
+      },
+      {
+        "id": 893397561050,
+        "displayJobId": "JR2025032",
+        "name": "HWQA Engineer",
+        "locations": [
+          "India, Bengaluru"
+        ],
+        "standardizedLocations": [
+          "Bengaluru, KA, IN"
+        ],
+        "postedTs": 1788480000,
+        "solrScore": null,
+        "stars": 0,
+        "department": "Engineer, SW QA",
+        "creationTs": 1788307200,
+        "isHot": 0,
+        "workLocationOption": "onsite",
+        "locationFlexibility": null,
+        "atsJobId": "JR2025032",
+        "positionUrl": "/careers/job/893397561050"
+      },
+      {
+        "id": 893397561041,
+        "displayJobId": "JR2024703",
+        "name": "Senior Solutions Architect, InfiniBand and Networking Ethernet - NVIS",
+        "locations": [
+          "Remote - Australia"
+        ],
+        "standardizedLocations": [
+          "AU"
+        ],
+        "postedTs": 1788480000,
+        "solrScore": null,
+        "stars": 0,
+        "department": "Architect, Professional Services",
+        "creationTs": 1787875200,
+        "isHot": 0,
+        "workLocationOption": "remote_local",
+        "locationFlexibility": null,
+        "atsJobId": "JR2024703",
+        "positionUrl": "/careers/job/893397561041"
+      },
+      {
+        "id": 893397564840,
+        "displayJobId": "JR2024946",
+        "name": "Senior HR Operation Manager - APAC",
+        "locations": [
+          "Taiwan, Taipei"
+        ],
+        "standardizedLocations": [
+          "Taipei City,TW"
+        ],
+        "postedTs": 1788480000,
+        "solrScore": null,
+        "stars": 0,
+        "department": "Mgmt, HR Generalist",
+        "creationTs": 1788220800,
+        "isHot": 0,
+        "workLocationOption": "onsite",
+        "locationFlexibility": null,
+        "atsJobId": "JR2024946",
+        "positionUrl": "/careers/job/893397564840"
+      },
+      {
+        "id": 893397566236,
+        "displayJobId": "JR2024209",
+        "name": "Senior Mask Layout Design Engineer",
+        "locations": [
+          "Taiwan, Hsinchu",
+          "Taiwan, Taipei"
+        ],
+        "standardizedLocations": [
+          "Hsinchu, Hsinchu City, TW",
+          "Taipei City,TW"
+        ],
+        "postedTs": 1788480000,
+        "solrScore": null,
+        "stars": 0,
+        "department": "Engineer, Mask Design",
+        "creationTs": 1787356800,
+        "isHot": 0,
+        "workLocationOption": "onsite",
+        "locationFlexibility": null,
+        "atsJobId": "JR2024209",
+        "positionUrl": "/careers/job/893397566236"
+      },
+      {
+        "id": 893397566238,
+        "displayJobId": "JR2024494",
+        "name": "Senior System Integration and Validation Engineer",
+        "locations": [
+          "India, Bengaluru"
+        ],
+        "standardizedLocations": [
+          "Bengaluru, KA, IN"
+        ],
+        "postedTs": 1788480000,
+        "solrScore": null,
+        "stars": 0,
+        "department": "Engineer, ASIC",
+        "creationTs": 1788134400,
+        "isHot": 0,
+        "workLocationOption": "onsite",
+        "locationFlexibility": null,
+        "atsJobId": "JR2024494",
+        "positionUrl": "/careers/job/893397566238"
+      },
+      {
+        "id": 893397566255,
+        "displayJobId": "JR2024628",
+        "name": "Israel Country Sales Leader",
+        "locations": [
+          "Israel, Tel Aviv"
+        ],
+        "standardizedLocations": [
+          "Tel Aviv-Yafo, Tel Aviv District, IL"
+        ],
+        "postedTs": 1788480000,
+        "solrScore": null,
+        "stars": 0,
+        "department": "Mgmt, Sales (Sales)",
+        "creationTs": 1787788800,
+        "isHot": 0,
+        "workLocationOption": "onsite",
+        "locationFlexibility": null,
+        "atsJobId": "JR2024628",
+        "positionUrl": "/careers/job/893397566255"
+      }
+    ],
+    "count": 2674,
+    "filterDef": {},
+    "resultsMetaData": {},
+    "appliedFilters": [],
+    "sortBy": "timestamp"
+  },
+  "metadata": null
+}

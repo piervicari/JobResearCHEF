@@ -1,0 +1,99 @@
+{
+  "schema_version": "source_spec/v0.1",
+  "company": {
+    "id": "cloudflare",
+    "name": "Cloudflare",
+    "career_site": "https://www.cloudflare.com/careers"
+  },
+  "platform": {
+    "name": "greenhouse_job_board_api",
+    "notes": "Cloudflare uses the public Greenhouse Job Board API. Endpoint: GET https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs?content=true. No auth required. The response carries the COMPLETE catalog in a single chunk (no server-side pagination). meta.total reflects the total. The job body uses an HTML 'content' field that contains everything (about, responsibilities, qualifications, benefits) as a single HTML blob. departments/offices/metadata are structured arrays."
+  },
+  "source_of_truth": "full_catalog",
+  "open_closed_authoritative": true,
+  "request": {
+    "method": "GET",
+    "url": "https://boards-api.greenhouse.io/v1/boards/cloudflare/jobs",
+    "headers": {
+      "Accept": "application/json"
+    },
+    "query": {
+      "content": "true"
+    },
+    "body": {},
+    "templates": {
+      "User-Agent": {
+        "at": "headers.User-Agent",
+        "value": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36"
+      }
+    },
+    "variables": {}
+  },
+  "language": {
+    "default": "en",
+    "where": "query",
+    "param": "language"
+  },
+  "extraction": {
+    "page_wrapper": {
+      "items": "jobs",
+      "total": "meta.total"
+    },
+    "item_path": "jobs",
+    "total_path": "meta.total",
+    "stable_id_path": "id",
+    "secondary_id_paths": ["internal_job_id", "requisition_id"],
+    "title_path": "title",
+    "department_path": "departments.0.name",
+    "organization_path": "company_name",
+    "publication_date_path": "first_published",
+    "expiration_date_path": null,
+    "official_url_path": "absolute_url",
+    "official_url_template": null,
+    "apply_url_path": null,
+    "language_path": "language",
+    "preferred_language_codes": ["en"],
+    "date_format": "iso_datetime",
+    "locations": {
+      "path": "offices",
+      "shape": "list_of_objects",
+      "item_template": "{name}"
+    },
+    "description": {
+      "path": "content",
+      "shape": "string",
+      "strip_html": true,
+      "fallback_paths": []
+    }
+  },
+  "description_in_catalog": true,
+  "paging": {
+    "strategy": "offset",
+    "page_size": 331,
+    "first_page_value": 0,
+    "page_param": "offset",
+    "inject": {
+      "target": "query_param",
+      "path": ""
+    }
+  },
+  "completeness": {
+    "rules": [
+      {"name": "next_offset_ge_total", "kind": "next_offset_ge_total"},
+      {"name": "last_page_shorter", "kind": "last_page_shorter_than_page_size"}
+    ],
+    "on_incomplete": "skip_closed"
+  },
+  "safety": {
+    "sequential_only": true,
+    "min_seconds_between_requests": 0.5,
+    "long_pause_every_n_requests": 0,
+    "long_pause_seconds": 0,
+    "max_requests_per_run": 10,
+    "abort_on_http_403": true,
+    "abort_on_http_429": true,
+    "max_retries_on_5xx": 1,
+    "max_consecutive_errors": 8
+  },
+  "notes": "Full catalog source. The Greenhouse Job Board API returns the COMPLETE catalog in a single chunk: meta.total=331 jobs returned in one GET, no server-side pagination. The v0.1 pagination_iterator is configured with page_size=331, first_page_value=0, so it yields exactly 1 offset (0). max_requests_per_run is set to 10 (very generous for a single-shot sweep). The job 'content' field is a single HTML blob that contains about, responsibilities, qualifications, and benefits as a single document. The spec declares description.path='content' with strip_html=true; qualifications remains empty because v0.1 has no primitive to split a single HTML blob into description+qualifications fields. semantic_complete=true: title via title_path, department via departments.0.name, description/responsibilities/qualifications via content (stripped). The downstream classifier receives the full text in the description field, which is sufficient for semantic classification (the description field literally contains the qualifications text as well, just not split into a separate normalized field). semantic_complete=true. KNOWN ENCODING ARTIFACT: Greenhouse returns the 'content' field with HTML entity encoding (&lt; &gt; &quot;) — the v0.1 strip_html removes <tag> markup but does NOT decode HTML entities. The downstream classifier must call html.unescape() (Python stdlib) or its language equivalent on the description field before keyword/feature extraction. Without this step, the description appears as &lt;p&gt;...&lt;/p&gt; instead of <p>...</p>. This is a Greenhouse-specific quirk, not a v0.1 bug. The apply URL field is null because v0.1 has no apply_url_template; the real 'apply' UI is at https://boards.greenhouse.io/cloudflare/jobs/{id} (same path as absolute_url, with the user's session)."
+}

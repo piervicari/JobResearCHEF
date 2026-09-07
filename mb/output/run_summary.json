@@ -1,0 +1,23 @@
+{
+  "started_at": "2026-09-04T13:51:08+00:00",
+  "mode": "normal",
+  "catalog_complete": false,
+  "catalog_incomplete_reason": "max_requests_per_run reached",
+  "catalog_jobs_seen": 6,
+  "new_jobs": 0,
+  "changed_jobs": 0,
+  "unchanged_jobs": 6,
+  "closed_jobs": 0,
+  "http_requests_total": 3,
+  "catalog_requests": 3,
+  "detail_requests": 0,
+  "http_403_count": 0,
+  "http_429_count": 0,
+  "http_5xx_count": 0,
+  "http_network_error_count": 0,
+  "errors": [],
+  "aborted_for_safety": true,
+  "abort_reason": "max_requests_per_run reached",
+  "closed_calculation_skipped": true,
+  "finished_at": "2026-09-04T13:51:08+00:00"
+}

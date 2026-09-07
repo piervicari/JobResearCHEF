@@ -1,0 +1,81 @@
+{
+  "_comment": "Mercedes-Benz career harvester configuration. Tuning here prioritizes NOT getting blocked over speed.",
+  "api": {
+    "search_url": "https://jobs.api.mercedes-benz.com/search",
+    "headers": {
+      "Accept": "application/json",
+      "Content-Type": "application/json",
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36",
+      "Referer": "https://jobs.mercedes-benz.com/",
+      "Origin": "https://jobs.mercedes-benz.com"
+    },
+    "page_size": 50,
+    "request_timeout_seconds": 30
+  },
+  "pacing": {
+    "min_seconds_between_requests": 1.2,
+    "jitter_seconds_max": 0.4,
+    "long_pause_every_n_requests": 25,
+    "long_pause_seconds": 6.0,
+    "retry_after_5xx_seconds": 30
+  },
+  "safety": {
+    "max_requests_per_run": 600,
+    "abort_on_http_403": true,
+    "abort_on_http_429": true,
+    "max_retries_on_5xx": 1,
+    "max_consecutive_errors": 8
+  },
+  "search": {
+    "_comment": "These keywords are used to BUILD the catalog of cyber-likely positions. They are NOT a classifier. They just ensure we monitor positions that touch cybersecurity, AI safety, vehicle cyber, data protection, etc. The actual semantic classification is done offline by an LLM.",
+    "language": "EN",
+    "sort_criterion": "PublicationStartDate",
+    "keywords": [
+      "cybersecurity",
+      "cyber security",
+      "information security",
+      "DevSecOps",
+      "zero trust",
+      "IAM security",
+      "threat intelligence",
+      "security",
+      "GRC",
+      "vulnerability",
+      "audit cyber",
+      "incident response",
+      "cryptography",
+      "encryption",
+      "endpoint security",
+      "GDPR",
+      "threat modeling",
+      "secure coding",
+      "vehicle security",
+      "car cybersecurity",
+      "data privacy",
+      "secure by design"
+    ],
+    "max_keywords_per_run": 22
+  },
+  "detail": {
+    "_comment": "Detail fetch is only triggered for NEW jobs or for jobs that show real catalog-level changes. We do NOT re-download full descriptions every run. To get the full description we re-issue the same catalog search for the job's matching keyword and pick it out of the SearchResultItems — this reuses the same endpoint and pacing already validated during discovery.",
+    "fetch_full_description": true,
+    "fields_to_hash_for_change_detection": [
+      "PositionTitle",
+      "DepartmentName",
+      "ParentOrganizationName",
+      "PublicationStartDate",
+      "PublicationEndDate",
+      "PositionStartDate",
+      "PositionLocation",
+      "CareerLevel",
+      "JobCategory",
+      "TargetGroup",
+      "PositionOfferingType",
+      "PositionSchedule"
+    ]
+  },
+  "storage": {
+    "db_path": "mercedes_jobs.db",
+    "output_dir": "output"
+  }
+}

@@ -1,0 +1,37 @@
+[403] backing off 2s (attempt 1/6)
+[403] backing off 3s (attempt 2/6)
+[403] backing off 5s (attempt 3/6)
+[403] backing off 9s (attempt 4/6)
+[403] backing off 17s (attempt 5/6)
+[catalog] declared total = 2674
+[429] backing off 2s (attempt 1/6)
+[429] backing off 3s (attempt 2/6)
+[catalog] retrieved   = 2674 positions
+[detail] 10/50 downloaded
+[detail] 20/50 downloaded
+[detail] 30/50 downloaded
+[detail] 40/50 downloaded
+[detail] 50/50 downloaded
+{
+  "career_site": "https://jobs.nvidia.com/careers",
+  "ats_backend": "Eightfold PCSX (eightfold.ai / static.vscdn.net)",
+  "search_endpoint": "/api/pcsx/search",
+  "detail_endpoint": "/api/pcsx/position_details",
+  "page_size": 10,
+  "declared_total_count": 2674,
+  "catalog_total_returned": 2674,
+  "catalog_unique_ids": 2674,
+  "duplicates_in_catalog": 0,
+  "details_requested_sample": 50,
+  "details_downloaded": 50,
+  "description_min_length_chars": 2461,
+  "description_max_length_chars": 7999,
+  "description_avg_length_chars": 4596.84,
+  "headers_required": [
+    "User-Agent (any desktop UA)",
+    "Accept: application/json"
+  ],
+  "auth_required": false,
+  "browser_required": false,
+  "coverage_pct": 100.0
+}
