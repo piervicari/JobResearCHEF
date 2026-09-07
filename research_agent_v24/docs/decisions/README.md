@@ -87,6 +87,7 @@ Do not silently rewrite historical decisions: supersede them explicitly.
 | [0059](0059-hard-wire-attempt-cap-and-wire-based-pauses.md) | Hard wire-attempt cap and wire-based pauses with zero overshoot | Accepted |
 | [0060](0060-external-ats-reuse-with-jrc-ownership.md) | External ATS implementations reused as protocol/parser references | Accepted |
 | [0061](0061-wave2-1-selective-ats-adoption-with-jrc-ownership.md) | Wave 2.1 selective ATS adoption with JRC ownership (SF unresolved, Oracle adaptive, Lever assembly) | Accepted |
+| [0062](0062-selective-detail-hydration-second-stage.md) | Detail hydration is a bounded selective second stage, never catalog enumeration | Accepted |
 
 ## Important migration note
 

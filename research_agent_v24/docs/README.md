@@ -21,7 +21,7 @@ that it describes.
 
 ## Design and decisions
 
-- [`decisions/`](decisions/): AGREED TARGET/PRODUCT/IMPLEMENTATION decisions (log 0001–0060, index in `decisions/README.md`), including decisions not yet implemented. Each record includes rationale, implementation shape, trade-offs and migration status.
+- [`decisions/`](decisions/): AGREED TARGET/PRODUCT/IMPLEMENTATION decisions (versioned decision log, index in `decisions/README.md`), including decisions not yet implemented. Each record includes rationale, implementation shape, trade-offs and migration status.
 - [`architecture/`](architecture/): architecture decisions describing the CURRENT/IMPLEMENTED system unless explicitly marked otherwise. Older implemented-system ADRs; do not confuse with the forward-looking `decisions/` log. Not merged with `decisions/` in this task.
 
 ## Evidence

@@ -214,7 +214,7 @@ def test_official_html_url_is_not_appended():
     assert _detail_request_url(src.rstrip("/") + "/", "official_html") == src
 
 
-def test_workday_candidate_is_selected_and_request_url_uses_apply(
+def test_workday_candidate_is_selected_and_request_url_uses_cxs(
     sqlite_engine: Engine,
 ) -> None:
     create_schema(sqlite_engine)
@@ -234,12 +234,11 @@ def test_workday_candidate_is_selected_and_request_url_uses_apply(
     assert len(candidates) == 1
     candidate = candidates[0]
     assert candidate.job_id == job_id
+    assert candidate.structured is True
     assert candidate.request_url == (
-        "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite"
-        "/job/India-Pune/SWE_JR2018442-1/apply"
+        "https://nvidia.wd5.myworkdayjobs.com/wday/cxs/nvidia/"
+        "NVIDIAExternalCareerSite/job/India-Pune/SWE_JR2018442-1"
     )
-    assert candidate.request_url.endswith("/apply")
-    assert candidate.request_url.count("/apply") == 1
 
 
 def test_official_html_candidate_keeps_its_original_url(

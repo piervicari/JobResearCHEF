@@ -104,8 +104,9 @@ sequentially and conservatively. The persisted YAML default of
 ## Google structured-RPC probe (historical — NOT the current next action)
 
 > Superseded: Wave 1.1 (2026-09-07) moved focus to external ATS reuse;
-> Phase 3 is paused behind the Wave 2 reuse benchmark. The script below
-> remains documented for its tooling value only.
+> Wave 2 / 2.1 are complete and Phase 3 (selective detail enrichment) is
+> now the current next functional task. The script below remains
+> documented for its tooling value only.
 
 `scripts/run_google_careers_probe.sh` was the Tier-S validation
 operator action at V24. It uses the persistent runtime DB, ensures the managed
@@ -150,7 +151,7 @@ uv run pytest -q
 - `docs/ROADMAP_V2.md` — forward plan (CURRENT section on top).
 - `docs/OPERATIONS.md` — runtime / safety / recovery.
 - `docs/TESTING.md` — testing policy and gates.
-- `docs/decisions/` — decision log (ADR 0001–0060).
+- `docs/decisions/` — versioned decision log (index in `decisions/README.md`).
 - `docs/architecture/` — implemented-system ADRs.
 - `docs/reports/` — immutable historical evidence.
 - `docs/archive/` — retired docs (historical).

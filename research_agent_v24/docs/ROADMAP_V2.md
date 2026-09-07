@@ -7,19 +7,22 @@ Updated: 2026-09-07
 Completed: ATS Reuse Wave 1, Wave 1.1, Wave 2, Wave 2.1; network safety
 (ADRs 0058/0059); Teamtailor + Workable integration; Wave 2.1
 parser/protocol reuse (Oracle adaptive pagination, Lever assembly,
-Workday/SmartRecruiters/Greenhouse/Ashby enrichment).
+Workday/SmartRecruiters/Greenhouse/Ashby enrichment); Phase 3 selective
+detail enrichment (ADR 0062: Workday CXS, SmartRecruiters `jobAd.sections`,
+Oracle ById, Eightfold `position_details` — all through the existing
+`enrich-details` flow, semantic-hash AI requeue, zero new live wire).
 
 SuccessFactors: `PARITY_UNRESOLVED` → RSS feed NOT adopted; RMK HTML stays
 the sole authoritative path.
 
-Current baseline: 380 PASS / 0 FAIL before this micro-fix (Oracle
-total-change hardening adds coverage; real count re-verified at close).
+Current baseline: 398 PASS / 0 FAIL (full suite 2026-09-07, Phase 3
+structured detail included, zero new live wire).
 
-NEXT functional task: `Phase 3 — Selective detail enrichment`.
-Available inputs (protocols only, none implemented): Workday CXS detail,
-SmartRecruiters `jobAd.sections`, Oracle ById/detail, Eightfold
-`position_details`. Goal: catalog stays cheap → triage → detail only for
-relevant incomplete jobs → semantic change → `PENDING_AI`.
+NEXT functional task: NOT decided — candidates are (A) controlled live
+end-to-end canary (one source/company), (B) ExternalSourceCandidate lazy
+validation, (C) BambooHR validation, (D) SuccessFactors parity on a
+smaller tenant. The four Phase 3 detail protocols are now production
+inputs, not plans.
 
 Deferred: BambooHR non-empty live validation; SuccessFactors parity retry
 on a smaller tenant; Workday >2K subdivision (`NEEDS_DESIGN`); Oracle/

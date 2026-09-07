@@ -1,6 +1,6 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-07 — Wave 2.1 implemented (Oracle adaptive, Lever assembly, 5 parser ATS); SF parity unresolved, RMK stays authoritative; suite 380/0
+**Updated:** 2026-09-07 — Phase 3 selective detail enrichment complete (Workday/SR/Oracle/Eightfold structured detail, existing pipeline reused); suite 398/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-07
@@ -16,9 +16,12 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Declarative architecture
 
-- Sources Mercedes / NVIDIA (frozen v0.1) + Microsoft (candidate) run through
+- Sources Mercedes / NVIDIA / Microsoft run through
   `DeclarativeSourceAdapter` as a registry sibling (ADR 0054), reusing the
   existing HttpFetcher as sole transport (ADR 0053, Phase 1 bridge).
+  Explicit declarative v0.1 bindings (`bindings.json`: exact portal-URL
+  match → `specs/mercedes.json`, `specs/nvidia.json`,
+  `specs/microsoft.json`) with full catalog semantics.
 - Mandatory adapter preflight in the Scanner path, fail-closed (ADR 0056);
   precedence + boundary hardening (ADR 0055).
 - Prototype artifacts under `../runtime/` are historical reference only.
@@ -37,7 +40,7 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 - ats-scrapers @ `6b44a1b` (MIT): 851 HIGH candidate rows across 562
   companies, stored as UNVERIFIED evidence in `ExternalSourceCandidate`
   (`verified=false`, idempotent importer, no automatic binding, no portal
-  promotion). Off-repo evidence in `../../external_reuse_audit/`.
+  promotion). Repository-root external evidence in `../../external_reuse_audit/`.
 
 ### ATS reuse (ADR 0060, Wave 1.1 `PASS_EXTERNAL_REUSE_WAVE1`; ADR 0061, Wave 2 `READY_FOR_REUSE_WAVE2_1` → implemented)
 
@@ -62,18 +65,21 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 380 passed / 0 failed at Wave 2.1 close; Oracle total-change hardening
-  adds 3 tests on top (real count re-verified at close).
+- 398 passed / 0 failed (full suite 2026-09-07: 383 baseline + 15 Phase 3
+  structured-detail tests, 1 intended workday CXS assertion update).
 
 ### Current development focus
 
-- Wave 2 complete, Wave 2.1 implemented. Next functional task: Phase 3
-  selective detail enrichment (recorded inputs: Workday CXS detail,
-  SmartRecruiters `jobAd.sections`, Oracle ById, Eightfold
-  `position_details`), unless new evidence reorders it.
-- Open follow-ups (not started): SF parity retry on a smaller tenant;
-  BambooHR non-empty validation (no brute-force); Workday >2K subdivision
-  (NEEDS_DESIGN).
+- Phase 3 COMPLETE: selective detail hydration for Workday (CXS JSON),
+  SmartRecruiters (`jobAd.sections`), Oracle (ById), Eightfold declarative
+  (`position_details` via SourceSpec) — all through the existing
+  `enrich-details` flow, existing HttpFetcher, semantic-hash AI requeue.
+  Zero new live wire used (Wave 2 had already proven all four endpoints).
+- Next choice NOT decided. Candidates: (A) controlled live end-to-end
+  canary, one source/company; (B) ExternalSourceCandidate lazy validation;
+  (C) BambooHR validation; (D) SuccessFactors parity on a smaller tenant.
+- Open follow-ups (not started): BambooHR non-empty validation
+  (no brute-force); Workday >2K subdivision (NEEDS_DESIGN).
 
 ---
 

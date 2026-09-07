@@ -2,9 +2,16 @@
 
 The listing/search scan remains deliberately cheap.  Only jobs already classified CYBER or
 NEEDS_MORE_DETAIL and lacking a useful description are eligible for this second-stage fetch.
-The first implementation is intentionally restricted to the conservative ``official_html``
-fallback, where the source URL is an official same-host job page and robots.txt was already
-part of the listing scan contract.
+Two detail kinds exist:
+
+* ``official_html`` — the conservative same-host public job page (robots.txt gated).
+* structured ATS JSON (``workday``, ``smartrecruiters``, ``oracle``,
+  ``declarative``) — one deterministic API request rendered from the stored
+  catalog row, parsed with a small per-ATS parser (Wave 2 external protocol
+  knowledge: Workday CXS detail, SmartRecruiters ``jobAd.sections``, Oracle
+  ById detail, Eightfold ``position_details`` via the SourceSpec detail
+  block). No robots check (APIs, not pages); the same HttpFetcher budgets,
+  pacing, and abort semantics apply. Catalog scans never fetch details.
 """
 
 from __future__ import annotations
@@ -17,7 +24,7 @@ import urllib.robotparser
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
-from urllib.parse import urlsplit, urlunsplit
+from urllib.parse import quote, urlsplit, urlunsplit
 
 from selectolax.parser import HTMLParser
 from sqlalchemy import select
@@ -28,7 +35,13 @@ from research_agent.config import ScannerSettings
 from research_agent.db.migrations import create_schema
 from research_agent.db.models import Portal, SourceJob
 from research_agent.pipeline.cache import FileResponseCache
-from research_agent.pipeline.http import FetchRequest, HttpFetcher
+from research_agent.pipeline.http import (
+    AccessChallengeError,
+    FetchRequest,
+    HostCircuitOpenError,
+    HttpFetcher,
+    RequestBudgetExceededError,
+)
 
 
 @dataclass(frozen=True)
@@ -42,6 +55,9 @@ class DetailCandidate:
     request_url: str
     host: str
     description_chars: int
+    adapter: str = ""
+    structured: bool = False
+    source_name: str = ""
 
 
 @dataclass(frozen=True)
@@ -68,11 +84,316 @@ class DetailEnrichmentSummary:
     pending_ai_after: int
 
 
-# Adapters whose second-stage detail page is a same-host public apply URL
-# (Workday's `/apply` returns a JSON-LD JobPosting even though the listing
-# is a JS-rendered SPA). The pattern is: source_url + "/apply" must still
-# resolve on the same host as the portal.
-_DETAIL_ADAPTERS = ("official_html", "workday")
+# Adapters eligible for second-stage detail hydration. ``official_html`` uses
+# the same-host public page; the rest render one deterministic structured-API
+# request from the stored catalog row (see _STRUCTURED_RENDERERS). Adapters
+# not listed here (workable, teamtailor, greenhouse, lever, ashby, ...) carry
+# inline-complete catalog descriptions and are never detail candidates.
+_DETAIL_ADAPTERS = ("official_html", "workday", "smartrecruiters", "oracle", "declarative")
+
+# Structured detail renderers: adapter name -> render function. Each takes a
+# _StructuredRow snapshot and returns the FetchRequest to send, or None when
+# the stored row cannot yield an exact detail URL (then the job is skipped,
+# never guessed). One request per job, sequential, via the shared HttpFetcher.
+_STRUCTURED_ADAPTERS = ("workday", "smartrecruiters", "oracle", "declarative")
+
+# SmartRecruiters serves its public API on a dedicated first-party host while
+# portals live on careers.smartrecruiters.com. This is the only sanctioned
+# cross-host exception; everything else must stay same-host.
+_SMARTRECRUITERS_API_HOST = "api.smartrecruiters.com"
+
+
+@dataclass(frozen=True)
+class _StructuredRow:
+    adapter: str
+    source_name: str
+    source_url: str
+    portal_host: str
+    portal_jobs_url: str
+    native_id: str
+    ats_id: str
+    raw_payload: dict
+
+
+def _row_payload(raw_json: str | None) -> dict:
+    if not raw_json:
+        return {}
+    try:
+        payload = json.loads(raw_json)
+    except ValueError:
+        return {}
+    return payload if isinstance(payload, dict) else {}
+
+
+def _render_workday_detail(row: _StructuredRow) -> FetchRequest | None:
+    """Render GET {origin}/wday/cxs/{tenant}/{site}{externalPath} (Wave 2 evidence)."""
+    parsed = urlsplit(row.source_url or "")
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        return None
+    host = parsed.hostname.casefold()
+    if host != row.portal_host.casefold():
+        return None
+    tenant = host.split(".")[0]
+    segments = [part for part in parsed.path.split("/") if part]
+    if not segments:
+        return None
+    site = segments[0]
+    external_path = row.raw_payload.get("externalPath")
+    if not isinstance(external_path, str) or not external_path.strip():
+        idx = (row.source_url or "").find("/job/")
+        if idx < 0:
+            return None
+        external_path = (row.source_url or "")[idx:]
+    external_path = external_path.strip()
+    if not external_path.startswith("/"):
+        external_path = "/" + external_path
+    url = (
+        f"{parsed.scheme}://{parsed.hostname}/wday/cxs/"
+        f"{quote(tenant, safe='')}/{quote(site, safe='')}{external_path}"
+    )
+    return FetchRequest(url, headers={"Accept": "application/json"})
+
+
+def _render_smartrecruiters_detail(row: _StructuredRow) -> FetchRequest | None:
+    """Render GET api.smartrecruiters.com/v1/companies/{slug}/postings/{id}."""
+    posting_id = row.ats_id or row.native_id
+    if not posting_id:
+        return None
+    path_parts = [
+        part for part in urlsplit(row.portal_jobs_url or "").path.split("/") if part
+    ]
+    if not path_parts:
+        return None
+    company = path_parts[0]
+    url = (
+        f"https://{_SMARTRECRUITERS_API_HOST}/v1/companies/"
+        f"{quote(company, safe='')}/postings/{quote(posting_id, safe='')}"
+    )
+    return FetchRequest(url, headers={"Accept": "application/json"})
+
+
+def _render_oracle_detail(row: _StructuredRow) -> FetchRequest | None:
+    """Render GET .../recruitingCEJobRequisitionDetails?finder=ById;Id= (Wave 2)."""
+    source_id = row.ats_id or row.native_id
+    if not source_id:
+        return None
+    parsed = urlsplit(row.source_url or "")
+    if parsed.scheme not in {"http", "https"} or not parsed.hostname:
+        return None
+    if parsed.hostname.casefold() != row.portal_host.casefold():
+        return None
+    origin = urlunsplit((parsed.scheme, parsed.hostname, "", "", ""))
+    url = (
+        f"{origin}/hcmRestApi/resources/latest/recruitingCEJobRequisitionDetails"
+        f"?finder=ById;Id={quote(source_id, safe='')}&onlyData=true"
+    )
+    return FetchRequest(url, headers={"Accept": "application/json"})
+
+
+_SPEC_CACHE: dict[str, dict] = {}
+
+
+def _load_declarative_spec(company_id: str) -> dict | None:
+    """Load the frozen v0.1 SourceSpec for one declarative company id."""
+    if not re.fullmatch(r"[a-z0-9][a-z0-9_-]*", company_id or ""):
+        return None
+    if company_id in _SPEC_CACHE:
+        return _SPEC_CACHE[company_id]
+    path = (
+        Path(__file__).resolve().parent.parent
+        / "sources" / "declarative" / "specs" / f"{company_id}.json"
+    )
+    if not path.is_file():
+        return None
+    try:
+        spec = json.loads(path.read_text(encoding="utf-8"))
+    except ValueError:
+        return None
+    if not isinstance(spec, dict):
+        return None
+    _SPEC_CACHE[company_id] = spec
+    return spec
+
+
+def _render_declarative_detail(row: _StructuredRow) -> FetchRequest | None:
+    """Render the SourceSpec detail request (Eightfold position_details)."""
+    from research_agent.sources.declarative.executor import render_detail_request
+
+    # SourceJob.source is "declarative:<company_id>" (adapter namespace rule).
+    company = ""
+    marker = "declarative:"
+    if row.source_name.startswith(marker):
+        company = row.source_name[len(marker):]
+    if not row.native_id:
+        return None
+    spec = _load_declarative_spec(company)
+    if spec is None:
+        return None
+    rendered = render_detail_request(spec, row.native_id)
+    if rendered is None:
+        return None
+    url = rendered["url"]
+    query = rendered.get("query") or {}
+    if query:
+        url = url + ("&" if "?" in url else "?") + "&".join(
+            f"{quote(str(k), safe='')}={quote(str(v), safe='')}"
+            for k, v in query.items()
+        )
+    host = urlsplit(url).hostname or ""
+    if host.casefold() != row.portal_host.casefold():
+        return None
+    return FetchRequest(url, headers=dict(rendered.get("headers") or {}))
+
+
+_STRUCTURED_RENDERERS = {
+    "workday": _render_workday_detail,
+    "smartrecruiters": _render_smartrecruiters_detail,
+    "oracle": _render_oracle_detail,
+    "declarative": _render_declarative_detail,
+}
+
+
+def _join_sections(*parts: str) -> str:
+    """Deterministic semantic join: strip HTML, drop empties and exact
+    normalized duplicates, keep first-seen order (B12, no provider hacks)."""
+    out: list[str] = []
+    seen: set[str] = set()
+    for part in parts:
+        text = _strip_html_text(part or "").strip()
+        if text and text not in seen:
+            seen.add(text)
+            out.append(text)
+    return "\n\n".join(out)
+
+
+def _parse_workday_detail(payload: dict, final_url: str) -> ParsedDetail:
+    """Parse GET {cxs}{externalPath} → jobPostingInfo (Wave 2 evidence)."""
+    info = payload.get("jobPostingInfo")
+    info_dict: dict = info if isinstance(info, dict) else {}
+    info = info_dict
+    description = ""
+    for key in ("jobDescription", "externalJobDescription", "description"):
+        value = info.get(key)
+        if isinstance(value, str) and value.strip():
+            description = _strip_html_text(value)
+            break
+    location = ""
+    primary = info.get("location")
+    additional = info.get("additionalLocations") or []
+    locs: list[str] = []
+    if isinstance(primary, str) and primary.strip():
+        locs.append(primary.strip())
+    if isinstance(additional, list):
+        for value in additional:
+            if isinstance(value, str) and value.strip() and value.strip() not in locs:
+                locs.append(value.strip())
+    if locs:
+        location = " | ".join(locs)
+    return ParsedDetail(
+        location=location,
+        employment_type=(
+            info.get("timeType") if isinstance(info.get("timeType"), str) else ""
+        ),
+        workplace_type=(
+            info.get("remoteType") if isinstance(info.get("remoteType"), str) else ""
+        ),
+        description=description,
+        detail_url=final_url,
+        parser="workday_cxs_detail",
+    )
+
+
+def _parse_smartrecruiters_detail(payload: dict, final_url: str) -> ParsedDetail:
+    """Parse GET .../postings/{id} → jobAd.sections (Wave 2 order)."""
+    sections = (payload.get("jobAd") or {}).get("sections") or {}
+    if not isinstance(sections, dict):
+        sections = {}
+    parts: list[str] = []
+    for key in (
+        "jobDescription",
+        "qualifications",
+        "additionalInformation",
+        "companyDescription",
+    ):
+        section = sections.get(key)
+        if isinstance(section, dict):
+            text = section.get("text")
+            if isinstance(text, str) and text.strip():
+                parts.append(text)
+    location = payload.get("location") or {}
+    loc = ""
+    if isinstance(location, dict):
+        loc = ", ".join(
+            part for part in (
+                location.get("city"), location.get("region"), location.get("country"),
+            ) if isinstance(part, str) and part.strip()
+        )
+    return ParsedDetail(
+        location=loc,
+        description=_join_sections(*parts),
+        detail_url=final_url,
+        parser="smartrecruiters_posting_detail",
+    )
+
+
+def _parse_oracle_detail(payload: dict, final_url: str) -> ParsedDetail:
+    """Parse GET ...Details?finder=ById;Id= → External* sections (Wave 2)."""
+    items = payload.get("items") or []
+    detail: dict = items[0] if items and isinstance(items[0], dict) else {}
+    parts: list[str] = []
+    for key in (
+        "ExternalDescriptionStr",
+        "ExternalResponsibilitiesStr",
+        "ExternalQualificationsStr",
+    ):
+        value = detail.get(key)
+        if isinstance(value, str) and value.strip():
+            parts.append(value)
+    employment = ""
+    for key in ("WorkerType", "JobType", "ContractType", "JobSchedule"):
+        value = detail.get(key)
+        if isinstance(value, str) and value.strip():
+            employment = value.strip()
+            break
+    department = ""
+    for key in ("Department", "Organization", "BusinessUnit"):
+        value = detail.get(key)
+        if isinstance(value, str) and value.strip():
+            department = value.strip()
+            break
+    _ = department  # preserved in raw catalog payload; no house field (B11)
+    return ParsedDetail(
+        location=detail.get("PrimaryLocation") if isinstance(detail.get("PrimaryLocation"), str) else "",
+        employment_type=employment,
+        description=_join_sections(*parts),
+        detail_url=final_url,
+        parser="oracle_byid_detail",
+    )
+
+
+def _parse_declarative_detail(payload: dict, final_url: str, spec: dict) -> ParsedDetail:
+    """Parse Eightfold position_details via the SourceSpec detail block."""
+    from research_agent.sources.declarative.executor import merge_detail_into_job
+
+    body = payload.get("data")
+    body = body if isinstance(body, dict) else payload
+    merged = merge_detail_into_job(spec, {}, body)
+    description = _join_sections(
+        merged.get("description") or "", merged.get("qualifications") or ""
+    )
+    return ParsedDetail(
+        description=description,
+        detail_url=final_url,
+        parser="declarative_spec_detail",
+    )
+
+
+_STRUCTURED_PARSERS = {
+    "workday": lambda payload, final_url, spec: _parse_workday_detail(payload, final_url),
+    "smartrecruiters": lambda payload, final_url, spec: _parse_smartrecruiters_detail(payload, final_url),
+    "oracle": lambda payload, final_url, spec: _parse_oracle_detail(payload, final_url),
+    "declarative": lambda payload, final_url, spec: _parse_declarative_detail(payload, final_url, spec),
+}
 
 
 def _detail_request_url(source_url: str, adapter: str) -> str:
@@ -155,15 +476,42 @@ def select_detail_candidates(
         url = row.source_url or row.apply_url
         if not url:
             continue
-        # Compute the actual detail request URL for this adapter.
-        request_url = _collapse_apply_path(_detail_request_url(url, row.adapter))
-        parsed_source = urlsplit(request_url)
-        if parsed_source.scheme not in {"http", "https"} or not parsed_source.hostname:
-            continue
-        if parsed_source.hostname.casefold() != portal.host.casefold():
-            # The first conservative implementation never follows a generic anchor onto a
-            # third-party host. Structured ATS detail enrichment is a separate future adapter.
-            continue
+        # Structured ATS detail: render one exact API request from the stored
+        # catalog row. Unrenderable rows are skipped, never guessed.
+        if row.adapter in _STRUCTURED_ADAPTERS:
+            structured_row = _StructuredRow(
+                adapter=row.adapter,
+                source_name=row.source or "",
+                source_url=url,
+                portal_host=portal.host,
+                portal_jobs_url=portal.normalized_jobs_url,
+                native_id=row.native_source_job_id or "",
+                ats_id=row.ats_job_id or "",
+                raw_payload=_row_payload(row.raw_payload_json),
+            )
+            renderer = _STRUCTURED_RENDERERS[row.adapter]
+            structured_request = renderer(structured_row)
+            if structured_request is None:
+                continue
+            request_host = urlsplit(structured_request.url).hostname or ""
+            allowed_hosts = {portal.host.casefold()}
+            if row.adapter == "smartrecruiters":
+                allowed_hosts.add(_SMARTRECRUITERS_API_HOST)
+            if request_host.casefold() not in allowed_hosts:
+                continue
+            request_url = structured_request.url
+            structured = True
+        else:
+            # Compute the actual detail request URL for this adapter.
+            request_url = _collapse_apply_path(_detail_request_url(url, row.adapter))
+            parsed_source = urlsplit(request_url)
+            if parsed_source.scheme not in {"http", "https"} or not parsed_source.hostname:
+                continue
+            if parsed_source.hostname.casefold() != portal.host.casefold():
+                # The first conservative implementation never follows a generic anchor onto a
+                # third-party host. Structured ATS detail enrichment is a separate future adapter.
+                continue
+            structured = False
         host_key = portal.host.casefold()
         if host_counts.get(host_key, 0) >= max_jobs_per_host:
             continue
@@ -178,6 +526,9 @@ def select_detail_candidates(
                 request_url=request_url,
                 host=portal.host,
                 description_chars=len(effective_description),
+                adapter=row.adapter,
+                structured=structured,
+                source_name=row.source or "",
             )
         )
         host_counts[host_key] = host_counts.get(host_key, 0) + 1
@@ -252,21 +603,29 @@ async def enrich_official_html_details(
                     }
                 )
             try:
-                # robots check is run against the actual detail URL, not the
-                # raw source URL, because that's what we will actually fetch.
-                allowed, robots_requests = await _robots_allows(
-                    fetcher, candidate.request_url, robots, user_agent="research-agent-pier"
-                )
-                request_count += robots_requests
-                if not allowed:
-                    raise RuntimeError("robots.txt disallows detail URL")
-                response = await fetcher.fetch(
-                    FetchRequest(candidate.request_url, headers={"Accept": "text/html,*/*;q=0.8"})
-                )
-                request_count += 1
-                if not 200 <= response.status_code < 300:
-                    raise RuntimeError(f"detail page returned HTTP {response.status_code}")
-                parsed = parse_detail_html(response.text, final_url=response.final_url)
+                if candidate.structured:
+                    parsed, wire_requests = await _fetch_structured_detail(fetcher, candidate)
+                    request_count += wire_requests
+                else:
+                    # robots check is run against the actual detail URL, not the
+                    # raw source URL, because that's what we will actually fetch.
+                    allowed, robots_requests = await _robots_allows(
+                        fetcher, candidate.request_url, robots, user_agent="research-agent-pier"
+                    )
+                    request_count += robots_requests
+                    if not allowed:
+                        raise RuntimeError("robots.txt disallows detail URL")
+                    response = await fetcher.fetch(
+                        FetchRequest(candidate.request_url, headers={"Accept": "text/html,*/*;q=0.8"})
+                    )
+                    request_count += 1
+                    if not 200 <= response.status_code < 300:
+                        raise RuntimeError(f"detail page returned HTTP {response.status_code}")
+                    parsed = parse_detail_html(response.text, final_url=response.final_url)
+                if not parsed.description.strip():
+                    # B18: an empty detail must not overwrite catalog data,
+                    # mark complete, or requeue AI. Record as failure.
+                    raise RuntimeError("detail response carried no usable description")
                 fetched += 1
                 changed = _store_detail(engine, candidate.job_id, parsed)
                 updated += int(changed)
@@ -281,6 +640,13 @@ async def enrich_official_html_details(
                         "detail_location": parsed.location,
                         "parser": parsed.parser,
                     })
+            except (HostCircuitOpenError, AccessChallengeError, RequestBudgetExceededError) as exc:
+                # Terminal for this host/run: 403/429/challenge/exhausted
+                # budget must not hammer the same host with the next candidate.
+                failed += 1
+                if progress_callback:
+                    progress_callback({"event": "detail_error", "candidate": candidate, "error": f"{type(exc).__name__}: {exc}"})
+                break
             except Exception as exc:  # isolated by design; one detail page cannot stop the cohort
                 failed += 1
                 if progress_callback:
@@ -297,6 +663,40 @@ async def enrich_official_html_details(
         failed_jobs=failed,
         pending_ai_after=_pending_count(engine),
     )
+
+
+async def _fetch_structured_detail(
+    fetcher: HttpFetcher, candidate: DetailCandidate
+) -> tuple[ParsedDetail, int]:
+    """Fetch one structured ATS detail request. Returns (parsed, wire_requests).
+
+    Raises on any failure (B18: the caller records failure without touching
+    catalog data). Spec is resolved here for declarative rows only.
+    """
+    parser = _STRUCTURED_PARSERS[candidate.adapter]
+    spec: dict | None = None
+    if candidate.adapter == "declarative":
+        marker = "declarative:"
+        company = (
+            candidate.source_name[len(marker):]
+            if candidate.source_name.startswith(marker)
+            else ""
+        )
+        spec = _load_declarative_spec(company)
+        if spec is None:
+            raise RuntimeError("no declarative spec available for detail render")
+    response = await fetcher.fetch(
+        FetchRequest(candidate.request_url, headers={"Accept": "application/json"})
+    )
+    if not 200 <= response.status_code < 300:
+        raise RuntimeError(f"detail API returned HTTP {response.status_code}")
+    try:
+        payload = response.json()
+    except ValueError:
+        raise RuntimeError("detail response is not JSON") from None
+    if not isinstance(payload, dict):
+        raise RuntimeError("detail response has an unexpected JSON shape")
+    return parser(payload, response.final_url, spec), 1
 
 
 async def _robots_allows(
