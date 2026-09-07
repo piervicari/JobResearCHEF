@@ -58,6 +58,10 @@ class DetailCandidate:
     adapter: str = ""
     structured: bool = False
     source_name: str = ""
+    # Full rendered request for declarative rows (SourceSpec-owned method /
+    # URL / headers / query / body via the Phase-1 bridge). Other adapters
+    # build a plain JSON GET from request_url at fetch time.
+    fetch_request: FetchRequest | None = None
 
 
 @dataclass(frozen=True)
@@ -191,6 +195,41 @@ def _render_oracle_detail(row: _StructuredRow) -> FetchRequest | None:
 
 
 _SPEC_CACHE: dict[str, dict] = {}
+_BINDINGS_CACHE: dict[str, str] = {}
+_BINDINGS_LOADED = False
+
+
+def _bound_spec_company(portal_jobs_url: str) -> str:
+    """Company id the operator bound to this exact portal URL, or ''.
+
+    Reads the frozen declarative bindings (exact portal-URL match, same
+    rule as DeclarativeSourceAdapter.supports). A declarative detail row is
+    only usable when its source company equals this binding: otherwise the
+    row is inconsistent and contributes no candidate (0 wire).
+    """
+    global _BINDINGS_LOADED
+    if not _BINDINGS_LOADED:
+        path = (
+            Path(__file__).resolve().parent.parent
+            / "sources" / "declarative" / "bindings.json"
+        )
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            data = {}
+        entries = data.get("bindings") if isinstance(data, dict) else []
+        if isinstance(entries, list):
+            for entry in entries:
+                if not isinstance(entry, dict):
+                    continue
+                url = entry.get("normalized_jobs_url")
+                spec_path = entry.get("spec_path") or entry.get("spec")
+                if isinstance(url, str) and isinstance(spec_path, str):
+                    stem = spec_path.rsplit("/", 1)[-1]
+                    if stem.endswith(".json"):
+                        _BINDINGS_CACHE[url] = stem[:-5]
+        _BINDINGS_LOADED = True
+    return _BINDINGS_CACHE.get(portal_jobs_url or "", "")
 
 
 def _load_declarative_spec(company_id: str) -> dict | None:
@@ -215,8 +254,36 @@ def _load_declarative_spec(company_id: str) -> dict | None:
     return spec
 
 
+def _spec_detail_host(row: _StructuredRow) -> str:
+    """Explicit detail host from the bound SourceSpec, or ''.
+
+    The ONLY sanctioned cross-host source: the spec's own declared detail
+    URL for this exact company. Anything else stays same-host-only.
+    """
+    marker = "declarative:"
+    company = (
+        row.source_name[len(marker):]
+        if row.source_name.startswith(marker)
+        else ""
+    )
+    spec = _load_declarative_spec(company)
+    if spec is None:
+        return ""
+    url = (spec.get("detail") or {}).get("url") or ""
+    return (urlsplit(url).hostname or "").casefold()
+
+
 def _render_declarative_detail(row: _StructuredRow) -> FetchRequest | None:
-    """Render the SourceSpec detail request (Eightfold position_details)."""
+    """Render the full SourceSpec detail request (Eightfold position_details).
+
+    The bound SourceSpec owns method/URL/headers/query/body: the rendered
+    dict goes through the existing Phase-1 bridge (`to_fetch_request`), so
+    nothing is reconstructed or dropped. Cross-host is sanctioned ONLY by
+    the spec's own explicit detail URL host (e.g. Microsoft portal
+    careers.microsoft.com → microsoft.eightfold.ai); any other host,
+    redirect target, or payload-inferred URL is rejected here, before HTTP.
+    """
+    from research_agent.sources.declarative.bridge import to_fetch_request
     from research_agent.sources.declarative.executor import render_detail_request
 
     # SourceJob.source is "declarative:<company_id>" (adapter namespace rule).
@@ -232,17 +299,13 @@ def _render_declarative_detail(row: _StructuredRow) -> FetchRequest | None:
     rendered = render_detail_request(spec, row.native_id)
     if rendered is None:
         return None
-    url = rendered["url"]
-    query = rendered.get("query") or {}
-    if query:
-        url = url + ("&" if "?" in url else "?") + "&".join(
-            f"{quote(str(k), safe='')}={quote(str(v), safe='')}"
-            for k, v in query.items()
-        )
-    host = urlsplit(url).hostname or ""
-    if host.casefold() != row.portal_host.casefold():
+    sanctioned_host = (urlsplit(rendered["url"]).hostname or "").casefold()
+    if not sanctioned_host:
         return None
-    return FetchRequest(url, headers=dict(rendered.get("headers") or {}))
+    # No host decision here: selection allows exactly {portal host, this
+    # spec-declared detail host}. The URL below is byte-identical to the
+    # bound SourceSpec declaration — never a redirect, payload URL, or guess.
+    return to_fetch_request(rendered)
 
 
 _STRUCTURED_RENDERERS = {
@@ -372,12 +435,15 @@ def _parse_oracle_detail(payload: dict, final_url: str) -> ParsedDetail:
 
 
 def _parse_declarative_detail(payload: dict, final_url: str, spec: dict) -> ParsedDetail:
-    """Parse Eightfold position_details via the SourceSpec detail block."""
+    """Parse Eightfold position_details via the SourceSpec detail block.
+
+    Extraction paths are evaluated on the FULL response root, exactly as
+    declared (e.g. Microsoft "data.jobDescription", NVIDIA
+    "data.jobDescription"). No provider branches, no unwrapping.
+    """
     from research_agent.sources.declarative.executor import merge_detail_into_job
 
-    body = payload.get("data")
-    body = body if isinstance(body, dict) else payload
-    merged = merge_detail_into_job(spec, {}, body)
+    merged = merge_detail_into_job(spec, {}, payload)
     description = _join_sections(
         merged.get("description") or "", merged.get("qualifications") or ""
     )
@@ -490,6 +556,19 @@ def select_detail_candidates(
                 raw_payload=_row_payload(row.raw_payload_json),
             )
             renderer = _STRUCTURED_RENDERERS[row.adapter]
+            if row.adapter == "declarative":
+                # Binding check: the row's source company must equal the
+                # company the operator bound to this exact portal URL.
+                # Otherwise the row is inconsistent (e.g. wrong portal) and
+                # yields no candidate however trustworthy the spec looks.
+                marker = "declarative:"
+                company = (
+                    row.source[len(marker):]
+                    if (row.source or "").startswith(marker)
+                    else ""
+                )
+                if not company or company != _bound_spec_company(portal.normalized_jobs_url):
+                    continue
             structured_request = renderer(structured_row)
             if structured_request is None:
                 continue
@@ -497,10 +576,19 @@ def select_detail_candidates(
             allowed_hosts = {portal.host.casefold()}
             if row.adapter == "smartrecruiters":
                 allowed_hosts.add(_SMARTRECRUITERS_API_HOST)
+            if row.adapter == "declarative":
+                # Sanctioned cross-host ONLY from the bound SourceSpec's
+                # explicit detail URL (e.g. Microsoft → microsoft.eightfold.ai).
+                spec_host = _spec_detail_host(structured_row)
+                if spec_host:
+                    allowed_hosts.add(spec_host)
             if request_host.casefold() not in allowed_hosts:
                 continue
             request_url = structured_request.url
             structured = True
+            fetch_request = (
+                structured_request if row.adapter == "declarative" else None
+            )
         else:
             # Compute the actual detail request URL for this adapter.
             request_url = _collapse_apply_path(_detail_request_url(url, row.adapter))
@@ -512,6 +600,7 @@ def select_detail_candidates(
                 # third-party host. Structured ATS detail enrichment is a separate future adapter.
                 continue
             structured = False
+            fetch_request = None
         host_key = portal.host.casefold()
         if host_counts.get(host_key, 0) >= max_jobs_per_host:
             continue
@@ -529,6 +618,7 @@ def select_detail_candidates(
                 adapter=row.adapter,
                 structured=structured,
                 source_name=row.source or "",
+                fetch_request=fetch_request,
             )
         )
         host_counts[host_key] = host_counts.get(host_key, 0) + 1
@@ -685,9 +775,14 @@ async def _fetch_structured_detail(
         spec = _load_declarative_spec(company)
         if spec is None:
             raise RuntimeError("no declarative spec available for detail render")
-    response = await fetcher.fetch(
-        FetchRequest(candidate.request_url, headers={"Accept": "application/json"})
-    )
+    if candidate.fetch_request is not None:
+        # Declarative: the exact SourceSpec-rendered request (method, URL,
+        # headers, query/body) via the Phase-1 bridge — never reconstructed.
+        request = candidate.fetch_request
+    else:
+        request = FetchRequest(
+            candidate.request_url, headers={"Accept": "application/json"})
+    response = await fetcher.fetch(request)
     if not 200 <= response.status_code < 300:
         raise RuntimeError(f"detail API returned HTTP {response.status_code}")
     try:

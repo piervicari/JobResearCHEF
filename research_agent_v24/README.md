@@ -39,10 +39,17 @@ data/target_employers/tier_s_operational_sources_v1.csv
   → scripts/prepare_tier_s_operational_sources.sh
   → research-agent scan-discover --portal-id <id>
   → research-agent triage-pending --portal-id <id>
+  → research-agent enrich-details --portal-id <id>
   → research-agent analyze-pending --portal-id <id>
   → research-agent show-ai-results
   → dashboard at http://127.0.0.1:8501
 ```
+
+`enrich-details` is selective and bounded: only CYBER / NEEDS_MORE_DETAIL
+jobs with effectively incomplete descriptions are candidates, at most a few
+per host per run. Jobs whose catalog already carries a complete description
+(Workable, Teamtailor, Greenhouse, Lever, Ashby, Mercedes, ...) skip
+enrichment — not every job receives a detail fetch.
 
 Auxiliary commands used in the same path:
 
@@ -104,9 +111,10 @@ sequentially and conservatively. The persisted YAML default of
 ## Google structured-RPC probe (historical — NOT the current next action)
 
 > Superseded: Wave 1.1 (2026-09-07) moved focus to external ATS reuse;
-> Wave 2 / 2.1 are complete and Phase 3 (selective detail enrichment) is
-> now the current next functional task. The script below remains
-> documented for its tooling value only.
+> Wave 2 / 2.1 are complete and Phase 3 (selective detail enrichment,
+> including Microsoft/Eightfold declarative detail) is complete. Do not
+> interpret the Google RPC probe below as a current next action; the script
+> remains documented for its tooling value only.
 
 `scripts/run_google_careers_probe.sh` was the Tier-S validation
 operator action at V24. It uses the persistent runtime DB, ensures the managed

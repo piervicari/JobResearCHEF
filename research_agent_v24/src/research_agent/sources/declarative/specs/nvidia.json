@@ -107,7 +107,7 @@
       "target": "query_param",
       "name": "position_id"
     },
-    "description_path": "jobDescription"
+    "description_path": "data.jobDescription"
   },
   "paging": {
     "strategy": "offset",

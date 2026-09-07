@@ -138,7 +138,7 @@ def test_oracle_structured_render_and_parse() -> None:
     assert parsed.employment_type == "Full-Time"
 
 
-def test_declarative_structured_render_and_parse() -> None:
+def test_structured_declarative_render_and_parse() -> None:
     row = _row(
         "declarative",
         source_name="declarative:nvidia",
@@ -157,6 +157,90 @@ def test_declarative_structured_render_and_parse() -> None:
     )
     assert parsed.parser == "declarative_spec_detail"
     assert "GPU work." in parsed.description
+
+
+def test_microsoft_cross_host_sanctioned_and_faithful() -> None:
+    """careers.microsoft.com portal → microsoft.eightfold.ai detail host is
+    allowed ONLY because the bound Microsoft SourceSpec declares it; the
+    full rendered request (method/headers/query) reaches the fetcher."""
+    row = _row(
+        "declarative",
+        source_name="declarative:microsoft",
+        native_id="910117342851777",
+        portal_host="careers.microsoft.com",
+        portal_jobs_url="https://careers.microsoft.com",
+    )
+    request = _render_declarative_detail(row)
+    assert request is not None
+    assert request.method == "GET"  # method preserved, not assumed
+    assert "microsoft.eightfold.ai" in request.url  # sanctioned cross-host
+    assert "careers.microsoft.com" not in request.url
+    for param in ("position_id=910117342851777", "domain=microsoft.com", "hl="):
+        assert request.url.count(param) == 1  # each query exactly once
+    assert request.headers.get("Accept-Language")  # spec header fidelity
+    assert request.headers.get("Accept") == "application/json"
+    spec = _load_declarative_spec("microsoft")
+    assert spec is not None
+    parsed = _parse_declarative_detail(
+        {"data": {"jobDescription": "<p>MS work.</p>"}}, request.url, spec
+    )
+    assert "MS work." in parsed.description  # data.jobDescription resolves
+
+
+def test_microsoft_enrich_flow_persists_and_requeues(
+    sqlite_engine: Engine, monkeypatch,
+) -> None:
+    create_schema(sqlite_engine)
+    _seed_portal(sqlite_engine, 781, "careers.microsoft.com",
+                 "https://careers.microsoft.com")
+    job_id = _add_structured_job(
+        sqlite_engine, 781, adapter="declarative",
+        source="declarative:microsoft",
+        source_url="https://careers.microsoft.com/us/en/job/123",
+        native_id="910117342851777", ai_status="CYBER")
+    seen: list = []
+
+    def handler(request):
+        seen.append(request)
+        return _FakeResponse(
+            {"data": {"jobDescription": "<p>MS work.</p>"}},
+            url="https://microsoft.eightfold.ai/api/pcsx/position_details")
+
+    _patch_fetcher(monkeypatch, handler)
+    summary = asyncio.run(enrich_official_html_details(
+        sqlite_engine, ScannerSettings(), limit=5, inter_job_wait_seconds=0))
+    assert summary.updated_jobs == 1 and summary.failed_jobs == 0
+    assert seen and seen[0].method == "GET"
+    assert seen[0].headers.get("Accept-Language")
+    assert "position_id=910117342851777" in seen[0].url
+    with Session(sqlite_engine) as session:
+        row = session.get(SourceJob, job_id)
+        assert "MS work." in row.detail_description
+        assert row.ai_status == "PENDING_AI"
+
+
+def test_unsanctioned_cross_host_rejected_before_http(
+    sqlite_engine: Engine, monkeypatch,
+) -> None:
+    """A declarative row whose portal is NOT bound to its source company
+    yields no candidate: 0 wire, even though the spec itself is genuine."""
+    create_schema(sqlite_engine)
+    _seed_portal(sqlite_engine, 791, "evil.example.test",
+                 "https://evil.example.test/jobs")
+    _add_structured_job(
+        sqlite_engine, 791, adapter="declarative",
+        source="declarative:microsoft",  # genuine spec, wrong portal
+        source_url="https://evil.example.test/jobs/1",
+        native_id="910117342851777", ai_status="CYBER")
+
+    def handler(request):
+        raise AssertionError("must never fetch")
+
+    fakes = _patch_fetcher(monkeypatch, handler)
+    summary = asyncio.run(enrich_official_html_details(
+        sqlite_engine, ScannerSettings(), limit=5, inter_job_wait_seconds=0))
+    assert summary.selected_jobs == 0 and summary.requests == 0
+    assert fakes == []  # early return: no HttpFetcher even constructed
 
 
 def test_structured_render_none_when_unrenderable() -> None:

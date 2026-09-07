@@ -1,6 +1,6 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-07 — Phase 3 selective detail enrichment complete (Workday/SR/Oracle/Eightfold structured detail, existing pipeline reused); suite 398/0
+**Updated:** 2026-09-07 — Phase 3.1: Microsoft/Eightfold declarative detail fixed (spec-sanctioned cross-host, full rendered-request fidelity); suite 401/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-07
@@ -65,16 +65,16 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 398 passed / 0 failed (full suite 2026-09-07: 383 baseline + 15 Phase 3
-  structured-detail tests, 1 intended workday CXS assertion update).
+- 398 passed / 0 failed at Phase 3 close; Phase 3.1 (Microsoft
+  declarative detail fix + rendered-request fidelity) adds coverage on top
+  (real count re-verified at close).
 
 ### Current development focus
 
-- Phase 3 COMPLETE: selective detail hydration for Workday (CXS JSON),
-  SmartRecruiters (`jobAd.sections`), Oracle (ById), Eightfold declarative
-  (`position_details` via SourceSpec) — all through the existing
-  `enrich-details` flow, existing HttpFetcher, semantic-hash AI requeue.
-  Zero new live wire used (Wave 2 had already proven all four endpoints).
+- Phase 3 COMPLETE (ADR 0062), including the 3.1 fix: Microsoft
+  Eightfold detail works through the generic declarative path
+  (spec-sanctioned cross-host + full rendered-request fidelity + root
+  path semantics). NVIDIA and Microsoft share one branch-free parser.
 - Next choice NOT decided. Candidates: (A) controlled live end-to-end
   canary, one source/company; (B) ExternalSourceCandidate lazy validation;
   (C) BambooHR validation; (D) SuccessFactors parity on a smaller tenant.

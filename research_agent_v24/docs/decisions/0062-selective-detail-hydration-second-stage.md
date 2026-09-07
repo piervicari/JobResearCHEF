@@ -62,3 +62,25 @@ cannot fetch more than 5 (+robots).
   Suite: 398 PASS / 0 FAIL.
 - Workday HTML `/apply` detail superseded by CXS JSON for workday rows
   (the `/apply` JSON-LD unit tests for the shared helper stay green).
+
+## Addendum (2026-09-07): Microsoft declarative detail fix (Phase 3.1)
+
+- Sanctioned cross-host: a declarative detail host differing from the
+  portal host is allowed ONLY when it is the bound SourceSpec's own
+  explicit detail URL (Microsoft portal `careers.microsoft.com` →
+  `microsoft.eightfold.ai`), AND the row's source company equals the
+  company the operator bound to that exact portal URL (`bindings.json`).
+  Anything else (redirects, payload URLs, heuristics, mismatched rows)
+  is rejected before HTTP. No generic allowlist.
+- Request fidelity: declarative detail executes the full
+  SourceSpec-rendered request through the existing Phase-1 bridge
+  (`to_fetch_request`) — method, URL, headers (incl. `Accept-Language`),
+  query (`position_id`/`domain`/`hl` exactly once), body. No second
+  bridge, no reconstruction.
+- Path semantics: extraction paths evaluate on the FULL response root as
+  declared. NVIDIA `detail.description_path` corrected to
+  `"data.jobDescription"` (one string): the wrapped `{data: {...}}`
+  envelope is proven by external Eightfold code, the Microsoft spec for
+  the same endpoint family, and the saved detail fixture — the NVIDIA
+  value was the inconsistent one. `merge_detail_into_job` has no other
+  consumer. No schema change.

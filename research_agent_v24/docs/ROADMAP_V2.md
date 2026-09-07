@@ -15,8 +15,8 @@ Oracle ById, Eightfold `position_details` — all through the existing
 SuccessFactors: `PARITY_UNRESOLVED` → RSS feed NOT adopted; RMK HTML stays
 the sole authoritative path.
 
-Current baseline: 398 PASS / 0 FAIL (full suite 2026-09-07, Phase 3
-structured detail included, zero new live wire).
+Current baseline: 401 PASS / 0 FAIL (full suite 2026-09-07, Phase 3.1
+Microsoft declarative detail fix included, zero live HTTP).
 
 NEXT functional task: NOT decided — candidates are (A) controlled live
 end-to-end canary (one source/company), (B) ExternalSourceCandidate lazy

@@ -668,7 +668,11 @@ def enrich_details_command(
         bool, typer.Option("--dry-run", help="Show exact candidate URLs; zero network requests."),
     ] = False,
 ) -> None:
-    """Selectively enrich CYBER/NEEDS_MORE_DETAIL generic jobs from official detail pages."""
+    """Selectively enrich CYBER/NEEDS_MORE_DETAIL jobs with incomplete descriptions.
+
+    Covers eligible official_html pages and structured ATS details (Workday
+    CXS, SmartRecruiters, Oracle, declarative/Eightfold). Bounded,
+    sequential, no catalog N+1."""
 
     engine = _engine(database_url)
     if engine.dialect.name != "sqlite" or not engine.url.database or not Path(engine.url.database).is_file():
@@ -688,9 +692,10 @@ def enrich_details_command(
             f"max_jobs_per_host={max_jobs_per_host}{portal_filter}"
         )
         typer.echo(
-            "policy: official_html + workday detail candidates; same-host detail URLs; "
-            "Workday fetches source_url + '/apply'; CYBER first; then NEEDS_MORE_DETAIL; "
-            "bounded per-host detail fetches"
+            "policy: selective detail enrichment for eligible official_html and "
+            "structured ATS jobs (Workday CXS, SmartRecruiters, Oracle, "
+            "declarative/Eightfold); bounded, sequential, no catalog N+1; "
+            "CYBER first, then NEEDS_MORE_DETAIL; bounded per-host detail fetches"
         )
         for item in candidates:
             typer.echo(
