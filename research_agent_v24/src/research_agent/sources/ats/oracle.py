@@ -67,6 +67,7 @@ class OracleRecruitingCloudAdapter:
         parsed_jobs: list[RawJob] = []
         warnings: list[str] = []
         total: int | None = None
+        total_changed = False
         complete = True
         page_limit = context.page_limit(self.max_pages)
         # Total-driven adaptive pagination: the offset advances by the ACTUAL
@@ -107,10 +108,17 @@ class OracleRecruitingCloudAdapter:
                 raise AdapterSchemaError("Oracle search is missing non-negative TotalJobsCount")
             if total is None:
                 total = raw_total
-            elif total != raw_total:
+            elif raw_total != total:
+                # Total instability: the catalog changed mid-scan, so no
+                # snapshot from this run can be authoritative (invariant:
+                # total_changed -> complete=False below). Keep the maximum
+                # observed as the reconciliation target so an increase cannot
+                # truncate the walk early and a decrease cannot skip records.
                 warnings.append(
                     f"Oracle total changed during pagination: {total} -> {raw_total}"
                 )
+                total = max(total, raw_total)
+                total_changed = True
             values = require_list(
                 search.get("requisitionList"), context="Oracle requisitionList"
             )
@@ -142,6 +150,9 @@ class OracleRecruitingCloudAdapter:
 
         if total == 0:
             warnings.append("upstream reports zero active jobs")
+
+        if total_changed:
+            complete = False
 
         return AdapterScanResult(
             jobs=tuple(parsed_jobs),

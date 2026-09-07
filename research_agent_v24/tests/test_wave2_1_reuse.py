@@ -113,7 +113,30 @@ def test_oracle_empty_before_total_is_safe_failure() -> None:
 def test_oracle_total_change_warns() -> None:
     result, _ = _run_oracle([(60, 25), (61, 25), (61, 11)])
     assert any("total changed" in w for w in result.warnings)
+    assert result.is_complete_snapshot is False  # instability → never authoritative
+
+
+def test_oracle_total_increase_continues_and_stays_incomplete() -> None:
+    result, offsets = _run_oracle([(100, 60), (150, 60), (150, 30)])
+    assert offsets == [0, 60, 120]  # continued past the first total=100
+    assert [j.source_job_id for j in result.jobs] == [str(i) for i in range(1, 151)]
+    assert any("100 -> 150" in w for w in result.warnings)
+    assert result.is_complete_snapshot is False
+
+
+def test_oracle_total_decrease_keeps_max_and_stays_incomplete() -> None:
+    result, offsets = _run_oracle([(150, 60), (100, 60), (100, 30)])
+    assert offsets == [0, 60, 120]  # no skipped records, no early stop
+    assert [j.source_job_id for j in result.jobs] == [str(i) for i in range(1, 151)]
+    assert any("150 -> 100" in w for w in result.warnings)
+    assert result.is_complete_snapshot is False
+
+
+def test_oracle_stable_total_stays_complete() -> None:
+    result, offsets = _run_oracle([(150, 60), (150, 60), (150, 30)])
+    assert offsets == [0, 60, 120]
     assert result.is_complete_snapshot is True
+    assert not any("total changed" in w for w in result.warnings)
 
 
 def test_oracle_page_cap_preserved() -> None:

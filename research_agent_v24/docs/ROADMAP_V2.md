@@ -4,17 +4,27 @@ Updated: 2026-09-07
 
 ## Current execution focus (2026-09-07 — overrides older sequencing below)
 
-1. External ATS reuse Wave 2: compare currently supported adapters vs
-   ats-scrapers / ats-jobs.
-2. Decide per ATS: KEEP_JRC / ADAPT_EXTERNAL / REPLACE_PROTOCOL /
-   DECLARATIVE / REJECT.
-3. Finish BambooHR validation only when a non-empty known tenant is
-   available, without brute-force.
-4. After the reuse benchmark: selective declarative detail enrichment
-   where still necessary.
-5. Controlled live operation only after source-specific evidence/safety.
+Completed: ATS Reuse Wave 1, Wave 1.1, Wave 2, Wave 2.1; network safety
+(ADRs 0058/0059); Teamtailor + Workable integration; Wave 2.1
+parser/protocol reuse (Oracle adaptive pagination, Lever assembly,
+Workday/SmartRecruiters/Greenhouse/Ashby enrichment).
 
-Phase 3 is not abandoned; it is deferred behind the reuse benchmark.
+SuccessFactors: `PARITY_UNRESOLVED` → RSS feed NOT adopted; RMK HTML stays
+the sole authoritative path.
+
+Current baseline: 380 PASS / 0 FAIL before this micro-fix (Oracle
+total-change hardening adds coverage; real count re-verified at close).
+
+NEXT functional task: `Phase 3 — Selective detail enrichment`.
+Available inputs (protocols only, none implemented): Workday CXS detail,
+SmartRecruiters `jobAd.sections`, Oracle ById/detail, Eightfold
+`position_details`. Goal: catalog stays cheap → triage → detail only for
+relevant incomplete jobs → semantic change → `PENDING_AI`.
+
+Deferred: BambooHR non-empty live validation; SuccessFactors parity retry
+on a smaller tenant; Workday >2K subdivision (`NEEDS_DESIGN`); Oracle/
+SmartRecruiters requisition identity migration; SourceSpec v0.2/
+single_request, only if future evidence justifies it.
 
 ---
 

@@ -46,7 +46,9 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 - Workable INTEGRATED (`sources/ats/workable.py` —
   widget `?details=true`, single request, shortcode dedup 104 rows → 49).
 - Wave 2.1 adopted: Oracle requested limit 200 + total-driven adaptive
-  pagination (skip-proof) + employment/workplace parser; Lever description
+  pagination (skip-proof; total-change hardening: any `TotalJobsCount`
+  instability forces `complete=false`, max observed total guides traversal)
+  + employment/workplace parser; Lever description
   assembly + `createdAt` posted_at; parser enrichment for Workday
   (timeType/remoteType), SmartRecruiters (employment-id),
   Greenhouse (unescape + req filter), Ashby (comp flag + descriptionHtml).
@@ -60,8 +62,8 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 380 passed / 0 failed (full suite 2026-09-07: 363 baseline + 17 Wave 2.1
-  reuse tests, 1 intended Ashby flag-URL assertion update).
+- 380 passed / 0 failed at Wave 2.1 close; Oracle total-change hardening
+  adds 3 tests on top (real count re-verified at close).
 
 ### Current development focus
 

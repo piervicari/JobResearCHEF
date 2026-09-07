@@ -12,13 +12,16 @@ from pathlib import Path
 from urllib.parse import urlsplit
 from xml.etree import ElementTree as ET
 
-sys.path.insert(0, "/Users/pierfrancescovicari/hermes-job-benchmark/JobResearCHEF/research_agent_v24/src")
+# Portable paths: repo root is the parent of external_reuse_audit/
+# (script -> wave2_1_sf_parity.py -> external_reuse_audit -> JobResearCHEF).
+REPO_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO_ROOT / "research_agent_v24" / "src"))
 
 from research_agent.pipeline.http import FetchRequest, HttpFetcher  # noqa: E402
 from research_agent.sources.ats.successfactors import SuccessFactorsRmkAdapter  # noqa: E402
 from research_agent.sources.base import PortalScanContext, PortalTarget  # noqa: E402
 
-OUT = Path("/Users/pierfrancescovicari/hermes-job-benchmark/JobResearCHEF/external_reuse_audit/wave2_probes")
+OUT = Path(__file__).resolve().parent / "wave2_probes"
 RSS_URL = "https://careers.kpmg.it/sitemal.xml"
 RMK_PORTAL = "https://careers.kpmg.it/"
 

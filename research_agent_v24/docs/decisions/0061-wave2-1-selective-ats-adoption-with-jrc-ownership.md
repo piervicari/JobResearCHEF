@@ -68,3 +68,12 @@ Eightfold `position_details`.
   URL assertion updated for the intended flag. Suite: 380 PASS / 0 FAIL.
 - Request impact: Oracle up to 8× fewer catalog requests; SF unchanged
   (RMK cost stands); all others identical request counts, richer fields.
+
+## Addendum (2026-09-07): Oracle total-count instability hardening
+
+`TotalJobsCount` changing mid-scan now forces `is_complete_snapshot=false`
+(always — a changed catalog cannot prove an atomic snapshot), while the
+maximum total observed stays the reconciliation target: increases extend
+the walk instead of truncating it, decreases cannot skip records
+(empty-before-effective-total still fails safe; page/job caps bound the
+walk). Correctness hardening of this decision, not a new decision.
