@@ -1,0 +1,4 @@
+# Hygiene: OS metadata and bytecode must never be tracked.
+.DS_Store
+**/__pycache__/
+*.py[cod]

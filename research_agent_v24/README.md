@@ -57,6 +57,27 @@ Auxiliary commands used in the same path:
 - `research-agent llm-preflight` — verify LLM credentials without external
   traffic.
 
+## Current architecture (2026-09-07)
+
+```text
+company/source registry
+        ↓
+legacy ATS adapter OR DeclarativeSourceAdapter (Mercedes/NVIDIA/Microsoft)
+        ↓
+existing HttpFetcher (sole transport; budgets/pacing/breaker)
+        ↓
+SourceJob (durable discovery, PENDING_AI)
+        ↓
+AI triage/detail/analyze
+```
+
+ATS adapters (`src/research_agent/sources/ats/`): Greenhouse, Lever,
+Ashby, SmartRecruiters, Radancy, SuccessFactors, Workday, Phenom, Oracle,
+Avature, Google Careers RPC — plus Wave 1.1 reuse: Teamtailor (`/jobs.json`,
+ADR 0060) and Workable (widget `?details=true`, ADR 0060). BambooHR pending
+non-empty live validation. External repos are protocol/parser reference
+only; JobResearCHEF owns HTTP, safety, lifecycle.
+
 ## Controlled probe of a `READY_TO_PROBE` portal
 
 `READY_TO_PROBE` rows land in the registry as `scan_enabled=False` so the
@@ -80,10 +101,14 @@ command line via `RESEARCH_AGENT_SCANNER__GLOBAL_CONCURRENCY=1` and
 sequentially and conservatively. The persisted YAML default of
 `global_concurrency=8` only applies to bulk / full-registry runs.
 
-## Google structured-RPC probe
+## Google structured-RPC probe (historical — NOT the current next action)
 
-`scripts/run_google_careers_probe.sh` is the next Tier-S validation
-operator action. It uses the persistent runtime DB, ensures the managed
+> Superseded: Wave 1.1 (2026-09-07) moved focus to external ATS reuse;
+> Phase 3 is paused behind the Wave 2 reuse benchmark. The script below
+> remains documented for its tooling value only.
+
+`scripts/run_google_careers_probe.sh` was the Tier-S validation
+operator action at V24. It uses the persistent runtime DB, ensures the managed
 dashboard, scans the Google catalog sequentially with a Google-only
 request envelope, runs 100-job high-recall triage batches plus
 candidate-only rich analysis, and writes
@@ -118,11 +143,17 @@ uv run pytest -q
 
 ## Documentation map
 
-- `docs/CODEX_HANDOVER_CURRENT.md` — full technical state for the next
-  coding agent.
-- `docs/ROADMAP_V2.md` — current product roadmap.
+- `docs/CODEX_HANDOVER_CURRENT.md` — current state for the next coding
+  agent (read first).
+- `docs/REPOSITORY_LAYOUT.md` — repository ownership/tree (production vs
+  evidence vs prototype).
+- `docs/ROADMAP_V2.md` — forward plan (CURRENT section on top).
 - `docs/OPERATIONS.md` — runtime / safety / recovery.
 - `docs/TESTING.md` — testing policy and gates.
-- `docs/decisions/` — decision log (ADR).
-- `docs/reports/` — historical evidence.
+- `docs/decisions/` — decision log (ADR 0001–0060).
+- `docs/architecture/` — implemented-system ADRs.
+- `docs/reports/` — immutable historical evidence.
+- `docs/archive/` — retired docs (historical).
+- `../../external_reuse_audit/` — external ATS/company evidence (not runtime).
+- `../../runtime/` — declarative-prototype evidence (not production).
 - `SECURITY.md` — security policy.

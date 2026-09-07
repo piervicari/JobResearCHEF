@@ -67,19 +67,26 @@ Do not silently rewrite historical decisions: supersede them explicitly.
 | [0039](0039-ai-batch-failures-return-nonzero-exit.md) | AI batch failures return non-zero process exit while preserving PENDING_AI | Accepted + implemented |
 | [0040](0040-targeted-semantic-cleanup-instead-of-blanket-reanalysis.md) | Requeue only fully-described stale NEEDS_MORE_DETAIL rows after the v3 contract change | Accepted + implemented |
 | [0041](0041-first-controlled-core-employer-expansion.md) | First controlled 10-employer core expansion after P0 validation | Accepted + implemented as operator runbook |
+| [0042](0042-persistent-runtime-database-across-code-versions.md) | Persistent runtime database across code versions | Accepted + implemented |
+| [0043](0043-dashboard-supervisor-and-one-command-core-trial.md) | Dashboard supervisor and one-command core trial | Accepted + implemented |
+| [0044](0044-canonical-careers-url-vs-operational-ats-source.md) | Separate canonical careers URL from operational ATS source | Accepted + implemented |
+| [0045](0045-network-budget-is-not-a-record-budget-for-one-shot-catalogs.md) | Network budget is not a record budget for one-shot catalogs | Accepted + implemented |
+| [0046](0046-large-batch-high-recall-llm-triage-before-full-analysis.md) | Large-batch high-recall LLM triage before full analysis | Accepted + implemented |
+| [0047](0047-one-employer-probes-with-web-ground-truth-checks.md) | One-employer probes followed by web ground-truth checks | Accepted + implemented (Stripe probe) |
+| [0048](0048-narrow-cyber-boundary-excludes-financial-crime-and-generic-risk.md) | Narrow CYBER boundary excludes financial crime and generic risk/compliance | Accepted + implemented |
+| [0049](0049-google-careers-anonymous-structured-rpc-adapter.md) | Google Careers uses its anonymous structured batchexecute RPC | Accepted + implemented |
+| [0050](0050-google-full-catalog-budget-is-probe-scoped-not-global.md) | Google full-catalog network budget is probe-scoped, not global | Accepted + implemented |
+| [0051](0051-operational-source-control-plane.md) | Operational Source Control Plane (V25) | Accepted + implemented |
+| [0052](0052-tier-s-control-plane-hardening.md) | Tier-S Operational Source Control Plane hardening (V25.1) | Accepted + implemented |
+| [0053](0053-declarative-runtime-reuses-http-fetcher-phase1.md) | Reuse HttpFetcher as the sole transport for DeclarativeSourceAdapter (Phase 1) | Accepted (offline, no live traffic) |
+| [0054](0054-declarative-source-adapter-sibling-phase2.md) | DeclarativeSourceAdapter as a registry sibling (Phase 2) | Accepted (offline, no live traffic) |
+| [0055](0055-phase2-hardening-precedence-preflight-boundary.md) | Phase-2 hardening: precedence, safety preflight, boundary probe | Accepted (offline, no live traffic) |
+| [0056](0056-mandatory-adapter-preflight-in-scanner-path.md) | Mandatory optional-adapter-preflight in the normal Scanner path | Accepted |
+| [0057](0057-external-source-candidates-unverified-evidence.md) | External registries are unverified source candidates with provenance | Accepted |
+| [0058](0058-per-source-safety-through-existing-fetcher-path.md) | Source-specific conservative network policies through the existing Scanner/HttpFetcher path | Accepted |
+| [0059](0059-hard-wire-attempt-cap-and-wire-based-pauses.md) | Hard wire-attempt cap and wire-based pauses with zero overshoot | Accepted |
+| [0060](0060-external-ats-reuse-with-jrc-ownership.md) | External ATS implementations reused as protocol/parser references | Accepted |
 
 ## Important migration note
 
 The legacy `scan-official` / reclassification path still implements deterministic cyber/seniority/geography filtering as described in `docs/architecture/0005-deterministic-filtering-and-reclassification.md`. V2 now provides `scan-discover`, which persists source truth as `PENDING_AI` without applying those semantic filters. The remaining P0 migration is the JobAnalyzer + cyber product view/promotion path; legacy commands remain for historical compatibility and must not be used as the V2 product path.
-- [0042 — Persistent runtime database across code versions](0042-persistent-runtime-database-across-code-versions.md)
-- [0043 — Dashboard supervisor and one-command core trial](0043-dashboard-supervisor-and-one-command-core-trial.md)
-- [0044 — Canonical careers URL vs operational ATS source](0044-canonical-careers-url-vs-operational-ats-source.md)
-- [0045 — Network budget is not a record budget for one-shot catalogs](0045-network-budget-is-not-a-record-budget-for-one-shot-catalogs.md)
-- [0046 — Large-batch high-recall LLM triage before full analysis](0046-large-batch-high-recall-llm-triage-before-full-analysis.md)
-- [0047 — One-employer probes with web ground-truth checks](0047-one-employer-probes-with-web-ground-truth-checks.md)
-
-- [0048 — Narrow CYBER boundary excludes financial crime and generic risk/compliance](0048-narrow-cyber-boundary-excludes-financial-crime-and-generic-risk.md)
-- [0049 — Google Careers uses its anonymous structured batchexecute RPC](0049-google-careers-anonymous-structured-rpc-adapter.md)
-- [0050 — Google full-catalog network budget is probe-scoped, not global](0050-google-full-catalog-budget-is-probe-scoped-not-global.md)
-- [0051 — Operational Source Control Plane (V25)](0051-operational-source-control-plane.md)
-- [0052 — Tier-S Operational Source Control Plane hardening (V25.1)](0052-tier-s-control-plane-hardening.md)

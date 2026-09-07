@@ -1,6 +1,22 @@
 # Research Agent — execution roadmap v2
 
-Updated: 2026-09-02
+Updated: 2026-09-07
+
+## Current execution focus (2026-09-07 — overrides older sequencing below)
+
+1. External ATS reuse Wave 2: compare currently supported adapters vs
+   ats-scrapers / ats-jobs.
+2. Decide per ATS: KEEP_JRC / ADAPT_EXTERNAL / REPLACE_PROTOCOL /
+   DECLARATIVE / REJECT.
+3. Finish BambooHR validation only when a non-empty known tenant is
+   available, without brute-force.
+4. After the reuse benchmark: selective declarative detail enrichment
+   where still necessary.
+5. Controlled live operation only after source-specific evidence/safety.
+
+Phase 3 is not abandoned; it is deferred behind the reuse benchmark.
+
+---
 
 This roadmap supersedes the **product direction** of the original `docs/ROADMAP.md`. The original file remains historical evidence of the deterministic-filtering MVP that Codex completed. V2 optimizes for using the system as soon as possible.
 

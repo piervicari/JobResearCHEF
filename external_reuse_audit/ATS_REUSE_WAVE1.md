@@ -1,5 +1,10 @@
 # ATS Reuse Wave 1 — BambooHR / Teamtailor / Workable (audit + test + decision, NO implementation)
 
+> SUPERSEDED FOR IMPLEMENTATION CHOICE BY ATS_REUSE_WAVE1_1.md.
+> This file is the historical Wave 1 record (audit + upstream tests + first
+> probes, written before the Wave 1.1 protocol micro-probes). Current
+> protocol decisions and integration status live in ATS_REUSE_WAVE1_1.md.
+
 Upstream checkouts (frozen, NOT re-cloned for this task):
 - ats-scrapers @ 6b44a1badc9bfbf5cf176f75265cc5729e520e99 (2026-09-02, MIT, Kalil Bouzigues)
 - ats-jobs @ 9edd4a6cb12fcf43d35e050d064edb61900b2683 (2026-08-26, MIT)

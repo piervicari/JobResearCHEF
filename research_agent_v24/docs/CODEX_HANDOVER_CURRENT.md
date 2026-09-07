@@ -1,7 +1,79 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-02 — V24 prepared after Stripe PASS; Google structured-RPC probe is next  
+**Updated:** 2026-09-07 — Wave 1.1 external ATS reuse integrated (Teamtailor + Workable); Phase 3 paused behind Wave 2 reuse benchmark
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
+
+## CURRENT SNAPSHOT — 2026-09-07
+
+This section overrides all dated sections below. Inside historical entries,
+phrases like "next task" or "Google probe is next" are stale — do not act on them.
+
+### Canonical company universe
+
+- `data/company_universe/master_company_universe_v1_12_stripe_greenhouse.csv`:
+  12,503 companies, global (top geographies Italy, USA, Germany, Canada, UK…).
+  Not Australia-centric (that characterization is OUTDATED — it described an old subset).
+
+### Declarative architecture
+
+- Sources Mercedes / NVIDIA (frozen v0.1) + Microsoft (candidate) run through
+  `DeclarativeSourceAdapter` as a registry sibling (ADR 0054), reusing the
+  existing HttpFetcher as sole transport (ADR 0053, Phase 1 bridge).
+- Mandatory adapter preflight in the Scanner path, fail-closed (ADR 0056);
+  precedence + boundary hardening (ADR 0055).
+- Prototype artifacts under `../runtime/` are historical reference only.
+
+### Network safety (complete — ADRs 0058, 0059)
+
+- Per-source safety through the existing fetcher path: min interval floor,
+  retry ceiling, request budget, periodic pause, consecutive-error stop.
+- Hard wire-attempt cap (`max_requests_per_run` counts initial + retry +
+  redirect, zero overshoot), wire-based periodic pauses, immediate stop on
+  exhausted budget. 403/429 conservative behavior unchanged.
+- Network-safety work is finished; do not reopen it without new evidence.
+
+### External registry reuse (ADR 0057)
+
+- ats-scrapers @ `6b44a1b` (MIT): 851 HIGH candidate rows across 562
+  companies, stored as UNVERIFIED evidence in `ExternalSourceCandidate`
+  (`verified=false`, idempotent importer, no automatic binding, no portal
+  promotion). Off-repo evidence in `../../external_reuse_audit/`.
+
+### ATS reuse (ADR 0060, Wave 1.1 `PASS_EXTERNAL_REUSE_WAVE1`)
+
+- Teamtailor INTEGRATED (`sources/ats/teamtailor.py` — `/jobs.json`,
+  single request, numeric-ID-from-URL, inline description).
+- Workable INTEGRATED (`sources/ats/workable.py` —
+  widget `?details=true`, single request, shortcode dedup 104 rows → 49).
+- BambooHR NOT integrated: `READY_PENDING_VALIDATION` (only empty boards
+  observed live; no brute-force).
+- Reuse rule: external repos are protocol/parser reference only —
+  JobResearCHEF keeps HTTP, safety, lifecycle ownership.
+
+### Current test baseline
+
+- 361 passed / 2 failed (rerun 2026-09-07): both failures are pre-existing
+  `test_declarative_adapter.py` path assumptions pointing at
+  `hermes-job-benchmark/runtime/fixtures` (one nesting level above the real
+  `JobResearCHEF/runtime/fixtures`); unrelated to Wave 1.1, production code
+  untouched. (Wave 1.1 session reported 363/0 from a layout where that path
+  resolved.)
+
+### Current development focus
+
+- PHASE 3 REMAINS PAUSED. Next: Wave 2 benchmark of ALREADY-SUPPORTED ATS
+  implementations against ats-scrapers / ats-jobs (per-ATS verdict:
+  KEEP_JRC / ADAPT_EXTERNAL / REPLACE_PROTOCOL / DECLARATIVE / REJECT).
+- Then: finish BambooHR validation only when a non-empty known tenant is
+  available (no brute-force); selective declarative detail enrichment where
+  still necessary; controlled live operation only after source-specific
+  evidence/safety.
+
+---
+
+## Historical development log — do not interpret "next task" inside these entries as current.
+
+The top CURRENT SNAPSHOT (2026-09-07) overrides everything below.
 
 ## 1. Product objective
 
@@ -201,7 +273,7 @@ If selective enrichment produces full descriptions/skills without access-control
 5. decisions 0011, 0012, 0014, 0016, 0021, 0023, 0027–0030.
 6. `docs/reports/p0_end_to_end_pilot_20260902-140011.log` — empirical evidence.
 
-Do not infer current intent from the old root `CODEX_HANDOVER_RESEARCH_AGENT_PIER.md`; it describes the pre-V2 deterministic milestone and is historical context only.
+Do not infer current intent from `docs/archive/handovers/CODEX_HANDOVER_RESEARCH_AGENT_PIER.md`; it describes the pre-V2 deterministic milestone and is historical context only.
 
 ## 13. Operational portability fix after first detail-follow-up attempt
 
