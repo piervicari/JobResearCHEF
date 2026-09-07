@@ -218,6 +218,8 @@ def test_legacy_registry_behavior_unchanged_without_config():
         "phenom",
         "oracle_recruiting_cloud",
         "avature",
+        "teamtailor",
+        "workable",
     )
     assert isinstance(registry.select(_target(NVIDIA_PORTAL)), type(None))
 

@@ -12,6 +12,8 @@ from research_agent.sources.ats.phenom import PhenomAdapter
 from research_agent.sources.ats.radancy import RadancyAdapter
 from research_agent.sources.ats.smartrecruiters import SmartRecruitersAdapter
 from research_agent.sources.ats.successfactors import SuccessFactorsRmkAdapter
+from research_agent.sources.ats.teamtailor import TeamtailorAdapter
+from research_agent.sources.ats.workable import WorkableAdapter
 from research_agent.sources.ats.workday import WorkdayAdapter
 from research_agent.sources.base import AdapterRegistry, SourceAdapter
 from research_agent.sources.official.generic import GenericOfficialHtmlAdapter
@@ -46,6 +48,8 @@ def structured_adapter_registry(
             PhenomAdapter(),
             OracleRecruitingCloudAdapter(),
             AvatureAdapter(),
+            TeamtailorAdapter(),
+            WorkableAdapter(),
         ]
     )
 
@@ -64,6 +68,8 @@ def default_adapter_registry() -> AdapterRegistry:
             PhenomAdapter(),
             OracleRecruitingCloudAdapter(),
             AvatureAdapter(),
+            TeamtailorAdapter(),
+            WorkableAdapter(),
             GenericOfficialHtmlAdapter(),
         ]
     )
