@@ -108,3 +108,10 @@ cannot fetch more than 5 (+robots).
   normalized field unless a spec declares a separate path. No HTML
   splitting heuristics: semantic completeness is the goal, and the
   full `jobDescription` already provides it.
+- Triage-gated pre-analysis detail (current): a `PENDING_AI` job is
+  detail-eligible only with a valid `triage:` analysis whose input hash
+  equals the row's current triage hash (reused helper, no duplicate
+  algorithm) and whose payload says `triage_candidate_cyber=true`.
+  Untriaged, negative, or stale-triage jobs get zero detail requests;
+  historical `CYBER`/`NEEDS_MORE_DETAIL` eligibility is unchanged.
+  Suite: 410 PASS / 0 FAIL.

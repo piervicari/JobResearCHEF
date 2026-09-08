@@ -1,7 +1,10 @@
 """Selective official detail-page enrichment for AI-relevant discoveries.
 
-The listing/search scan remains deliberately cheap.  Only jobs already classified CYBER or
-NEEDS_MORE_DETAIL and lacking a useful description are eligible for this second-stage fetch.
+The listing/search scan remains deliberately cheap.  Jobs classified CYBER or
+NEEDS_MORE_DETAIL — plus PENDING_AI jobs carrying CURRENT positive triage
+evidence (hash-matching `triage:` analysis record) — and lacking a useful
+description are eligible for this second-stage fetch. Untriaged PENDING_AI
+jobs never trigger detail requests (no pre-triage N+1).
 Two detail kinds exist:
 
 * ``official_html`` — the conservative same-host public job page (robots.txt gated).
@@ -33,7 +36,7 @@ from sqlalchemy.orm import Session
 
 from research_agent.config import ScannerSettings
 from research_agent.db.migrations import create_schema
-from research_agent.db.models import Portal, SourceJob
+from research_agent.db.models import JobAiAnalysis, Portal, SourceJob
 from research_agent.pipeline.cache import FileResponseCache
 from research_agent.pipeline.http import (
     AccessChallengeError,
@@ -491,6 +494,45 @@ def _collapse_apply_path(path: str) -> str:
     return path
 
 
+def _current_positive_triage_ids(session: Session, rows: list[SourceJob]) -> set[int]:
+    """PENDING_AI row ids with CURRENT positive triage evidence.
+
+    Eligible only with a valid `triage:` analysis whose input hash equals
+    the hash of the row AS IT IS NOW (reused triage helper, never a copy)
+    and whose payload says `triage_candidate_cyber=true`. Stale records
+    (payload changed since triage) and negatives yield nothing.
+    """
+    from research_agent.ai.job_triage import triage_input_for_source_job
+
+    ids = [row.id for row in rows if row.id is not None]
+    if not ids:
+        return set()
+    records = session.scalars(
+        select(JobAiAnalysis).where(
+            JobAiAnalysis.source_job_row_id.in_(ids),
+            JobAiAnalysis.valid.is_(True),
+            JobAiAnalysis.model.like("triage:%"),
+        )
+    ).all()
+    by_job: dict[int, list[JobAiAnalysis]] = {}
+    for record in records:
+        by_job.setdefault(record.source_job_row_id, []).append(record)
+    eligible: set[int] = set()
+    for row in rows:
+        current_sha = triage_input_for_source_job(row).input_sha256
+        for record in by_job.get(row.id, []):
+            if record.input_payload_sha256 != current_sha:
+                continue
+            try:
+                payload = json.loads(record.analysis_json or "{}")
+            except ValueError:
+                continue
+            if isinstance(payload, dict) and payload.get("triage_candidate_cyber") is True:
+                eligible.add(row.id)
+                break
+    return eligible
+
+
 def select_detail_candidates(
     engine: Engine,
     *,
@@ -510,7 +552,7 @@ def select_detail_candidates(
             .where(
                 SourceJob.is_active.is_(True),
                 SourceJob.adapter.in_(_DETAIL_ADAPTERS),
-                SourceJob.ai_status.in_(("CYBER", "NEEDS_MORE_DETAIL")),
+                SourceJob.ai_status.in_(("CYBER", "NEEDS_MORE_DETAIL", "PENDING_AI")),
             )
             .order_by(SourceJob.id)
         )
@@ -526,11 +568,17 @@ def select_detail_candidates(
                 select(Portal).where(Portal.id.in_(portal_ids_for_lookup))
             ).all()
         }
+        pending_rows = [row for row in rows if row.ai_status == "PENDING_AI"]
+        triaged_positive_ids = (
+            _current_positive_triage_ids(session, pending_rows)
+            if pending_rows
+            else set()
+        )
 
     candidates: list[DetailCandidate] = []
     # Cyber rows are enriched first: classification may already be obvious from the title, but
     # the full description is still required for skills/experience reverse engineering.
-    priority = {"CYBER": 0, "NEEDS_MORE_DETAIL": 1}
+    priority = {"CYBER": 0, "NEEDS_MORE_DETAIL": 1, "PENDING_AI": 2}
     rows = sorted(rows, key=lambda row: (priority.get(row.ai_status, 9), row.id))
     host_counts: dict[str, int] = {}
     for row in rows:
@@ -538,6 +586,10 @@ def select_detail_candidates(
         if len(effective_description.strip()) >= min_description_chars:
             continue
         if row.portal_id is None or row.portal_id not in portals:
+            continue
+        if row.ai_status == "PENDING_AI" and row.id not in triaged_positive_ids:
+            # Untriaged, negatively triaged, or stale-triage jobs: triage
+            # (or a triage rerun) must come first — never detail on speculation.
             continue
         portal = portals[row.portal_id]
         url = row.source_url or row.apply_url

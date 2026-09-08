@@ -376,6 +376,126 @@ def test_unrenderable_structured_row_skipped(
     assert select_detail_candidates(sqlite_engine, limit=5) == []
 
 
+# ---------- triage-gated pre-analysis detail (canary contract fix) ----------
+
+def _add_triage_record(engine: Engine, job_id: int, sha: str, *, positive: bool) -> None:
+    from research_agent.db.models import JobAiAnalysis
+    payload = json.dumps({"triage_candidate_cyber": positive, "short_reason": "t"})
+    with Session(engine) as session, session.begin():
+        session.add(JobAiAnalysis(
+            source_job_row_id=job_id, analyzed_at=datetime.now(UTC),
+            model="triage:test-model", prompt_version="tv1", schema_version="sv1",
+            input_payload_sha256=sha,
+            is_cybersecurity=(None if positive else False),
+            needs_more_detail=bool(positive), valid=True,
+            analysis_json=payload, error=None,
+        ))
+
+
+def _current_triage_sha(engine: Engine, job_id: int) -> str:
+    from research_agent.ai.job_triage import triage_input_for_source_job
+    with Session(engine) as session:
+        row = session.get(SourceJob, job_id)
+        assert row is not None
+        return triage_input_for_source_job(row).input_sha256
+
+
+def _seed_sr_pending(engine: Engine, portal_id: int, slug: str, posting: str) -> int:
+    _seed_portal(engine, portal_id,
+                 "careers.smartrecruiters.com",
+                 f"https://careers.smartrecruiters.com/{slug}")
+    return _add_structured_job(
+        engine, portal_id, adapter="smartrecruiters", source="smartrecruiters",
+        source_url=f"https://jobs.smartrecruiters.com/{slug}/{posting}",
+        native_id=posting, ats_id=posting, ai_status="PENDING_AI")
+
+
+def test_pending_ai_without_triage_gets_no_detail(sqlite_engine: Engine) -> None:
+    """Test A: untriaged PENDING_AI never triggers a detail request (no N+1)."""
+    create_schema(sqlite_engine)
+    _seed_sr_pending(sqlite_engine, 901, "AcmeA", "1")
+    assert select_detail_candidates(sqlite_engine, limit=5) == []
+
+
+def test_pending_ai_with_current_positive_triage_selected(
+    sqlite_engine: Engine,
+) -> None:
+    """Test B: PENDING_AI + current positive triage → eligible."""
+    create_schema(sqlite_engine)
+    job_id = _seed_sr_pending(sqlite_engine, 902, "AcmeB", "2")
+    _add_triage_record(sqlite_engine, job_id,
+                       _current_triage_sha(sqlite_engine, job_id), positive=True)
+    candidates = select_detail_candidates(sqlite_engine, limit=5)
+    assert len(candidates) == 1
+    assert candidates[0].host == "api.smartrecruiters.com"
+
+
+def test_pending_ai_with_current_negative_triage_skipped(
+    sqlite_engine: Engine,
+) -> None:
+    """Test C: PENDING_AI + current negative triage → zero detail."""
+    create_schema(sqlite_engine)
+    job_id = _seed_sr_pending(sqlite_engine, 903, "AcmeC", "3")
+    _add_triage_record(sqlite_engine, job_id,
+                       _current_triage_sha(sqlite_engine, job_id), positive=False)
+    assert select_detail_candidates(sqlite_engine, limit=5) == []
+
+
+def test_pending_ai_with_stale_positive_triage_skipped(
+    sqlite_engine: Engine,
+) -> None:
+    """Test D: payload changed after triage (H1 record, H2 current) → 0
+    candidates until triage reruns. Stale evidence never fires network."""
+    create_schema(sqlite_engine)
+    job_id = _seed_sr_pending(sqlite_engine, 904, "AcmeD", "4")
+    old_sha = _current_triage_sha(sqlite_engine, job_id)
+    _add_triage_record(sqlite_engine, job_id, old_sha, positive=True)
+    with Session(sqlite_engine) as session, session.begin():
+        row = session.get(SourceJob, job_id)
+        assert row is not None
+        row.raw_description = "changed payload text"
+    assert _current_triage_sha(sqlite_engine, job_id) != old_sha
+    assert select_detail_candidates(sqlite_engine, limit=5) == []
+
+
+def test_positive_triage_with_complete_description_skips_detail(
+    sqlite_engine: Engine,
+) -> None:
+    """Test E: positive triage + already-complete description → 0 detail
+    fetches, job stays PENDING_AI for direct full analysis."""
+    create_schema(sqlite_engine)
+    _seed_portal(sqlite_engine, 905,
+                 "careers.smartrecruiters.com",
+                 "https://careers.smartrecruiters.com/AcmeE")
+    job_id = _add_structured_job(
+        sqlite_engine, 905, adapter="smartrecruiters", source="smartrecruiters",
+        source_url="https://jobs.smartrecruiters.com/AcmeE/5",
+        native_id="5", ats_id="5", ai_status="PENDING_AI",
+        detail_description="x" * 600)
+    _add_triage_record(sqlite_engine, job_id,
+                       _current_triage_sha(sqlite_engine, job_id), positive=True)
+    assert select_detail_candidates(sqlite_engine, limit=5) == []
+    with Session(sqlite_engine) as session:
+        row = session.get(SourceJob, job_id)
+        assert row is not None
+        assert row.ai_status == "PENDING_AI"
+
+
+def test_historical_cyber_without_triage_unchanged(
+    sqlite_engine: Engine,
+) -> None:
+    """Regression: historical CYBER needs no triage record (as before)."""
+    create_schema(sqlite_engine)
+    _seed_portal(sqlite_engine, 906,
+                 "careers.smartrecruiters.com",
+                 "https://careers.smartrecruiters.com/AcmeF")
+    _add_structured_job(
+        sqlite_engine, 906, adapter="smartrecruiters", source="smartrecruiters",
+        source_url="https://jobs.smartrecruiters.com/AcmeF/6",
+        native_id="6", ats_id="6", ai_status="CYBER")
+    assert len(select_detail_candidates(sqlite_engine, limit=5)) == 1
+
+
 # ---------- actual-host cap (Phase 3 final consistency) ----------
 
 def test_shared_actual_detail_host_cap_across_portals(

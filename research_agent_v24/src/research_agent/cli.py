@@ -670,7 +670,9 @@ def enrich_details_command(
 ) -> None:
     """Selectively enrich CYBER/NEEDS_MORE_DETAIL jobs with incomplete descriptions.
 
-    Covers eligible official_html pages and structured ATS details (Workday
+    PENDING_AI jobs are eligible only with current positive triage evidence;
+    untriaged jobs never trigger detail requests. Covers eligible
+    official_html pages and structured ATS details (Workday
     CXS, SmartRecruiters, Oracle, declarative/Eightfold). Bounded,
     sequential, no catalog N+1."""
 
@@ -694,7 +696,8 @@ def enrich_details_command(
         typer.echo(
             "policy: selective detail enrichment for eligible official_html and "
             "structured ATS jobs (Workday CXS, SmartRecruiters, Oracle, "
-            "declarative/Eightfold); bounded, sequential, no catalog N+1; "
+            "declarative/Eightfold); PENDING_AI only with current positive "
+            "triage; bounded, sequential, no catalog N+1; "
             "CYBER first, then NEEDS_MORE_DETAIL; bounded per-host detail fetches"
         )
         for item in candidates:

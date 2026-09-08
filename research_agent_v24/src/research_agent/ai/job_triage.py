@@ -326,6 +326,15 @@ def triage_pending_jobs(
     )
 
 
+def triage_input_for_source_job(row: SourceJob) -> TriageInput:
+    """Public accessor for the exact triage input of a SourceJob row.
+
+    The detail selector reuses this (never a copy of the hash algorithm)
+    so pre-analysis detail eligibility always matches what triage saw.
+    """
+    return _triage_input(row)
+
+
 def _triage_input(row: SourceJob) -> TriageInput:
     description = row.detail_description or row.raw_description or ""
     company = row.resolved_company_name or row.raw_company or ""

@@ -1,6 +1,6 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-07 — Phase 3 final consistency: actual-host `max_jobs_per_host`, sanctioned-host wording, Eightfold qualifications clarified; suite 404/0
+**Updated:** 2026-09-08 — first controlled e2e canary (ZeroFOX SR portal 100: live 200, genuinely empty board, transport/parser validated, 0 production writes) + triage-gated detail contract fix; suite 410/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-07
@@ -65,8 +65,8 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 404 passed / 0 failed (full suite 2026-09-07: 401 at Phase 3.1 close
-  + 3 actual-host cap tests).
+- 410 passed / 0 failed (full suite 2026-09-08: 404 at Phase 3 close
+  + 6 triage-gating contract tests).
 
 ### Current development focus
 
@@ -77,6 +77,12 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 - Next choice NOT decided. Candidates: (A) controlled live end-to-end
   canary, one source/company; (B) ExternalSourceCandidate lazy validation;
   (C) BambooHR validation; (D) SuccessFactors parity on a smaller tenant.
+- First canary done 2026-09-08 (see
+  `docs/reports/controlled_e2e_canary_20260908.md`): ZeroFOX SR portal 100
+  returned live HTTP 200 with a genuinely empty board (`totalFound: 0`,
+  valid schema, no drift) — transport/parser validated, 1 wire, 0
+  production writes. Semantic chain unexercised. Likely next: one
+  structured-detail-specific canary on a verified non-empty board.
 - Open follow-ups (not started): BambooHR non-empty validation
   (no brute-force); Workday >2K subdivision (NEEDS_DESIGN).
 
