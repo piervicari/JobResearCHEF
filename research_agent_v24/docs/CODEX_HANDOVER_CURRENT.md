@@ -1,6 +1,6 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — canary #2 PARTIAL_AI (Honeywell Oracle 158: live scan→triage→detail→analysis-attempt, 3 wires, Oracle adapter-name defect fixed, 0 production writes); suite 411/0
+**Updated:** 2026-09-08 — ATS validation wave: matrix built, Oracle MULTI_TENANT_VALIDATED (141+155 live), ADR 0063 ingestion freeze (AI deferred); suite 411/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -91,6 +91,13 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   PENDING_AI. Verdict PARTIAL_AI. Trivial blocker fixed: detail pipeline
   now accepts the real `oracle_recruiting_cloud` adapter name. 3 wires
   total, 0 production writes.
+- ATS validation wave done 2026-09-08 (AI explicitly deferred, ADR 0063):
+  matrix `docs/ATS_VALIDATION_MATRIX.md` (12 + 5 ATS, evidence-gated);
+  Oracle promoted to MULTI_TENANT_VALIDATED via bounded scans of portals
+  141 (Danske Bank, EU, 3 wires, 10 jobs) and 155 (hdep, US, 2 wires,
+  10 jobs), zero AI in the loop, 5 wires total, production DB untouched.
+  Per-ATS report `docs/reports/ats_validation_oracle_20260908.md`.
+  Next ATS NOT executed (recommendation: Greenhouse).
 - Open follow-ups (not started): BambooHR non-empty validation
   (no brute-force); Workday >2K subdivision (NEEDS_DESIGN).
 

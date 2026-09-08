@@ -35,6 +35,20 @@ Next decision based on evidence: re-attempt the single queued analysis
 (no new scan) once providers recover, or treat provider 404/503
 telemetry as input to routing maintenance — NOT a new bulk step.
 
+Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
+
+1. ATS validation matrix — DONE (`docs/ATS_VALIDATION_MATRIX.md`).
+2. Tier-1 cross-tenant canaries — Oracle DONE (MULTI_TENANT_VALIDATED, 3 tenants).
+3. Tier-2 cross-tenant canaries — pending.
+4. Unsupported ATS gaps — recorded in matrix.
+5. ExternalSourceCandidate lazy validation — DEFERRED until serving adapters
+   are multi-tenant validated.
+6. 10–20 company ingestion cohort — pending.
+7. 50–100 company cohort — pending.
+8. INGESTION_V1 freeze — criteria in ADR 0063, not frozen yet.
+9. LLM pipeline resumes — only after freeze. Honeywell PENDING_AI stays
+   deferred evidence.
+
 NEXT functional task: NOT decided — candidates are (A) controlled live
 end-to-end canary (one source/company), (B) ExternalSourceCandidate lazy
 validation, (C) BambooHR validation, (D) SuccessFactors parity on a
