@@ -87,9 +87,10 @@
 - Multi-page observed live on all 3 tenants (3, 5, 5 pages).
 - Offset sequences exact, no repeats/skips/duplication, no post-terminal request.
 - Systematic quirk: `total` is authoritative on page 1 only; pages 2+ report
-  `total: 0` on all 3 tenants. The adapter warns (`total changed … -> 0`) and
-  termination stays correct (short-page rule; page-cap rule). Recorded as a watch
-  item, not a defect: no data loss, all flags correct (see Defects).
+  `total: 0` on all 3 tenants. Code-read correction (workday.py:83-96): the
+  canonical total is pinned from the first page and later differing totals only
+  warn — `raw_total = 0` never overwrites it, and `natural_end` keeps using the
+  canonical total. No hardening gap; all flags were correct.
 
 ## Catalog content
 
@@ -134,18 +135,17 @@
   body-recording transport double-decoded gzip (fixed, unit-verified offline);
   initial driver omitted the canonical gate+persist step (fixed by replaying saved
   bodies through the real scan→gate→persist path at 0 extra wires, Lever-E1 precedent).
-- Watch item (not a defect on observed evidence): when `total` flips to 0,
-  the `offset+len>=total` clause is vacuous and termination rests on the short-page
-  rule; a hypothetical empty non-terminal page with `total: 0` would read complete.
-  Never observed (all short/empty pages were terminal and exact). Left as a
-  production-support hardening note; no redesign without live proof.
+- Watch item closed by code-read (workday.py:83-96, no live counterexample):
+  canonical `total` is initialized from the first page; later `raw_total`
+  values (including 0) only produce a warning and never overwrite it, so the
+  feared "vacuous completion" cannot occur — termination uses the canonical
+  total. No redesign warranted.
 
 ## Status
 
 - `EXPERIMENTAL → MULTI_TENANT_VALIDATED` (3 canonical tenants live 2026-09-08).
   NOT PRODUCTION_SUPPORTED. Remaining gates: live empty-board observation;
-  full-traversal proof on 100+ boards (265/5 stopped at the 5-page budget);
-  `total→0` hardening note above.
+  full-traversal proof on 100+ boards (265/5 stopped at the 5-page budget).
 - Evidence: disposable DB `output/workday_wave_20260908/validation.db`;
   16 saved wire bodies `output/workday_wave_20260908/bodies/`;
   3 saved detail bodies `output/workday_wave_20260908/detail_cache/`;

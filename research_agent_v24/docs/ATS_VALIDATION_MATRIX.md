@@ -31,7 +31,8 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 - Empty tested: no. Pagination live: yes (3/5/5 pages, offsets exact, no
   repeat/skip/duplication). Multi-page live: yes.
 - Live quirk: `total` authoritative on page 1 only, pages 2+ report `total: 0`
-  (all 3 tenants); adapter warns, termination stayed correct — watch item, not defect.
+  (all 3 tenants); code-verified harmless (canonical total pinned page 1,
+  later totals warn-only — workday.py:83-96), not a gate.
 - Identity live: yes (distinct requisition IDs, 1 row each, detail preserves keys).
   Dedup live: yes. Completeness confidence: high for observed catalogs.
 - Safety tested live: yes (21-wire budget respected, concurrency 1, retries 0,
@@ -39,7 +40,7 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 - Status: MULTI_TENANT_VALIDATED (3 tenants live 2026-09-08; report
   `docs/reports/ats_validation_workday_20260908.md`).
   NOT PRODUCTION_SUPPORTED: live empty-board + full-traversal proof on 100+
-  boards + `total→0` hardening note still missing.
+  boards still missing.
 - Missing: empty-board observation; full traversal beyond the 5-page budget.
 - Next: wave complete — next ATS recommended separately, not executed here.
 
@@ -148,11 +149,25 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
   (Microsoft → microsoft.eightfold.ai), full bridge fidelity, root-path
   semantics (Phase-3.1, offline-tested incl. Microsoft flow + evil-portal rejection).
 - Detail required: selective (Eightfold rows carry no catalog description).
-- Live validated: 0 catalog, 0 detail. All evidence offline (specs, fixtures,
-  15+ Phase-3/3.1 tests, EXT protocol docs).
-- Status: EXPERIMENTAL (both bindings; validate NVIDIA and Microsoft separately).
-- Missing: live catalog + detail per binding; empty-board; pagination live.
-- Next: after Tier-1; NVIDIA first (same-host detail, simpler).
+- Live validated: NVIDIA binding 1 (2026-09-08 bounded canary: 7 catalog wires
+  starts 0–60, 10 each, total 2686 stable; API 70 = adapter 70 = persisted 70,
+  0 dups/skipped, `complete_snapshot` FALSE at the 7-page cap — completeness
+  unproven by budget design; same-host detail 1/1 0→2083 chars, parser
+  `declarative_spec_detail`, identity preserved; 8-wire budget respected;
+  report `docs/reports/ats_validation_eightfold_nvidia_20260908.md`).
+  Microsoft binding: 0 (separate task, not executed).
+- Registry note: production registry holds no portal matching the NVIDIA
+  binding (portal 443 serves generic HTML) — bound row seeded in disposable
+  DB only. Empty-board live: no. Pagination live: yes (7 pages, exact).
+- Identity live: yes (numeric `id`, 1 row each). Catalog description: none
+  (declared). Detail live: yes (NVIDIA only).
+- Safety tested live: yes (8 wires, concurrency 1, retries 0, no signals,
+  production DB untouched).
+- Status: EXPERIMENTAL overall (NVIDIA binding VALIDATED_ONE_TENANT 2026-09-08;
+  Microsoft UNVALIDATED). NOT PRODUCTION_SUPPORTED.
+- Missing: full 2686-traversal; empty-board; registry portal for NVIDIA binding;
+  Microsoft catalog + detail.
+- Next: Microsoft binding validation (separate task).
 
 ### Ashby
 - Implementation: `sources/ats/ashby.py` (name `ashby`).

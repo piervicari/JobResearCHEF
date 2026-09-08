@@ -1,7 +1,7 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — Workday wave (MULTI_TENANT_VALIDATED, 3 tenants live,
-511 COMPLETE 44/44/44, detail 3/3) ; suite 412/0
+**Updated:** 2026-09-08 — Eightfold NVIDIA canary (binding VALIDATED_ONE_TENANT,
+70/70/70 exact partial, detail 1/1) + Workday total→0 doc correction; suite 412/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -83,7 +83,14 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   COMPLETE 44/44/44 exact + proofpoint 265 / airbus 5 exact partials 100/100/100
   at the 5-page budget cap + CXS detail live-proven 3/3 with identity preserved,
   21-wire budget respected, no defects) — see
-  `docs/reports/ats_validation_workday_20260908.md`. Next ATS not started. The old
+  `docs/reports/ats_validation_workday_20260908.md` (2026-09-08 correction:
+  the "total→0 hardening" gate was a documentation mistake — workday.py:83-96
+  pins the canonical total from page 1, later totals warn-only; remaining gaps
+  are empty-board + >100-board traversal); Tier-2 Eightfold NVIDIA canary complete
+  2026-09-08 (binding VALIDATED_ONE_TENANT: 70/70/70 exact partial, same-host
+  detail 1/1, 8-wire budget, no defects; Microsoft not executed) — see
+  `docs/reports/ats_validation_eightfold_nvidia_20260908.md`.
+  Microsoft/next ATS not started. The old
   A/B/C/D option list is superseded — see roadmap CURRENT and the ATS
   validation matrix.
 - First canary done 2026-09-08 (see

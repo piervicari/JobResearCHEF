@@ -36,8 +36,11 @@ Current next: Lever ATS validation wave — DONE 2026-09-08
 wave — DONE 2026-09-08 (MULTI_TENANT_VALIDATED: brunellocucinelli 511
 COMPLETE 44/44/44 + proofpoint 265 / airbus 5 exact partials at the 5-page
 cap + CXS detail 3/3 live, 21-wire budget, report
-`docs/reports/ats_validation_workday_20260908.md`). Next ATS validation
-wave not started; no further task executed here.
+`docs/reports/ats_validation_workday_20260908.md`). Tier-2 Eightfold NVIDIA
+canary — DONE 2026-09-08 (binding VALIDATED_ONE_TENANT: 70/70/70 exact
+partial at the 7-page cap + same-host detail 1/1, 8-wire budget, report
+`docs/reports/ats_validation_eightfold_nvidia_20260908.md`; Microsoft NOT
+executed). No further task executed here.
 
 Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
 
