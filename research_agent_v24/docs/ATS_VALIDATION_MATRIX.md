@@ -114,7 +114,9 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 - Completeness: HIGH for observed catalogs (exact accounting).
 - Safety live: yes (2 wires, retries 0, production DB untouched).
 - Status: MULTI_TENANT_VALIDATED (capped at the two canonical registry
-  tenants — documented limitation). NOT PRODUCTION_SUPPORTED: live
+  tenants — documented limitation). E1 closure 2026-09-08: saved bodies
+  replayed through real `scan_portals` (cap 500, 0 wires) → 18/18 and
+  24/24 persisted, `complete_snapshot` TRUE both. NOT PRODUCTION_SUPPORTED: live
   empty-board + live multi-page pagination still missing.
 - Missing: natural empty board; multi-page episode.
 - Next: wave complete — next ATS recommended separately, not executed here.
@@ -214,7 +216,8 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 
 ## Coverage note (registry scan-enabled counts)
 
-RMK/SF ~54, Workday ~19, Greenhouse 12 exact-family (+2 embedded, +1 gh_jid
+RMK/SF ~54, Workday 17 adapter-served (supports() contract; branded
+frontends excluded), Greenhouse 12 exact-family (+2 embedded, +1 gh_jid
 signal — neither served by GreenhouseAdapter, which requires family
 "Greenhouse" on a direct host), Oracle RC 4, Lever 2,
 SR 1, Ashby 1, Teamtailor 1, BambooHR 0, Workable 0. Tier order kept

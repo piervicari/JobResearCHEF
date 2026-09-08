@@ -1,6 +1,6 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — Lever wave MULTI_TENANT_VALIDATED (safe+watchguard, 2 wires, exact accounting); suite 412/0
+**Updated:** 2026-09-08 — Lever E1 closure (offline replay 18/18+24/24 persisted, complete TRUE, 0 wires) + Workday count 17; suite 412/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -108,7 +108,9 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   persisted (7/82/39), 0 dups/malformed, descriptions inline-complete
   (min 2916 chars), 0 detail requests, 0 LLM calls. Status
   MULTI_TENANT_VALIDATED; single missing gate = live empty-board
-  observation. Next ATS recommended (not executed): Lever.
+  observation. (Superseded: Lever executed next — see Lever wave entry below.
+  Workday is the next validation candidate; 17 adapter-served scan-enabled
+  portals derived via WorkdayAdapter.supports(), AI DEFERRED.)
 - Open follow-ups (not started): BambooHR non-empty validation
   (no brute-force); Workday >2K subdivision (NEEDS_DESIGN).
 

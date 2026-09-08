@@ -87,6 +87,23 @@
   existing Lever fixture + Wave-2.1 assembly tests already cover the
   exercised paths).
 
+## Follow-up closure (E1 evidence gap closed, 0 wires)
+
+LIVE RUN (pilot cap `max_jobs_per_portal = 10`):
+safe 18 API / 10 adapter+persisted; watchguard 24 API / 10 adapter+persisted.
+`complete_snapshot` was FALSE in the live runs purely from cap truncation
+(lever.py: exceeding the cap truncates and clears the flag — confirmed in code).
+
+FOLLOW-UP VALIDATION (offline replay, 0 ATS wires):
+saved live bodies replayed through the real `scan_portals` path
+(adapter selection, preflight, context, parsing, gate, persistence —
+only network transport substituted via MockTransport;
+`max_jobs_per_portal = 500` production default, unchanged):
+safe 18 / 18 unique / 18 persisted, `complete_snapshot` TRUE;
+watchguard 24 / 24 unique / 24 persisted, `complete_snapshot` TRUE.
+Missing/unexpected/duplicates 0 both tenants. Runs DISCOVERY_PERSISTED.
+No product defect (B: experiment misconfiguration only) — no code changed.
+
 ## Final status
 
 `EXPERIMENTAL → MULTI_TENANT_VALIDATED`, with the explicit limitation
