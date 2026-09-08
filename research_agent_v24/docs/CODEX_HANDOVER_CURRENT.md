@@ -1,7 +1,7 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — Eightfold registry routing fix (RUN28) + 2-wire
-routing canary; suite 412/0
+**Updated:** 2026-09-08 — Eightfold V25 operational alignment (control-plane
+rows + sync proof + 2-wire canary); suite 415/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -66,8 +66,9 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 412 passed / 0 failed (full suite 2026-09-08: 411 + 1 Greenhouse
-  empty-board contract test).
+- 415 passed / 0 failed (full suite 2026-09-08: 411 + 1 Greenhouse
+  empty-board contract test + 1 Eightfold declarative routing test + 2 V25
+  Eightfold alignment tests).
 
 ### Current development focus
 
@@ -101,6 +102,17 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   DeclarativeSourceAdapter with zero manual seeding; 2-wire routing canary
   10+10 parsed/persisted exact; Eightfold stays MULTI_TENANT_VALIDATED,
   registry gap CLOSED.
+  V25 alignment 2026-09-08: `tier_s_operational_sources_v1.csv` is the
+  authoritative control plane (ADR 0051) — `microsoft_custom` updated to
+  Eightfold/TECHNICALLY_VERIFIED/READY_TO_PROBE, `nvidia_eightfold` added
+  beside `nvidia_workday` (same wd5-backend catalog proven by detail applyUrl;
+  notes forbid parallel routine scanning); "Eightfold" moved to
+  SUPPORTED_ADAPTERS (binding-routed support counts); normal V25 sync +
+  2-wire canary re-proven with zero manual seeding. Legacy RUN28 stays the
+  pending migration for generic portals 443/187 in persistent DBs.
+  Effective default runtime DB is `data/research_agent.db` (resolved settings;
+  untouched); the ADR-0042 `~/.local/share` DB is a separate older snapshot
+  used only by the tier_s script (untouched).
   Next step not started. Validation wave evidence dirs are now git-ignored
   ephemeral artifacts (see `.gitignore`); canonical evidence stays in
   `docs/reports/`. The old

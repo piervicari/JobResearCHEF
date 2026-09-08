@@ -102,7 +102,11 @@ VALID_EVIDENCE_STATES: tuple[str, ...] = (
     "UNVERIFIED",
 )
 
-# Adapters the V24 ZIP actually registers. Anything not here is "ADAPTER_NEEDED".
+# Adapters with a production implementation behind them. "Eightfold" is
+# supported through the declarative architecture (explicit versioned
+# bindings + DeclarativeSourceAdapter, live-validated on the NVIDIA and
+# Microsoft bindings 2026-09-08) rather than a legacy family adapter;
+# binding-routed support still counts as supported for queue purposes.
 SUPPORTED_ADAPTERS: frozenset[str] = frozenset(
     {
         "Greenhouse",
@@ -116,6 +120,7 @@ SUPPORTED_ADAPTERS: frozenset[str] = frozenset(
         "Oracle Recruiting Cloud",
         "Avature",
         "Custom Google RPC",
+        "Eightfold",
         # GenericOfficialHtml is a parser fallback, not a structured adapter
         # and is treated as "adapter supported" for routing only when the
         # operational URL is itself a first-party HTML catalog. Otherwise
@@ -130,7 +135,6 @@ SUPPORTED_ADAPTERS: frozenset[str] = frozenset(
 UNSUPPORTED_REUSABLE_FAMILIES: frozenset[str] = frozenset(
     {
         "Taleo",
-        "Eightfold",
         "BrassRing",
         "Teamtailor",
         "Pereless",

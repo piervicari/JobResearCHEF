@@ -314,6 +314,105 @@ def test_derive_routing_automation_grade_no_family_is_adapter_needed() -> None:
     ) == "ADAPTER_NEEDED"
 
 
+def test_derive_routing_automation_grade_eightfold_is_ready() -> None:
+    """Eightfold has a production binding-routed adapter (live-validated
+    NVIDIA/Microsoft 2026-09-08): automation-grade evidence + YES derives
+    READY_TO_PROBE, not ADAPTER_NEEDED."""
+    assert derive_routing(
+        evidence_state="TECHNICALLY_VERIFIED",
+        ats_family="Eightfold",
+        adapter_supported="YES",
+        operational_url="https://jobs.nvidia.com/careers",
+    ) == "READY_TO_PROBE"
+
+
+def test_v25_sync_routes_eightfold_sources_to_declarative_specs(tmp_path: Path) -> None:
+    """Normal V25 sync (no manual portal injection) produces NVIDIA/Microsoft
+    Eightfold portals + mappings that select DeclarativeSourceAdapter with
+    their own spec — including alongside a same-employer Workday row."""
+    from research_agent.company.tier_s_operational_sources import sync_operational_sources
+    from research_agent.db.migrations import create_schema
+    from research_agent.db.models import CorporateCluster, ImportBatch, Portal
+    from research_agent.db.session import create_db_engine
+    from research_agent.pipeline.scanner import load_portal_targets
+    from research_agent.sources.ats.registry import structured_adapter_registry
+    from research_agent.sources.declarative import (
+        DeclarativeSourceAdapter,
+        load_declarative_adapter,
+    )
+    from sqlalchemy import select
+    from sqlalchemy.orm import Session
+
+    db_path = tmp_path / "control.db"
+    engine = create_db_engine(f"sqlite:///{db_path}")
+    create_schema(engine)
+    with Session(engine) as session, session.begin():
+        batch = ImportBatch(
+            source_kind="test_fixture", source_filename="fixture.csv",
+            source_path="/tmp/fixture.csv", source_sha256="fixture-eightfold",
+            source_version="fixture-v1", status="COMPLETED",
+        )
+        session.add(batch)
+        session.flush()
+        for cluster_id, employer in (("CG-NV", "NVIDIA"), ("CG-MS", "Microsoft")):
+            session.add(CorporateCluster(
+                corporate_cluster_id=cluster_id,
+                representative_canonical_employer=employer,
+                canonical_employers_json=f'["{employer}"]',
+                parent_groups_json="[]", entity_classes_json='["Company"]',
+                eligibility_values_json='["Yes"]', sectors_json='["Technology"]',
+                discovery_geographies_json='["Global"]', org_types_json='["Company"]',
+                record_count=1, has_primary_scan_eligibility=True,
+                active_in_master=True, import_batch_id=batch.id,
+            ))
+
+    def row(employer, cluster, key, canonical, url, family):
+        return {
+            "employer_name": employer, "corporate_cluster_id": cluster,
+            "priority": "1", "cohort": "CORE_200", "source_key": key,
+            "source_scope": "Global", "canonical_careers_url": canonical,
+            "operational_url": url, "ats_family": family,
+            "evidence_state": "TECHNICALLY_VERIFIED",
+            "resolution_path": "READY_TO_PROBE", "adapter_supported": "YES",
+            "catalog_state": "PARITY_PENDING", "last_verified_at": "2026-09-08",
+            "evidence_url": url, "notes": "fixture", "scan_enabled": "N",
+            "routing_override": "", "routing_override_rationale": "",
+        }
+
+    registry = tmp_path / "reg.csv"
+    with registry.open("w", encoding="utf-8", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=REGISTRY_HEADERS)
+        writer.writeheader()
+        writer.writerow(row("NVIDIA", "CG-NV", "nvidia_workday",
+                            "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",
+                            "https://nvidia.wd5.myworkdayjobs.com/NVIDIAExternalCareerSite",
+                            "Workday"))
+        writer.writerow(row("NVIDIA", "CG-NV", "nvidia_eightfold",
+                            "https://www.nvidia.com/en-us/about-nvidia/careers/",
+                            "https://jobs.nvidia.com/careers", "Eightfold"))
+        writer.writerow(row("Microsoft", "CG-MS", "microsoft_custom",
+                            "https://careers.microsoft.com/",
+                            "https://careers.microsoft.com/", "Eightfold"))
+    report = sync_operational_sources(
+        engine, registry, cluster_mapping={"NVIDIA": "CG-NV", "Microsoft": "CG-MS"}
+    )
+    assert report.created_portals == 3
+    adapters = structured_adapter_registry(
+        declarative_adapters=[load_declarative_adapter()])
+    with Session(engine) as session:
+        by_url = {p.normalized_jobs_url: p
+                  for p in session.scalars(select(Portal)).all()}
+    for url, company in (
+        ("https://jobs.nvidia.com/careers", "nvidia"),
+        ("https://careers.microsoft.com/", "microsoft"),
+    ):
+        target = load_portal_targets(
+            engine, portal_ids={by_url[url].id}, include_disabled=True)[0]
+        selected = adapters.select(target)
+        assert isinstance(selected, DeclarativeSourceAdapter), url
+        assert selected.spec_for(target)["company"]["id"] == company
+
+
 # ---------------------------------------------------------------------------
 # 12. Strict shape validation
 # ---------------------------------------------------------------------------

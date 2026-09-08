@@ -163,10 +163,16 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
   cap; sanctioned-host detail 1/1 0→6686 chars, parser
   `declarative_spec_detail`, identity preserved; 8-wire budget respected;
   report `docs/reports/ats_validation_eightfold_microsoft_20260908.md`).
-- Registry note (CLOSED 2026-09-08 by registry correction RUN28): the NVIDIA
-  and Microsoft bindings now resolve from canonical registry data (portals 537
-  and 538; old generic portals 443/187 retired). Empty-board live: no.
-  Pagination live: yes (both).
+- Registry (V25 control plane, CLOSED 2026-09-08):
+  `tier_s_operational_sources_v1.csv` carries `microsoft_custom` (updated:
+  Eightfold/TECHNICALLY_VERIFIED/READY_TO_PROBE) and new `nvidia_eightfold`
+  alongside `nvidia_workday` (same wd5-backend catalog proven by detail
+  applyUrl — notes forbid parallel routine scanning); normal V25 sync
+  produces both Eightfold portals+mappings selecting DeclarativeSourceAdapter
+  with zero manual seeding (2-wire canary 10+10 exact). Legacy RUN28 UPDATEs
+  remain the pending migration to retire generic portals 443/187 in
+  persistent DBs (never applied there; composes safely via URL dedup).
+  Empty-board live: no. Pagination live: yes (both).
 - Identity live: yes (numeric `id`, 1 row each incl. under Microsoft churn).
   Catalog description: none (declared). Detail live: yes (both bindings).
 - Safety tested live: yes (8+8 wires, concurrency 1, retries 0, no signals,
