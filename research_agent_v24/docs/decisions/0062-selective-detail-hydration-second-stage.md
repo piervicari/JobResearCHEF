@@ -10,7 +10,9 @@ Extend the existing detail pipeline (`pipeline/detail_enrichment.py`,
 providers; catalog scans stay detail-free.
 
 - Triage before detail: only `active` rows with `ai_status` in
-  (`CYBER`, `NEEDS_MORE_DETAIL`) and effectively incomplete descriptions
+  (`CYBER`, `NEEDS_MORE_DETAIL`) *[Superseded by triage-gated
+  pre-analysis detail addendum below: `PENDING_AI` with current positive
+  triage evidence is likewise eligible.]* and effectively incomplete descriptions
   (`< min_description_chars`, default 500) are candidates. `NON_CYBER`,
   closed, already-complete, and inline-complete adapters (workable,
   teamtailor, greenhouse, lever, ashby, ...) are never selected.

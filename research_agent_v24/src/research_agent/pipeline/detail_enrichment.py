@@ -96,13 +96,18 @@ class DetailEnrichmentSummary:
 # request from the stored catalog row (see _STRUCTURED_RENDERERS). Adapters
 # not listed here (workable, teamtailor, greenhouse, lever, ashby, ...) carry
 # inline-complete catalog descriptions and are never detail candidates.
-_DETAIL_ADAPTERS = ("official_html", "workday", "smartrecruiters", "oracle", "declarative")
+# NOTE: the registered Oracle adapter name is "oracle_recruiting_cloud"
+# (sources/ats/oracle.py); the scanner persists adapter.name, so production
+# Oracle rows carry that value. Both keys map to the same renderer/parser.
+_DETAIL_ADAPTERS = ("official_html", "workday", "smartrecruiters", "oracle",
+                    "oracle_recruiting_cloud", "declarative")
 
 # Structured detail renderers: adapter name -> render function. Each takes a
 # _StructuredRow snapshot and returns the FetchRequest to send, or None when
 # the stored row cannot yield an exact detail URL (then the job is skipped,
 # never guessed). One request per job, sequential, via the shared HttpFetcher.
-_STRUCTURED_ADAPTERS = ("workday", "smartrecruiters", "oracle", "declarative")
+_STRUCTURED_ADAPTERS = ("workday", "smartrecruiters", "oracle",
+                        "oracle_recruiting_cloud", "declarative")
 
 # SmartRecruiters serves its public API on a dedicated first-party host while
 # portals live on other hosts; a SourceSpec may likewise declare an explicit
@@ -316,6 +321,7 @@ _STRUCTURED_RENDERERS = {
     "workday": _render_workday_detail,
     "smartrecruiters": _render_smartrecruiters_detail,
     "oracle": _render_oracle_detail,
+    "oracle_recruiting_cloud": _render_oracle_detail,
     "declarative": _render_declarative_detail,
 }
 
@@ -462,6 +468,7 @@ _STRUCTURED_PARSERS = {
     "workday": lambda payload, final_url, spec: _parse_workday_detail(payload, final_url),
     "smartrecruiters": lambda payload, final_url, spec: _parse_smartrecruiters_detail(payload, final_url),
     "oracle": lambda payload, final_url, spec: _parse_oracle_detail(payload, final_url),
+    "oracle_recruiting_cloud": lambda payload, final_url, spec: _parse_oracle_detail(payload, final_url),
     "declarative": lambda payload, final_url, spec: _parse_declarative_detail(payload, final_url, spec),
 }
 

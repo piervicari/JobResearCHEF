@@ -1,9 +1,9 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — first controlled e2e canary (ZeroFOX SR portal 100: live 200, genuinely empty board, transport/parser validated, 0 production writes) + triage-gated detail contract fix; suite 410/0
+**Updated:** 2026-09-08 — canary #2 PARTIAL_AI (Honeywell Oracle 158: live scan→triage→detail→analysis-attempt, 3 wires, Oracle adapter-name defect fixed, 0 production writes); suite 411/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
-## CURRENT SNAPSHOT — 2026-09-07
+## CURRENT SNAPSHOT — 2026-09-08
 
 This section overrides all dated sections below. Inside historical entries,
 phrases like "next task" or "Google probe is next" are stale — do not act on them.
@@ -65,8 +65,8 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 410 passed / 0 failed (full suite 2026-09-08: 404 at Phase 3 close
-  + 6 triage-gating contract tests).
+- 411 passed / 0 failed (full suite 2026-09-08: 410 + 1 Oracle
+  production-adapter-name regression test).
 
 ### Current development focus
 
@@ -83,6 +83,14 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   valid schema, no drift) — transport/parser validated, 1 wire, 0
   production writes. Semantic chain unexercised. Likely next: one
   structured-detail-specific canary on a verified non-empty board.
+- Second canary done 2026-09-08 (see
+  `docs/reports/controlled_e2e_canary_2_20260908.md`): Honeywell Oracle
+  portal 158 — scan (2 wires, 10 jobs) → triage (1 batch, 1 candidate) →
+  live ById detail (1 wire, 0→4273 chars) → analysis blocked by
+  provider failures (openrouter free 404s + google 503), job safely
+  PENDING_AI. Verdict PARTIAL_AI. Trivial blocker fixed: detail pipeline
+  now accepts the real `oracle_recruiting_cloud` adapter name. 3 wires
+  total, 0 production writes.
 - Open follow-ups (not started): BambooHR non-empty validation
   (no brute-force); Workday >2K subdivision (NEEDS_DESIGN).
 

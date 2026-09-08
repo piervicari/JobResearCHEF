@@ -57,8 +57,10 @@ Auxiliary commands used in the same path:
 - `research-agent prepare-v2-source-jobs --dry-run` — backfill legacy source
   jobs into the V2 schema before any live LLM call.
 - `research-agent enrich-details` — selective, sanctioned-host detail enrichment
-  for CYBER / NEEDS_MORE_DETAIL jobs whose listing response lacks
-  description. Same-host is the default; explicitly declared/bound detail
+  for CYBER / NEEDS_MORE_DETAIL jobs, or PENDING_AI jobs with current
+  positive triage evidence, whose listing response lacks description.
+  PENDING_AI without current positive triage evidence never triggers
+  detail HTTP. Same-host is the default; explicitly declared/bound detail
   hosts (SmartRecruiters API, SourceSpec detail URLs) are allowed;
   arbitrary hosts are rejected.
 - `research-agent ingest-linkedin-csv path/to/linkedin_jobs.csv` — manual

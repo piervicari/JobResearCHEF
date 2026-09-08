@@ -1,8 +1,8 @@
 # Research Agent — execution roadmap v2
 
-Updated: 2026-09-07
+Updated: 2026-09-08
 
-## Current execution focus (2026-09-07 — overrides older sequencing below)
+## Current execution focus (2026-09-08 — overrides older sequencing below)
 
 Completed: ATS Reuse Wave 1, Wave 1.1, Wave 2, Wave 2.1; network safety
 (ADRs 0058/0059); Teamtailor + Workable integration; Wave 2.1
@@ -15,9 +15,25 @@ Oracle ById, Eightfold `position_details` — all through the existing
 SuccessFactors: `PARITY_UNRESOLVED` → RSS feed NOT adopted; RMK HTML stays
 the sole authoritative path.
 
-Current baseline: 404 PASS / 0 FAIL (full suite 2026-09-07, Phase 3.1
-Microsoft declarative detail fix + final actual-host cap consistency,
-zero live HTTP).
+Current baseline: 411 PASS / 0 FAIL (full suite 2026-09-08, triage-gated
+pre-analysis detail contract + Oracle production-name regression,
+zero live HTTP in suite).
+
+First controlled canary completed 2026-09-08 (see
+`docs/reports/controlled_e2e_canary_20260908.md`): ZeroFOX SmartRecruiters
+portal 100, 1 career-site wire (HTTP 200), board genuinely empty
+(`totalFound: 0`, valid schema, no drift) — transport/parser validated,
+semantic chain not exercised, zero production writes.
+
+Second controlled canary completed 2026-09-08 (see
+`docs/reports/controlled_e2e_canary_2_20260908.md`): Honeywell Oracle
+portal 158 — scan→triage→live detail→analysis attempt (PARTIAL_AI:
+provider-side analysis failures, job safely PENDING_AI). 3 wires total,
+zero production writes.
+
+Next decision based on evidence: re-attempt the single queued analysis
+(no new scan) once providers recover, or treat provider 404/503
+telemetry as input to routing maintenance — NOT a new bulk step.
 
 NEXT functional task: NOT decided — candidates are (A) controlled live
 end-to-end canary (one source/company), (B) ExternalSourceCandidate lazy

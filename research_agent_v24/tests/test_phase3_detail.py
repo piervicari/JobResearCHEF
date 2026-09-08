@@ -30,6 +30,7 @@ from research_agent.pipeline.detail_enrichment import (
     _render_smartrecruiters_detail,
     _render_workday_detail,
     _StructuredRow,
+    _STRUCTURED_RENDERERS,
     enrich_official_html_details,
     select_detail_candidates,
 )
@@ -479,6 +480,38 @@ def test_positive_triage_with_complete_description_skips_detail(
         row = session.get(SourceJob, job_id)
         assert row is not None
         assert row.ai_status == "PENDING_AI"
+
+
+def test_production_oracle_adapter_name_renders_and_selects(
+    sqlite_engine: Engine,
+) -> None:
+    """Regression (canary #2): the scanner persists adapter.name =
+    'oracle_recruiting_cloud'; the detail pipeline must accept that exact
+    value, not only the short 'oracle' key."""
+    row = _row(
+        "oracle_recruiting_cloud",
+        source_url="https://x.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/42",
+        portal_host="x.fa.oraclecloud.com",
+        portal_jobs_url="https://x.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1",
+        native_id="42",
+        ats_id="42",
+    )
+    request = _STRUCTURED_RENDERERS[row.adapter](row)
+    assert request is not None
+    assert "finder=ById;Id=42" in request.url
+    create_schema(sqlite_engine)
+    _seed_portal(sqlite_engine, 907,
+                 "x.fa.oraclecloud.com",
+                 "https://x.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1")
+    job_id = _add_structured_job(
+        sqlite_engine, 907, adapter="oracle_recruiting_cloud", source="oracle_recruiting_cloud",
+        source_url="https://x.fa.oraclecloud.com/hcmUI/CandidateExperience/en/sites/CX_1/job/42",
+        native_id="42", ats_id="42", ai_status="PENDING_AI")
+    _add_triage_record(sqlite_engine, job_id,
+                       _current_triage_sha(sqlite_engine, job_id), positive=True)
+    candidates = select_detail_candidates(sqlite_engine, limit=5)
+    assert len(candidates) == 1
+    assert "finder=ById;Id=42" in candidates[0].request_url
 
 
 def test_historical_cyber_without_triage_unchanged(
