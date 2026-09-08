@@ -27,3 +27,11 @@ data/pilot/*.db-*
 
 # Local test-run reports
 output/test_runs/
+
+# Ephemeral per-wave ATS-validation evidence (disposable DBs incl. WAL/SHM,
+# saved HTTP bodies, validation caches, scratch drivers/manifests).
+# Canonical wave evidence lives in docs/reports/ats_validation_*.md.
+# output/mapping/ stays versioned (regenerated Tier-S reports, referenced by scripts).
+output/*_wave_*/
+output/eightfold_*_20??????/
+output/workday_registry_check.py

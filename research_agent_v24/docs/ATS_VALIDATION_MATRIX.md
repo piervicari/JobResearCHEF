@@ -155,19 +155,26 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
   unproven by budget design; same-host detail 1/1 0→2083 chars, parser
   `declarative_spec_detail`, identity preserved; 8-wire budget respected;
   report `docs/reports/ats_validation_eightfold_nvidia_20260908.md`).
-  Microsoft binding: 0 (separate task, not executed).
-- Registry note: production registry holds no portal matching the NVIDIA
-  binding (portal 443 serves generic HTML) — bound row seeded in disposable
-  DB only. Empty-board live: no. Pagination live: yes (7 pages, exact).
-- Identity live: yes (numeric `id`, 1 row each). Catalog description: none
-  (declared). Detail live: yes (NVIDIA only).
-- Safety tested live: yes (8 wires, concurrency 1, retries 0, no signals,
+  Microsoft binding 1 (2026-09-08 bounded canary: 7 catalog wires starts 0–60,
+  10 each, totals 2179–2182 churning live; API 70 = adapter 70 = unique 66 =
+  persisted 66 — 4 cross-page repeats from board churn deduped exactly once
+  each, 0 skipped/missing/unexpected, `complete_snapshot` FALSE at the 7-page
+  cap; sanctioned-host detail 1/1 0→6686 chars, parser
+  `declarative_spec_detail`, identity preserved; 8-wire budget respected;
+  report `docs/reports/ats_validation_eightfold_microsoft_20260908.md`).
+- Registry note: production registry holds no portal matching either binding
+  (NVIDIA 443 / Microsoft 187 serve generic HTML) — bound rows seeded in
+  disposable DBs only. Empty-board live: no. Pagination live: yes (both).
+- Identity live: yes (numeric `id`, 1 row each incl. under Microsoft churn).
+  Catalog description: none (declared). Detail live: yes (both bindings).
+- Safety tested live: yes (8+8 wires, concurrency 1, retries 0, no signals,
   production DB untouched).
-- Status: EXPERIMENTAL overall (NVIDIA binding VALIDATED_ONE_TENANT 2026-09-08;
-  Microsoft UNVALIDATED). NOT PRODUCTION_SUPPORTED.
-- Missing: full 2686-traversal; empty-board; registry portal for NVIDIA binding;
-  Microsoft catalog + detail.
-- Next: Microsoft binding validation (separate task).
+- Status: MULTI_TENANT_VALIDATED (NVIDIA + Microsoft bindings live 2026-09-08;
+  protocol/binding validity — NOT full-catalog completeness proof).
+  NOT PRODUCTION_SUPPORTED.
+- Missing: full large-catalog traversal; empty-board; registry portals for
+  both bindings.
+- Next: wave complete — next step recommended separately, not executed here.
 
 ### Ashby
 - Implementation: `sources/ats/ashby.py` (name `ashby`).

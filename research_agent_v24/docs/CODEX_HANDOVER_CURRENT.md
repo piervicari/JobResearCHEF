@@ -1,7 +1,7 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — Eightfold NVIDIA canary (binding VALIDATED_ONE_TENANT,
-70/70/70 exact partial, detail 1/1) + Workday total→0 doc correction; suite 412/0
+**Updated:** 2026-09-08 — Eightfold Microsoft canary (binding VALIDATED_ONE_TENANT,
+Eightfold overall MULTI_TENANT_VALIDATED) + validation-artifact git hygiene; suite 412/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -90,7 +90,15 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   2026-09-08 (binding VALIDATED_ONE_TENANT: 70/70/70 exact partial, same-host
   detail 1/1, 8-wire budget, no defects; Microsoft not executed) — see
   `docs/reports/ats_validation_eightfold_nvidia_20260908.md`.
-  Microsoft/next ATS not started. The old
+  Tier-2 Eightfold Microsoft canary complete 2026-09-08 (binding
+  VALIDATED_ONE_TENANT: 70/70/66 exact set accounting under live total churn,
+  sanctioned-host detail 1/1 0→6686 chars, 8-wire budget, no defects;
+  Eightfold overall MULTI_TENANT_VALIDATED — protocol/binding validity, not
+  full-completeness proof) — see
+  `docs/reports/ats_validation_eightfold_microsoft_20260908.md`.
+  Next step not started. Validation wave evidence dirs are now git-ignored
+  ephemeral artifacts (see `.gitignore`); canonical evidence stays in
+  `docs/reports/`. The old
   A/B/C/D option list is superseded — see roadmap CURRENT and the ATS
   validation matrix.
 - First canary done 2026-09-08 (see

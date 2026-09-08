@@ -40,7 +40,12 @@ cap + CXS detail 3/3 live, 21-wire budget, report
 canary — DONE 2026-09-08 (binding VALIDATED_ONE_TENANT: 70/70/70 exact
 partial at the 7-page cap + same-host detail 1/1, 8-wire budget, report
 `docs/reports/ats_validation_eightfold_nvidia_20260908.md`; Microsoft NOT
-executed). No further task executed here.
+executed). Tier-2 Eightfold Microsoft canary — DONE 2026-09-08 (binding
+VALIDATED_ONE_TENANT: 70/70/66 exact set accounting under live churn +
+sanctioned-host detail 1/1, 8-wire budget; Eightfold overall
+MULTI_TENANT_VALIDATED — protocol/binding validity only; report
+`docs/reports/ats_validation_eightfold_microsoft_20260908.md`).
+No further task executed here.
 
 Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
 
