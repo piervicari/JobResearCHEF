@@ -75,15 +75,16 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   (spec-sanctioned cross-host + full rendered-request fidelity + root
   path semantics). NVIDIA and Microsoft share one branch-free parser.
 - ATS validation phase active (ADR 0063, AI deferred): Oracle wave complete
-  (MULTI_TENANT_VALIDATED); Greenhouse validation next/current. The old
+  (MULTI_TENANT_VALIDATED); Greenhouse wave complete
+  (MULTI_TENANT_VALIDATED); Lever validation next/current. The old
   A/B/C/D option list is superseded — see roadmap CURRENT and the ATS
   validation matrix.
 - First canary done 2026-09-08 (see
   `docs/reports/controlled_e2e_canary_20260908.md`): ZeroFOX SR portal 100
   returned live HTTP 200 with a genuinely empty board (`totalFound: 0`,
   valid schema, no drift) — transport/parser validated, 1 wire, 0
-  production writes. Semantic chain unexercised. Likely next: one
-  structured-detail-specific canary on a verified non-empty board.
+  production writes. Semantic chain unexercised. (Superseded: the
+  structured-detail canary ran as canary #2, Honeywell Oracle, below.)
 - Second canary done 2026-09-08 (see
   `docs/reports/controlled_e2e_canary_2_20260908.md`): Honeywell Oracle
   portal 158 — scan (2 wires, 10 jobs) → triage (1 batch, 1 candidate) →
@@ -98,7 +99,7 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   141 (Danske Bank, EU, 3 wires, 10 jobs) and 155 (hdep, US, 2 wires,
   10 jobs), zero AI in the loop, 5 wires total, production DB untouched.
   Per-ATS report `docs/reports/ats_validation_oracle_20260908.md`.
-  Next ATS NOT executed (recommendation: Greenhouse).
+  (Superseded: Greenhouse executed next — see Greenhouse wave entry below.)
 - Greenhouse wave done 2026-09-08 (report
   `docs/reports/ats_validation_greenhouse_20260908.md`): apiiro 160,
   chainguard 165, securityscorecard 170 — 1 wire each, API==unique==

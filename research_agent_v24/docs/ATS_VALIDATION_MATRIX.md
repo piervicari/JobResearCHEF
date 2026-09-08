@@ -204,7 +204,9 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 
 ## Coverage note (registry scan-enabled counts)
 
-RMK/SF ~54, Workday ~19, Greenhouse ~14, Oracle RC 4, Lever 2,
+RMK/SF ~54, Workday ~19, Greenhouse 12 exact-family (+2 embedded, +1 gh_jid
+signal — neither served by GreenhouseAdapter, which requires family
+"Greenhouse" on a direct host), Oracle RC 4, Lever 2,
 SR 1, Ashby 1, Teamtailor 1, BambooHR 0, Workable 0. Tier order kept
 (Tier-1 = mature runtime × multi-tenant feasibility), not raw counts:
 SF's footprint is HTML-scrape fragile and waits for a small-tenant proof.
