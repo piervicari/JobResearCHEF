@@ -18,7 +18,11 @@ from research_agent.sources.ats.registry import structured_adapter_registry
 from research_agent.sources.ats.smartrecruiters import SmartRecruitersAdapter
 from research_agent.sources.ats.successfactors import SuccessFactorsRmkAdapter
 from research_agent.sources.ats.workday import WorkdayAdapter
-from research_agent.sources.base import PortalScanContext, PortalTarget
+from research_agent.sources.base import (
+    AdapterScanResult,
+    PortalScanContext,
+    PortalTarget,
+)
 
 
 def _target(url: str, ats_family: str, portal_id: int = 1) -> PortalTarget:
@@ -81,6 +85,21 @@ def test_greenhouse_adapter_uses_public_board_api(fixtures: Path) -> None:
 def test_greenhouse_does_not_claim_unverified_embedded_portal() -> None:
     target = _target("https://example.com/careers", "Greenhouse embedded")
     assert GreenhouseAdapter().supports(target) is False
+
+
+def test_greenhouse_empty_board_is_valid_complete_snapshot() -> None:
+    # {"jobs": []} on a valid envelope means zero active jobs, not a parser
+    # failure (unknown boards answer 404 via require_success). Live empty
+    # board still unobserved; this pins the code path the gate depends on.
+    adapter = GreenhouseAdapter()
+    target = _target("https://job-boards.greenhouse.io/example", "Greenhouse")
+    result, requested = _scan(adapter, target, {"jobs": []})
+    assert isinstance(result, AdapterScanResult)
+
+    assert requested == ["https://boards-api.greenhouse.io/v1/boards/example/jobs?content=true"]
+    assert result.jobs == ()
+    assert result.is_complete_snapshot is True
+    assert any("zero active jobs" in warning for warning in result.warnings)
 
 
 def test_lever_adapter_uses_public_postings_api(fixtures: Path) -> None:

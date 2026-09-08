@@ -1,6 +1,6 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — ATS validation wave: matrix built, Oracle MULTI_TENANT_VALIDATED (141+155 live), ADR 0063 ingestion freeze (AI deferred); suite 411/0
+**Updated:** 2026-09-08 — Greenhouse wave MULTI_TENANT_VALIDATED (3 tenants, 3 wires, full-response coverage); suite 412/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -65,8 +65,8 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 411 passed / 0 failed (full suite 2026-09-08: 410 + 1 Oracle
-  production-adapter-name regression test).
+- 412 passed / 0 failed (full suite 2026-09-08: 411 + 1 Greenhouse
+  empty-board contract test).
 
 ### Current development focus
 
@@ -74,9 +74,10 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   Eightfold detail works through the generic declarative path
   (spec-sanctioned cross-host + full rendered-request fidelity + root
   path semantics). NVIDIA and Microsoft share one branch-free parser.
-- Next choice NOT decided. Candidates: (A) controlled live end-to-end
-  canary, one source/company; (B) ExternalSourceCandidate lazy validation;
-  (C) BambooHR validation; (D) SuccessFactors parity on a smaller tenant.
+- ATS validation phase active (ADR 0063, AI deferred): Oracle wave complete
+  (MULTI_TENANT_VALIDATED); Greenhouse validation next/current. The old
+  A/B/C/D option list is superseded — see roadmap CURRENT and the ATS
+  validation matrix.
 - First canary done 2026-09-08 (see
   `docs/reports/controlled_e2e_canary_20260908.md`): ZeroFOX SR portal 100
   returned live HTTP 200 with a genuinely empty board (`totalFound: 0`,
@@ -98,6 +99,13 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   10 jobs), zero AI in the loop, 5 wires total, production DB untouched.
   Per-ATS report `docs/reports/ats_validation_oracle_20260908.md`.
   Next ATS NOT executed (recommendation: Greenhouse).
+- Greenhouse wave done 2026-09-08 (report
+  `docs/reports/ats_validation_greenhouse_20260908.md`): apiiro 160,
+  chainguard 165, securityscorecard 170 — 1 wire each, API==unique==
+  persisted (7/82/39), 0 dups/malformed, descriptions inline-complete
+  (min 2916 chars), 0 detail requests, 0 LLM calls. Status
+  MULTI_TENANT_VALIDATED; single missing gate = live empty-board
+  observation. Next ATS recommended (not executed): Lever.
 - Open follow-ups (not started): BambooHR non-empty validation
   (no brute-force); Workday >2K subdivision (NEEDS_DESIGN).
 
@@ -105,7 +113,7 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ## Historical development log — do not interpret "next task" inside these entries as current.
 
-The top CURRENT SNAPSHOT (2026-09-07) overrides everything below.
+The top CURRENT SNAPSHOT (2026-09-08) overrides everything below.
 
 ## 1. Product objective
 

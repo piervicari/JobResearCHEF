@@ -15,9 +15,8 @@ Oracle ById, Eightfold `position_details` — all through the existing
 SuccessFactors: `PARITY_UNRESOLVED` → RSS feed NOT adopted; RMK HTML stays
 the sole authoritative path.
 
-Current baseline: 411 PASS / 0 FAIL (full suite 2026-09-08, triage-gated
-pre-analysis detail contract + Oracle production-name regression,
-zero live HTTP in suite).
+Current baseline: 412 PASS / 0 FAIL (full suite 2026-09-08, +1 Greenhouse
+empty-board contract test, zero live HTTP in suite).
 
 First controlled canary completed 2026-09-08 (see
 `docs/reports/controlled_e2e_canary_20260908.md`): ZeroFOX SmartRecruiters
@@ -31,9 +30,10 @@ portal 158 — scan→triage→live detail→analysis attempt (PARTIAL_AI:
 provider-side analysis failures, job safely PENDING_AI). 3 wires total,
 zero production writes.
 
-Next decision based on evidence: re-attempt the single queued analysis
-(no new scan) once providers recover, or treat provider 404/503
-telemetry as input to routing maintenance — NOT a new bulk step.
+Current next: Greenhouse ATS validation wave — DONE 2026-09-08
+(MULTI_TENANT_VALIDATED, 3 tenants, 3 wires, report
+`docs/reports/ats_validation_greenhouse_20260908.md`). Recommended next
+ATS (not executed): Lever.
 
 Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
 
@@ -49,11 +49,10 @@ Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
 9. LLM pipeline resumes — only after freeze. Honeywell PENDING_AI stays
    deferred evidence.
 
-NEXT functional task: NOT decided — candidates are (A) controlled live
-end-to-end canary (one source/company), (B) ExternalSourceCandidate lazy
-validation, (C) BambooHR validation, (D) SuccessFactors parity on a
-smaller tenant. The four Phase 3 detail protocols are now production
-inputs, not plans.
+NEXT functional task: SUPERSEDED by the ATS validation phase above —
+controlled E2E canaries are done; ExternalSourceCandidate stays deferred
+(ADR 0063); BambooHR/SF A–D options are parked until INGESTION_V1.
+Historical options below are not current.
 
 Deferred: BambooHR non-empty live validation; SuccessFactors parity retry
 on a smaller tenant; Workday >2K subdivision (`NEEDS_DESIGN`); Oracle/

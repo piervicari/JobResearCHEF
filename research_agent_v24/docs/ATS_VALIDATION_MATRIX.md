@@ -56,8 +56,8 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 - Catalog description: empty/partial typical. Detail: yes, ById endpoint
   (Phase-3, live-proven CAN2). Detail required: selective.
 - Known tenants: 4 scan-enabled (141 danskebank, 145 edbz, 155 hdep, 158 honeywell).
-- Live validated: 1 (CAN2 Honeywell: 2 wires, 10 jobs persisted, ById detail
-  0→4273 chars, identity unchanged). Empty tested: no. Pagination live:
+- Live validated: 3 (Honeywell CAN2 + Danske Bank 141 + hdep 155, 2026-09-08;
+  report `docs/reports/ats_validation_oracle_20260908.md`). Empty tested: no. Pagination live:
   single 200-page only. Multi-page live: no. Identity live: yes.
 - Dedup live: yes (1 row per native id, CAN2). Completeness: medium
   (contract + adaptive guards + unit tests; no full traversal).
@@ -79,12 +79,21 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 - Identity: posting `id`. Catalog description: COMPLETE inline (content=true).
 - Detail: none needed (expected 0 detail requests). Detail required: never.
 - Known tenants: 12 scan-enabled (all cyber vendors).
-- Live validated: 0. Empty: parser-covered offline only. Pagination: n/a
-  (single request). Identity/dedup live: no. Completeness: medium-high
-  (single-response IS the catalog; no live tenant yet).
-- Safety live: no. Status: EXPERIMENTAL.
-- Missing: 3 live tenants (each ~1 wire); one empty-board observation.
-- Next: recommended SECOND wave (cheapest multi-tenant path, 12-portal coverage).
+- Live validated: 3 (2026-09-08: apiiro 160, chainguard 165,
+  securityscorecard 170 — 1 wire each, all HTTP 200; API==unique==persisted
+  7/7/7, 82/82/82, 39/39/39; 0 dups/malformed; report
+  `docs/reports/ats_validation_greenhouse_20260908.md`).
+- Empty: code + unit test (`jobs:[]` → complete + warning); live empty
+  unobserved (no search performed per rule). Pagination: n/a
+  (single request). Identity/dedup live: yes (distinct native ids, 1 row each).
+  Content live: yes (per-portal min 2916 chars, requisition ids kept).
+- Completeness: HIGH (single-response IS the catalog; full bodies re-parsed
+  offline at 0 extra wires).
+- Safety live: yes (3 wires total, retries 0, no signals, production DB untouched).
+- Status: MULTI_TENANT_VALIDATED. NOT PRODUCTION_SUPPORTED: live
+  empty-board observation is the single missing gate.
+- Missing: one natural live `{"jobs": []}` (do not hunt).
+- Next: wave complete — next ATS recommended: Lever.
 
 ### Lever
 - Implementation: `sources/ats/lever.py` (name `lever`, incl. jobs.eu host).
