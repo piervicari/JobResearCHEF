@@ -1,0 +1,171 @@
+{
+ "tenants": [
+  {
+   "portal_id": 511,
+   "status": "SUCCESS",
+   "adapter": "workday",
+   "final_http_status": 200,
+   "complete_snapshot": true,
+   "warnings": [
+    "Workday total changed during pagination: 44 -> 0"
+   ],
+   "adapter_jobs": 44,
+   "retry_count": 0,
+   "cache_hit": false,
+   "error_type": null,
+   "error_message": null,
+   "wires": [
+    {
+     "index": 0,
+     "method": "GET",
+     "url": "https://brunellocucinelli.wd3.myworkdayjobs.com/Cucinelli",
+     "status": 200,
+     "bytes": 7643
+    },
+    {
+     "index": 1,
+     "method": "POST",
+     "url": "https://brunellocucinelli.wd3.myworkdayjobs.com/wday/cxs/brunellocucinelli/Cucinelli/jobs",
+     "status": 200,
+     "bytes": 9123
+    },
+    {
+     "index": 2,
+     "method": "POST",
+     "url": "https://brunellocucinelli.wd3.myworkdayjobs.com/wday/cxs/brunellocucinelli/Cucinelli/jobs",
+     "status": 200,
+     "bytes": 3745
+    },
+    {
+     "index": 3,
+     "method": "POST",
+     "url": "https://brunellocucinelli.wd3.myworkdayjobs.com/wday/cxs/brunellocucinelli/Cucinelli/jobs",
+     "status": 200,
+     "bytes": 765
+    }
+   ]
+  },
+  {
+   "portal_id": 265,
+   "status": "SUCCESS",
+   "adapter": "workday",
+   "final_http_status": 200,
+   "complete_snapshot": false,
+   "warnings": [
+    "Workday total changed during pagination: 143 -> 0",
+    "Workday pagination stopped at safety cap of 5 pages"
+   ],
+   "adapter_jobs": 100,
+   "retry_count": 0,
+   "cache_hit": false,
+   "error_type": null,
+   "error_message": null,
+   "wires": [
+    {
+     "index": 4,
+     "method": "GET",
+     "url": "https://proofpoint.wd5.myworkdayjobs.com/proofpointcareers",
+     "status": 200,
+     "bytes": 8803
+    },
+    {
+     "index": 5,
+     "method": "POST",
+     "url": "https://proofpoint.wd5.myworkdayjobs.com/wday/cxs/proofpoint/proofpointcareers/jobs",
+     "status": 200,
+     "bytes": 13969
+    },
+    {
+     "index": 6,
+     "method": "POST",
+     "url": "https://proofpoint.wd5.myworkdayjobs.com/wday/cxs/proofpoint/proofpointcareers/jobs",
+     "status": 200,
+     "bytes": 4256
+    },
+    {
+     "index": 7,
+     "method": "POST",
+     "url": "https://proofpoint.wd5.myworkdayjobs.com/wday/cxs/proofpoint/proofpointcareers/jobs",
+     "status": 200,
+     "bytes": 4481
+    },
+    {
+     "index": 8,
+     "method": "POST",
+     "url": "https://proofpoint.wd5.myworkdayjobs.com/wday/cxs/proofpoint/proofpointcareers/jobs",
+     "status": 200,
+     "bytes": 4281
+    },
+    {
+     "index": 9,
+     "method": "POST",
+     "url": "https://proofpoint.wd5.myworkdayjobs.com/wday/cxs/proofpoint/proofpointcareers/jobs",
+     "status": 200,
+     "bytes": 4472
+    }
+   ]
+  },
+  {
+   "portal_id": 5,
+   "status": "SUCCESS",
+   "adapter": "workday",
+   "final_http_status": 200,
+   "complete_snapshot": false,
+   "warnings": [
+    "Workday total changed during pagination: 2000 -> 0",
+    "Workday pagination stopped at safety cap of 5 pages"
+   ],
+   "adapter_jobs": 100,
+   "retry_count": 0,
+   "cache_hit": false,
+   "error_type": null,
+   "error_message": null,
+   "wires": [
+    {
+     "index": 10,
+     "method": "GET",
+     "url": "https://ag.wd3.myworkdayjobs.com/Airbus",
+     "status": 200,
+     "bytes": 7233
+    },
+    {
+     "index": 11,
+     "method": "POST",
+     "url": "https://ag.wd3.myworkdayjobs.com/wday/cxs/ag/Airbus/jobs",
+     "status": 200,
+     "bytes": 37831
+    },
+    {
+     "index": 12,
+     "method": "POST",
+     "url": "https://ag.wd3.myworkdayjobs.com/wday/cxs/ag/Airbus/jobs",
+     "status": 200,
+     "bytes": 4995
+    },
+    {
+     "index": 13,
+     "method": "POST",
+     "url": "https://ag.wd3.myworkdayjobs.com/wday/cxs/ag/Airbus/jobs",
+     "status": 200,
+     "bytes": 5126
+    },
+    {
+     "index": 14,
+     "method": "POST",
+     "url": "https://ag.wd3.myworkdayjobs.com/wday/cxs/ag/Airbus/jobs",
+     "status": 200,
+     "bytes": 4779
+    },
+    {
+     "index": 15,
+     "method": "POST",
+     "url": "https://ag.wd3.myworkdayjobs.com/wday/cxs/ag/Airbus/jobs",
+     "status": 200,
+     "bytes": 4624
+    }
+   ]
+  }
+ ],
+ "total_wires": 16,
+ "stop": null
+}
