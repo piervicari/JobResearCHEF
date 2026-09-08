@@ -1,0 +1,26 @@
+{
+  "action_counts": {
+    "UPDATE": 2
+  },
+  "after_metrics": {
+    "cluster_portal_mappings": 589,
+    "corporate_clusters": 11798,
+    "master_rows": 12503,
+    "resolved_clusters": 589,
+    "resolved_rows": 1277,
+    "unique_record_ids": 12503,
+    "unique_resolved_jobs_urls": 524
+  },
+  "already_applied": false,
+  "before_metrics": {
+    "cluster_portal_mappings": 589,
+    "corporate_clusters": 11798,
+    "master_rows": 12503,
+    "resolved_clusters": 589,
+    "resolved_rows": 1277,
+    "unique_record_ids": 12503,
+    "unique_resolved_jobs_urls": 524
+  },
+  "import_batch_id": 10,
+  "source_sha256": "dc2025104839cdee35adaf989cb272b64fb7728a516894fcb9b0294c000772f2"
+}

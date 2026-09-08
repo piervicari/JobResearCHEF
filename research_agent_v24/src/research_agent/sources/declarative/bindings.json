@@ -11,7 +11,7 @@
       "spec": "specs/nvidia.json"
     },
     {
-      "normalized_jobs_url": "https://careers.microsoft.com",
+      "normalized_jobs_url": "https://careers.microsoft.com/",
       "spec": "specs/microsoft.json"
     }
   ]

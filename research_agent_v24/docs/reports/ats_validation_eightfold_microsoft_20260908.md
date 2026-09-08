@@ -48,7 +48,8 @@
   starts `[0, 10, 20, 30, 40, 50, 60]`, 10 items each,
   totals `[2181, 2182, 2181, 2181, 2179, 2179, 2182]` (live churn; warning fired).
 - Stopped at the 7-page cap. `complete_snapshot` FALSE — full completeness unproven.
-- Observed pages exact as sets: API 70 = adapter 70 = unique 66 = persisted 66.
+- Observed pages exact as sets: 70 API observations → 70 adapter observations
+  → 66 unique native IDs → 66 persisted rows.
   4 native IDs repeated across consecutive pages (1 on starts 0&10; 3 on 50&60)
   — offset-shift from the churning board; persistence correctly keeps 1 row per
   native ID. Duplicates-from-pagination 4 (deduped), malformed/skipped 0,

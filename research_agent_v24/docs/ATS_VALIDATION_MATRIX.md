@@ -156,15 +156,17 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
   `declarative_spec_detail`, identity preserved; 8-wire budget respected;
   report `docs/reports/ats_validation_eightfold_nvidia_20260908.md`).
   Microsoft binding 1 (2026-09-08 bounded canary: 7 catalog wires starts 0–60,
-  10 each, totals 2179–2182 churning live; API 70 = adapter 70 = unique 66 =
-  persisted 66 — 4 cross-page repeats from board churn deduped exactly once
-  each, 0 skipped/missing/unexpected, `complete_snapshot` FALSE at the 7-page
+  10 each, totals 2179–2182 churning live; 70 API observations
+  → 70 adapter observations → 66 unique native IDs → 66 persisted rows
+  (4 cross-page repeats from board churn deduped exactly once each),
+  0 skipped/missing/unexpected, `complete_snapshot` FALSE at the 7-page
   cap; sanctioned-host detail 1/1 0→6686 chars, parser
   `declarative_spec_detail`, identity preserved; 8-wire budget respected;
   report `docs/reports/ats_validation_eightfold_microsoft_20260908.md`).
-- Registry note: production registry holds no portal matching either binding
-  (NVIDIA 443 / Microsoft 187 serve generic HTML) — bound rows seeded in
-  disposable DBs only. Empty-board live: no. Pagination live: yes (both).
+- Registry note (CLOSED 2026-09-08 by registry correction RUN28): the NVIDIA
+  and Microsoft bindings now resolve from canonical registry data (portals 537
+  and 538; old generic portals 443/187 retired). Empty-board live: no.
+  Pagination live: yes (both).
 - Identity live: yes (numeric `id`, 1 row each incl. under Microsoft churn).
   Catalog description: none (declared). Detail live: yes (both bindings).
 - Safety tested live: yes (8+8 wires, concurrency 1, retries 0, no signals,
@@ -172,8 +174,7 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 - Status: MULTI_TENANT_VALIDATED (NVIDIA + Microsoft bindings live 2026-09-08;
   protocol/binding validity — NOT full-catalog completeness proof).
   NOT PRODUCTION_SUPPORTED.
-- Missing: full large-catalog traversal; empty-board; registry portals for
-  both bindings.
+- Missing: full large-catalog traversal; empty-board.
 - Next: wave complete — next step recommended separately, not executed here.
 
 ### Ashby

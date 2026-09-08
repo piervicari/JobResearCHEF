@@ -67,7 +67,7 @@ RUNTIME_FIXTURES = _REPO_ROOT / "runtime" / "fixtures"
 
 MERCEDES_PORTAL = "https://jobs.mercedes-benz.com"
 NVIDIA_PORTAL = "https://jobs.nvidia.com/careers"
-MICROSOFT_PORTAL = "https://careers.microsoft.com"
+MICROSOFT_PORTAL = "https://careers.microsoft.com/"
 
 
 def _payload_dict(job: RawJob) -> dict:
@@ -167,6 +167,31 @@ def test_exact_binding_selects_declarative_adapter():
     registry = structured_adapter_registry(declarative_adapters=[_adapter()])
     selected = registry.select(_target(NVIDIA_PORTAL))
     assert isinstance(selected, DeclarativeSourceAdapter)
+
+
+def test_canonical_normalized_eightfold_portals_resolve_to_their_specs():
+    """Canonical routing (RUN28): the registry normalizer emits a trailing
+    slash for host-only career sites, so the Microsoft binding key must be
+    the normalized form. Normalized NVIDIA/Microsoft records must select
+    DeclarativeSourceAdapter with their own spec — never generic HTML."""
+    from research_agent.company.portal_registry import normalize_jobs_url
+
+    registry = structured_adapter_registry(declarative_adapters=[_adapter()])
+    for raw_url, company in (
+        ("https://jobs.nvidia.com/careers", "nvidia"),
+        ("https://careers.microsoft.com", "microsoft"),
+    ):
+        normalized = normalize_jobs_url(raw_url)
+        target = _target(normalized)
+        selected = registry.select(target)
+        assert isinstance(selected, DeclarativeSourceAdapter), raw_url
+        assert selected.spec_for(target)["company"]["id"] == company
+    # The pre-RUN28 generic pages must NOT resolve to either spec.
+    for stale_url in (
+        "https://www.nvidia.com/en-us/about-nvidia/careers/",
+        "https://jobs.careers.microsoft.com/global/en/search",
+    ):
+        assert registry.select(_target(normalize_jobs_url(stale_url))) is None
 
 
 def test_unbound_portal_is_not_selected():

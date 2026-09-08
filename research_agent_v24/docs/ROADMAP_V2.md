@@ -53,7 +53,8 @@ Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
 2. Tier-1 cross-tenant canaries — Oracle DONE (MULTI_TENANT_VALIDATED, 3 tenants);
   Greenhouse DONE (MULTI_TENANT_VALIDATED, 3 tenants); Lever DONE
   (MULTI_TENANT_VALIDATED, 2 canonical tenants).
-3. Tier-2 cross-tenant canaries — pending.
+3. Tier-2 cross-tenant canaries — Eightfold DONE (NVIDIA + Microsoft bindings,
+  MULTI_TENANT_VALIDATED, protocol/binding validity); other Tier-2 families pending.
 4. Unsupported ATS gaps — recorded in matrix.
 5. ExternalSourceCandidate lazy validation — DEFERRED until serving adapters
    are multi-tenant validated.

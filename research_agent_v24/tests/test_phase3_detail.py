@@ -169,7 +169,7 @@ def test_microsoft_cross_host_sanctioned_and_faithful() -> None:
         source_name="declarative:microsoft",
         native_id="910117342851777",
         portal_host="careers.microsoft.com",
-        portal_jobs_url="https://careers.microsoft.com",
+        portal_jobs_url="https://careers.microsoft.com/",
     )
     request = _render_declarative_detail(row)
     assert request is not None
@@ -193,7 +193,7 @@ def test_microsoft_enrich_flow_persists_and_requeues(
 ) -> None:
     create_schema(sqlite_engine)
     _seed_portal(sqlite_engine, 781, "careers.microsoft.com",
-                 "https://careers.microsoft.com")
+                 "https://careers.microsoft.com/")
     job_id = _add_structured_job(
         sqlite_engine, 781, adapter="declarative",
         source="declarative:microsoft",
@@ -586,7 +586,7 @@ def test_microsoft_cap_keyed_on_actual_detail_host(
     actual detail host, while portal identity stays unchanged."""
     create_schema(sqlite_engine)
     _seed_portal(sqlite_engine, 821, "careers.microsoft.com",
-                 "https://careers.microsoft.com")
+                 "https://careers.microsoft.com/")
     _add_structured_job(
         sqlite_engine, 821, adapter="declarative",
         source="declarative:microsoft",

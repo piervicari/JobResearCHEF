@@ -1,7 +1,7 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — Eightfold Microsoft canary (binding VALIDATED_ONE_TENANT,
-Eightfold overall MULTI_TENANT_VALIDATED) + validation-artifact git hygiene; suite 412/0
+**Updated:** 2026-09-08 — Eightfold registry routing fix (RUN28) + 2-wire
+routing canary; suite 412/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -96,6 +96,11 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   Eightfold overall MULTI_TENANT_VALIDATED — protocol/binding validity, not
   full-completeness proof) — see
   `docs/reports/ats_validation_eightfold_microsoft_20260908.md`.
+  Registry-routing fix 2026-09-08 (RUN28 UPDATEs + Microsoft binding-key
+  trailing-slash correction): canonical NVIDIA/Microsoft records now select
+  DeclarativeSourceAdapter with zero manual seeding; 2-wire routing canary
+  10+10 parsed/persisted exact; Eightfold stays MULTI_TENANT_VALIDATED,
+  registry gap CLOSED.
   Next step not started. Validation wave evidence dirs are now git-ignored
   ephemeral artifacts (see `.gitignore`); canonical evidence stays in
   `docs/reports/`. The old
