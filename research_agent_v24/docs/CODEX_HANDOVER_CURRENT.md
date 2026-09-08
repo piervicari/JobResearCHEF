@@ -1,6 +1,7 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — Lever E1 closure (offline replay 18/18+24/24 persisted, complete TRUE, 0 wires) + Workday count 17; suite 412/0
+**Updated:** 2026-09-08 — Workday wave (MULTI_TENANT_VALIDATED, 3 tenants live,
+511 COMPLETE 44/44/44, detail 3/3) ; suite 412/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -77,8 +78,12 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 - ATS validation phase active (ADR 0063, AI deferred): Oracle wave complete
   (MULTI_TENANT_VALIDATED); Greenhouse wave complete
   (MULTI_TENANT_VALIDATED); Lever wave complete (MULTI_TENANT_VALIDATED,
-  2 canonical tenants, 2 wires) — see `docs/reports/ats_validation_lever_20260908.md`.
-  Next ATS validation wave not started. The old
+  2 canonical tenants, 2 wires) — see `docs/reports/ats_validation_lever_20260908.md`;
+  Workday wave complete 2026-09-08 (MULTI_TENANT_VALIDATED: brunellocucinelli 511
+  COMPLETE 44/44/44 exact + proofpoint 265 / airbus 5 exact partials 100/100/100
+  at the 5-page budget cap + CXS detail live-proven 3/3 with identity preserved,
+  21-wire budget respected, no defects) — see
+  `docs/reports/ats_validation_workday_20260908.md`. Next ATS not started. The old
   A/B/C/D option list is superseded — see roadmap CURRENT and the ATS
   validation matrix.
 - First canary done 2026-09-08 (see

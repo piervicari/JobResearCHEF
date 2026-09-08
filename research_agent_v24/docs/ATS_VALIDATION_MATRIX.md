@@ -14,18 +14,34 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 ### Workday
 - Implementation: `sources/ats/workday.py` (name `workday`).
 - Catalog: landing bootstrap + POST `{origin}/wday/cxs/{tenant}/{site}` jobs,
-  body limit/offset, response `total`. Pagination: offset, total-guarded,
-  total-change warning (code-read + JRCAD).
-- Identity: adapter-native stable ID (externalPath-derived detail addressing).
-- Catalog description: partial (CXS detail exists for hydration).
-- Detail: yes, GET CXS `{externalPath}` (Phase-3 renderer, offline-tested).
+  body limit/offset (`page_size = 20` proven live), response `total`.
+  Pagination: offset, total-guarded, total-change warning (code-read + JRCAD + live).
+- Identity: adapter-native stable ID (requisition else externalPath;
+  externalPath-derived detail addressing).
+- Catalog description: none inline (live: 0/244 rows); `postedOn`, `locationsText` only.
+  Catalog carries no `timeType`/`remoteType` live (W2.1 mapping unexercised on catalog).
+- Detail: yes, GET CXS `{externalPath}` (Phase-3 renderer, live-proven 3/3 2026-09-08:
+  0→332 / 0→4493 / 0→5960 chars, parser `workday_cxs_detail`, identity unchanged,
+  employment hydrated `Full time`).
 - Detail required: selective. Known tenants: 17 scan-enabled portals.
-- Live validated: 0. Empty tested: no. Pagination live: no. Multi-page live: no.
-- Detail live: no. Identity live: no. Dedup live: no.
-- Completeness confidence: medium (protocol triple-agreed W2, no live tenant).
-- Safety tested live: no. Status: EXPERIMENTAL.
-- Missing: 3 live tenants (catalog + CXS detail + empty + multi-page).
-- Next: cheapest HEALTHY Workday portal scan within pilot budget.
+- Live validated: 3 (2026-09-08: brunellocucinelli 511 COMPLETE 44/44/44 exact,
+  `complete_snapshot` TRUE; proofpoint 265 + airbus 5 exact partials 100/100/100,
+  `complete_snapshot` FALSE at the 5-page budget cap; 4+6+6 wires; report
+  `docs/reports/ats_validation_workday_20260908.md`).
+- Empty tested: no. Pagination live: yes (3/5/5 pages, offsets exact, no
+  repeat/skip/duplication). Multi-page live: yes.
+- Live quirk: `total` authoritative on page 1 only, pages 2+ report `total: 0`
+  (all 3 tenants); adapter warns, termination stayed correct — watch item, not defect.
+- Identity live: yes (distinct requisition IDs, 1 row each, detail preserves keys).
+  Dedup live: yes. Completeness confidence: high for observed catalogs.
+- Safety tested live: yes (21-wire budget respected, concurrency 1, retries 0,
+  no 403/429/challenge, production DB untouched).
+- Status: MULTI_TENANT_VALIDATED (3 tenants live 2026-09-08; report
+  `docs/reports/ats_validation_workday_20260908.md`).
+  NOT PRODUCTION_SUPPORTED: live empty-board + full-traversal proof on 100+
+  boards + `total→0` hardening note still missing.
+- Missing: empty-board observation; full traversal beyond the 5-page budget.
+- Next: wave complete — next ATS recommended separately, not executed here.
 
 ### SmartRecruiters
 - Implementation: `sources/ats/smartrecruiters.py` (name `smartrecruiters`).
@@ -93,7 +109,8 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 - Status: MULTI_TENANT_VALIDATED. NOT PRODUCTION_SUPPORTED: live
   empty-board observation is the single missing gate.
 - Missing: one natural live `{"jobs": []}` (do not hunt).
-- Next: wave complete — next ATS recommended: Lever.
+- Next: wave complete — next ATS recommended: Lever. [SUPERSEDED 2026-09-08:
+  Lever is MULTI_TENANT_VALIDATED; see Lever section.]
 
 ### Lever
 - Implementation: `sources/ats/lever.py` (name `lever`, incl. jobs.eu host).
