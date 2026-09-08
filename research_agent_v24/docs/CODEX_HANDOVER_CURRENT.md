@@ -1,6 +1,6 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — Greenhouse wave MULTI_TENANT_VALIDATED (3 tenants, 3 wires, full-response coverage); suite 412/0
+**Updated:** 2026-09-08 — Lever wave MULTI_TENANT_VALIDATED (safe+watchguard, 2 wires, exact accounting); suite 412/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -76,7 +76,9 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   path semantics). NVIDIA and Microsoft share one branch-free parser.
 - ATS validation phase active (ADR 0063, AI deferred): Oracle wave complete
   (MULTI_TENANT_VALIDATED); Greenhouse wave complete
-  (MULTI_TENANT_VALIDATED); Lever validation next/current. The old
+  (MULTI_TENANT_VALIDATED); Lever wave complete (MULTI_TENANT_VALIDATED,
+  2 canonical tenants, 2 wires) — see `docs/reports/ats_validation_lever_20260908.md`.
+  Next ATS validation wave not started. The old
   A/B/C/D option list is superseded — see roadmap CURRENT and the ATS
   validation matrix.
 - First canary done 2026-09-08 (see

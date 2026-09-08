@@ -30,15 +30,17 @@ portal 158 — scan→triage→live detail→analysis attempt (PARTIAL_AI:
 provider-side analysis failures, job safely PENDING_AI). 3 wires total,
 zero production writes.
 
-Current next: Greenhouse ATS validation wave — DONE 2026-09-08
-(MULTI_TENANT_VALIDATED, 3 tenants, 3 wires, report
-`docs/reports/ats_validation_greenhouse_20260908.md`). Recommended next
-ATS (not executed): Lever.
+Current next: Lever ATS validation wave — DONE 2026-09-08
+(MULTI_TENANT_VALIDATED, safe 214 + watchguard 215, 2 wires, report
+`docs/reports/ats_validation_lever_20260908.md`). Next ATS validation
+wave not started; recommended next (not executed): Workday.
 
 Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
 
 1. ATS validation matrix — DONE (`docs/ATS_VALIDATION_MATRIX.md`).
-2. Tier-1 cross-tenant canaries — Oracle DONE (MULTI_TENANT_VALIDATED, 3 tenants).
+2. Tier-1 cross-tenant canaries — Oracle DONE (MULTI_TENANT_VALIDATED, 3 tenants);
+  Greenhouse DONE (MULTI_TENANT_VALIDATED, 3 tenants); Lever DONE
+  (MULTI_TENANT_VALIDATED, 2 canonical tenants).
 3. Tier-2 cross-tenant canaries — pending.
 4. Unsupported ATS gaps — recorded in matrix.
 5. ExternalSourceCandidate lazy validation — DEFERRED until serving adapters

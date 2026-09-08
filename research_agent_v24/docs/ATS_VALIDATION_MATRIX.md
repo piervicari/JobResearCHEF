@@ -102,12 +102,22 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 - Identity: posting `id` (existing value preserved). Catalog description:
   COMPLETE via assembly (`description` + `lists[]`, W2.1) + posted_at.
 - Detail: none needed. Detail required: never.
-- Known tenants: 2 scan-enabled (safe, watchguard). Live validated: 0
-  adapter scans (endpoint shape proven live via probe only).
-- Completeness: medium. Safety live: no. Status: EXPERIMENTAL.
-- Missing: 3rd tenant unavailable in registry (only 2) — cap at 2-tenant
-  validation + document; adapter scans pending.
-- Next: after Greenhouse.
+- Known tenants: 2 scan-enabled (safe 214, watchguard 215 — the only
+  adapter-served Lever portals in registry; both HEALTHY).
+- Live validated: 2 (2026-09-08, 1 wire each, both HTTP 200, natural
+  single-page end; API==parser==unique 18/18 safe, 24/24 watchguard;
+  persisted 10+10 by pilot cap — E1 distinction, offline reparse proves
+  full coverage at 0 extra wires; 0 dups/malformed; descriptions
+  inline-complete min 1993 chars; 0 detail, 0 LLM; report
+  `docs/reports/ats_validation_lever_20260908.md`).
+- Empty live: not observed. Multi-page live: not observed (both boards <100).
+- Completeness: HIGH for observed catalogs (exact accounting).
+- Safety live: yes (2 wires, retries 0, production DB untouched).
+- Status: MULTI_TENANT_VALIDATED (capped at the two canonical registry
+  tenants — documented limitation). NOT PRODUCTION_SUPPORTED: live
+  empty-board + live multi-page pagination still missing.
+- Missing: natural empty board; multi-page episode.
+- Next: wave complete — next ATS recommended separately, not executed here.
 
 ## Tier 2
 
