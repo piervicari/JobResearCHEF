@@ -79,8 +79,10 @@ controlled E2E canaries are done; ExternalSourceCandidate stays deferred
 Historical options below are not current.
 
 Deferred: BambooHR non-empty live validation; SuccessFactors parity retry
-on a smaller tenant; Workday >2K subdivision (`NEEDS_DESIGN`); Oracle/
-SmartRecruiters requisition identity migration; SourceSpec v0.2/
+on a smaller tenant; Workday >2K subdivision (`NEEDS_DESIGN` → audit
+2026-09-09 VERIFIED VULNERABLE / P0 cap-guard design next, report
+`docs/reports/stapply_facet_integration_audit_20260909.md`, ADR 0064 still
+PROPOSED); Oracle/SmartRecruiters requisition identity migration; SourceSpec v0.2/
 single_request, only if future evidence justifies it.
 
 ---

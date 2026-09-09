@@ -134,3 +134,15 @@ Unproven: GH conditional-304 round-trip; Ashby lightweight variant;
 SR live detail; RMK completion; any watermark safety anywhere (all UNSAFE).
 P1 impact: SpaceX/Anduril dissolve under GH-light; site-less WD + SentinelOne
 are registry corrections; SSO walls stay hard stops.
+
+## Stapply + facet audit (2026-09-09, code-read, 0 ATS wires)
+
+Full evidence: `docs/reports/stapply_facet_integration_audit_20260909.md`.
+Workday is the ONLY TRUE_FACET family (`appliedFacets` + per-value counts);
+Eightfold is SERVER_FILTER_ONLY (query/location/sort, start-only in JRC
+spec); GH/Lever/Ashby need NO subdivision (single-shot complete).
+VERIFIED VULNERABLE: JRC Workday has no total==2000 cap detection and CAN
+false-complete a capped board once page budgets allow ≥100 pages — P0
+cap-guard design is next (design only, not implemented here). Facets
+partition/order/metadata only — never ingest-or-skip. All locations and
+all categories stay in scope.

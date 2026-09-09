@@ -1,7 +1,8 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-09 — handover refresh: maintenance rule + CURRENT STATE
-restructure; HEAD `1ddc901`; suite 422/0
+**Updated:** 2026-09-09 — STAPPLY + FACET INTEGRATION AUDIT done (report
+`docs/reports/stapply_facet_integration_audit_20260909.md`); HEAD `1ddc901`;
+suite 422/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 # HANDOVER MAINTENANCE RULE
@@ -96,8 +97,22 @@ Nothing below is implemented; recorded for next-agent context.
   Vendored protocol reference exists (`external_reuse_audit/vendor/ats-scrapers`,
   ADRs 0057/0060/0061). NOT the source of truth; direct official sources
   remain authoritative unless a future decision changes that.
-- Workday facet subdivision: audit item — verify whether very large boards
-  silently cap/wrap (~2000 results) causing false-complete; JRC subdivision
+  AUDITED 2026-09-09 (`docs/reports/stapply_facet_integration_audit_20260909.md`):
+  manifest v2.0 `generated_at 2026-09-08T14:30Z`, 65 families / 80,390
+  companies / 5.14M jobs, code MIT, dataset terms uncertain; V25
+  reconciliation 15 AGREE / 94 new-candidate / 87 not-found / 19 multi-door /
+  12 ATS-disagreement / 10 URL-disagreement; bootstrap NOT imported (Stapply
+  Workday identity still `bulletFields[0]`-based = UNSAFE, posted_at gaps on
+  WD/SF, no cheap per-company read path); cadence NOT public
+  (NEEDS_MORE_OBSERVATIONS); per-company slice extraction NOT_VIABLE for
+  large families. Decisions: registry-intel/drift-design/canonicalization/
+  adapter-reference ADOPT; bootstrap/fallback/same-day/facet-subdivision/
+  dynamic-planning/facet-metadata MORE_EVIDENCE; ADR 0064 stays PROPOSED.
+- Workday facet subdivision: audit item — VERIFIED VULNERABLE 2026-09-09:
+  JRC sends `appliedFacets:{}` with no total==2000 cap detection, so a
+  capped board CAN false-complete with `is_complete_snapshot=TRUE` once
+  page budgets allow ≥100 pages. P0 candidate for the cap-guard design
+  (counts-based dimension choice per Stapply order). JRC subdivision
   NOT implemented.
 - Same-day Stapply snapshot watcher (morning direct scan + manifest observe
   + compare + direct-verify): PROPOSED idea only; cadence/freshness/cost
@@ -110,11 +125,12 @@ Nothing below is implemented; recorded for next-agent context.
 Do NOT run another cohort, implement AI, repair P1s broadly, or integrate
 Stapply in production. Next milestone:
 
-STAPPLY + FACET INTEGRATION AUDIT (documented only, not executed here):
-CORE coverage in Stapply, missing/wrong sources, bootstrap/identity
-compatibility, snapshot cadence/freshness, extraction cost, missing-adapter
-reuse, Workday >2k completeness, facets/filtering, canonicalization, drift
-detection, fallback feasibility.
+STAPPLY + FACET INTEGRATION AUDIT — DONE 2026-09-09 (documented only, nothing
+executed): report `docs/reports/stapply_facet_integration_audit_20260909.md`.
+Next: Workday cap-guard DESIGN doc (total==2000 detection + counts-based
+facet-subdivision plan + synthetic-capped-fixture regression test, 0 live
+wires) — NOT started. No cohort, no AI, no P1 repairs, no Stapply
+production integration, ADR 0064 stays PROPOSED.
 
 # KEY SUPPORTING FILES
 
