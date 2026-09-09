@@ -34,9 +34,8 @@ Successful ingestion 55/60 = 91.7%. HIGH 21/21 = 100%. MEDIUM 34/39.
 
 Workday (18): 16 bounded exact (40/40 each; totals 419–1581 seen, 2-page cap),
 2 failed (579/266 site-less bare-host 406 — REGISTRY_FAILURE, shared cause).
-Greenhouse (24): 19 complete exact (7–451 rows), 3 empty-valid (Blumira,
-PantherLabs, AppOmni 0/0/0), 2 failed — SpaceX + Anduril boards exceed the
-20 MB single-response guard (UPSTREAM_BLOCKED, bodies preserved).
+Greenhouse (24): 18 complete exact (incl. GitLab 230, Okta 310, Datadog 451,
+MongoDB 403), 3 empty-valid, 3 failed (SpaceX/Anduril oversize, SentinelOne 404).
 Oracle (3): Danske/EDBZ/Honeywell 400/400/181 bounded or complete exact.
 Lever (4): Safe/WatchGuard complete (18/24), Palantir/Sysdig bounded+complete.
 Eightfold (2): NVIDIA/Microsoft 20/20 bounded exact.

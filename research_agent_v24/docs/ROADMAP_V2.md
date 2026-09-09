@@ -66,6 +66,10 @@ Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
   P1 follow-ups: GH mega-board path, registry re-resolution, site-less
   Workday records).
 8. INGESTION_V1 freeze — criteria in ADR 0063, not frozen yet.
+   Scan Architecture V2 sequence (audit DONE 2026-09-09: `docs/SOURCE_SCAN_STRATEGY.md`,
+   ADR 0064 PROPOSED): approve/freeze architecture → provider-aware discovery →
+   lightweight stub/delta → selective detail → P1s inside new architecture →
+   targeted validation → freeze review → resume AI/triage → scheduler/alerts/rollout.
 9. LLM pipeline resumes — only after freeze. Honeywell PENDING_AI stays
    deferred evidence.
 
