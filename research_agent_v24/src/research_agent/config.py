@@ -146,7 +146,11 @@ class AppSettings(BaseSettings):
         extra="ignore",
     )
 
-    database_url: str = "sqlite:///data/research_agent.db"
+    # Canonical persistent runtime DB (ADR 0042). Override with
+    # RESEARCH_AGENT_DATABASE_URL for explicit alternate files (e.g. tests,
+    # disposable validation DBs). Never point ad-hoc tooling at a different
+    # default: all entrypoints must converge here.
+    database_url: str = "sqlite:///~/.local/share/research-agent/research_agent.db"
     log_level: str = "INFO"
     scanner: ScannerSettings = ScannerSettings()
     llm: LlmSettings = LlmSettings()

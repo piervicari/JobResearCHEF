@@ -5,6 +5,33 @@
 The research agent is started manually and stores state in a local SQLite database. Offline commands
 and live network scans are deliberately separate. Run commands from the repository root.
 
+## Canonical runtime database (ADR 0042)
+
+Normal CLI, scanner, dashboard, and sync commands converge on one canonical
+persistent runtime DB:
+
+`~/.local/share/research-agent/research_agent.db`
+
+resolved from `database_url` (code default = settings default) through the
+central `normalize_database_url` resolver, which expands `~` against the
+runtime HOME. Operator scripts (`run_core_trial.sh`,
+`prepare_tier_s_operational_sources.sh`, `bootstrap_runtime_db.sh`,
+`ensure_dashboard.sh`) encode the same path explicitly.
+
+Supported override (intentional only): `RESEARCH_AGENT_DATABASE_URL`, or any
+command's `--database-url` flag (e.g. disposable validation DBs).
+
+Do NOT delete, overwrite, or merge database files to "fix" divergence:
+`data/research_agent.db` (repo-local, pre-0042 operational history: 5789 jobs
+/ 29 runs) and the canonical `~/.local/share` DB (V25-synced portals, 652 jobs
+/ 16 runs) contain different useful state. Existing-data migration is a
+separate rollout-gated task before the 10–20 cohort; until it closes, open
+legacy state explicitly with `--database-url sqlite:///data/research_agent.db`.
+
+Note: a persistent per-user env file may still pin the legacy path on a given
+machine (`RESEARCH_AGENT_DATABASE_URL` in `~/.config/research-agent/.env`);
+update it deliberately when adopting the canonical default.
+
 ## Command impact
 
 | Command | Network | Writes local state | Intended use |

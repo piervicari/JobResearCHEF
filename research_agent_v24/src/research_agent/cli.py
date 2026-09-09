@@ -54,7 +54,7 @@ from research_agent.db.backup import (
 from research_agent.db.migrations import create_schema
 from research_agent.db.models import JobAiAnalysis, Portal, SourceJob
 from research_agent.db.recovery import render_recovery_report, restore_and_verify_sqlite_backup
-from research_agent.db.session import create_db_engine
+from research_agent.db.session import create_db_engine, normalize_database_url
 from research_agent.logging import configure_logging
 from research_agent.pipeline.gates import ScanGatePolicy, assess_scan_gate
 from research_agent.pipeline.discovery import persist_scan_discoveries
@@ -121,7 +121,7 @@ def bootstrap_secrets_command(
 def _engine(database_url: str | None = None):
     settings = get_settings()
     configure_logging(settings.log_level)
-    configured = database_url or settings.database_url
+    configured = normalize_database_url(database_url or settings.database_url)
     url = make_url(configured)
     if (
         url.get_backend_name() == "sqlite"

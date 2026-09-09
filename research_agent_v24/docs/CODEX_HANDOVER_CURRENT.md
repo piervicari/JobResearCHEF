@@ -1,7 +1,7 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-08 — Eightfold V25 operational alignment (control-plane
-rows + sync proof + 2-wire canary); suite 415/0
+**Updated:** 2026-09-09 — Runtime DB convergence (canonical ADR-0042 path +
+central resolver + 5 tests); suite 420/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -66,9 +66,9 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 415 passed / 0 failed (full suite 2026-09-08: 411 + 1 Greenhouse
+- 420 passed / 0 failed (full suite 2026-09-09: 411 + 1 Greenhouse
   empty-board contract test + 1 Eightfold declarative routing test + 2 V25
-  Eightfold alignment tests).
+  Eightfold alignment tests + 5 runtime DB resolution tests).
 
 ### Current development focus
 
@@ -110,9 +110,14 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   SUPPORTED_ADAPTERS (binding-routed support counts); normal V25 sync +
   2-wire canary re-proven with zero manual seeding. Legacy RUN28 stays the
   pending migration for generic portals 443/187 in persistent DBs.
-  Effective default runtime DB is `data/research_agent.db` (resolved settings;
-  untouched); the ADR-0042 `~/.local/share` DB is a separate older snapshot
+  Effective default runtime DB was `data/research_agent.db` (resolved settings;
+  untouched); the ADR-0042 `~/.local/share` DB was a separate older snapshot
   used only by the tier_s script (untouched).
+  RUNTIME DB CONVERGENCE 2026-09-08: code/settings default switched to the
+  canonical ADR-0042 persistent path with a central `~`-expanding resolver, so
+  CLI/scanner/dashboard/sync converge; the two existing DBs hold different
+  useful state and were NOT merged — migration is a rollout-gated next task
+  before the cohort (see `docs/OPERATIONS.md`).
   Next step not started. Validation wave evidence dirs are now git-ignored
   ephemeral artifacts (see `.gitignore`); canonical evidence stays in
   `docs/reports/`. The old
