@@ -7,7 +7,7 @@ adapter code + cohort 15/60 live bodies + 5 audit probes (2026-09-09).
 ## Provider table
 
 Legend: daily strategies NATIVE_DELTA / SAFE_WATERMARK / LIGHTWEIGHT_SINGLE_SHOT /
-FULL_PAGINATION_REQUIRED / UNRESOLVED. Detail: INLINE_REQUIRED / SELECTIVE_DETAIL /
+FULL_SINGLE_SHOT / FULL_PAGINATION_REQUIRED / UNRESOLVED. Detail: INLINE_REQUIRED / SELECTIVE_DETAIL /
 NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
 
 ### Workday — FULL_PAGINATION_REQUIRED / SELECTIVE_DETAIL
@@ -20,6 +20,9 @@ NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
   postedOn only); requisition = shape-matched bullet else externalPath.
 - Costs: 1 + ceil(N/20): @100 = 6, @500 = 26, @1000 = 51, @3600 = 181.
   Payload LOW per page (~4–9 KB). Detail: 1 GET per selected job.
+- Cap guard (IMPLEMENTED 2026-09-09): canonical total == 2000 forces
+  `complete_snapshot = FALSE` + warning (provider cap; upstream may hold
+  more; past offset 2000 wraps). Facet subdivision NOT implemented.
 - Closure: only when a full traversal completes (complete_snapshot TRUE).
 
 ### Greenhouse — LIGHTWEIGHT_SINGLE_SHOT / SELECTIVE_DETAIL
@@ -66,7 +69,7 @@ NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
 - Costs: ceil(N/100): @100 = 1–2, @500 = 5, @1000 = 10, @3600 = 36.
 - Closure: on natural short-page end.
 
-### Ashby — LIGHTWEIGHT_SINGLE_SHOT / NO_DETAIL_NEEDED
+### Ashby — FULL_SINGLE_SHOT / NO_DETAIL_NEEDED
 - Catalog: single GET `posting-api/job-board/{board}?includeCompensation=true`,
   descriptionHtml inline COMPLETE (781-row board proven 1 wire).
 - Same mega-board caveat class as Greenhouse (unbounded single response);
@@ -81,7 +84,7 @@ NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
 - Costs: ceil(N/100): @100 = 1, @500 = 5, @1000 = 10, @3600 = 36.
 - Closure: on total-guarded natural end.
 
-### Teamtailor / Workable — LIGHTWEIGHT_SINGLE_SHOT / NO_DETAIL_NEEDED
+### Teamtailor / Workable — FULL_SINGLE_SHOT / NO_DETAIL_NEEDED
 - Single GET (`/jobs.json` / widget `?details=true`), inline complete
   descriptions. Costs: 1 wire. Closure: safe daily. Thin tenant counts.
 
@@ -138,11 +141,13 @@ are registry corrections; SSO walls stay hard stops.
 ## Stapply + facet audit (2026-09-09, code-read, 0 ATS wires)
 
 Full evidence: `docs/reports/stapply_facet_integration_audit_20260909.md`.
-Workday is the ONLY TRUE_FACET family (`appliedFacets` + per-value counts);
+Workday is the only PROVEN TRUE_FACET family among the providers audited so
+far (`appliedFacets` + per-value counts);
 Eightfold is SERVER_FILTER_ONLY (query/location/sort, start-only in JRC
 spec); GH/Lever/Ashby need NO subdivision (single-shot complete).
-VERIFIED VULNERABLE: JRC Workday has no total==2000 cap detection and CAN
-false-complete a capped board once page budgets allow ≥100 pages — P0
-cap-guard design is next (design only, not implemented here). Facets
-partition/order/metadata only — never ingest-or-skip. All locations and
-all categories stay in scope.
+VERIFIED VULNERABLE, GUARDED 2026-09-09: JRC Workday had no total==2000 cap
+detection and could false-complete a capped board; the minimal cap guard is
+now IMPLEMENTED (canonical total == 2000 → bounded + warning; design
+`docs/reports/workday_cap_and_facet_design_20260909.md`). Facet subdivision
+and dynamic planning NOT implemented. Facets partition/order/metadata only
+— never ingest-or-skip. All locations and all categories stay in scope.

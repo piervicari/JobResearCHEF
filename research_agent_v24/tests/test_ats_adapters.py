@@ -366,6 +366,116 @@ def test_workday_skips_malformed_posting_without_losing_valid_jobs(
     )
 
 
+def _workday_synthetic_board(fixtures: Path, *, page_size: int, total: int):
+    """Serve a fully synthetic Workday board from memory (zero live wires).
+
+    Every page reports the SAME stable total; each posting carries a
+    requisition-shaped bullet id so identity stays exercisable.
+    """
+    adapter = WorkdayAdapter()
+    adapter.page_size = page_size
+    landing_text = (fixtures / "workday_landing.html").read_text(encoding="utf-8")
+
+    def posting(index: int) -> dict:
+        return {
+            "title": f"Role {index}",
+            "externalPath": f"/job/Site/Role-{index}_REQ-{9000 + index}",
+            "locationsText": "Rome, Italy",
+            "postedOn": "Posted Today",
+            "bulletFields": [f"REQ-{9000 + index}"],
+        }
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.method == "GET":
+            return httpx.Response(200, text=landing_text, request=request)
+        offset = json.loads(request.content)["offset"]
+        page = [posting(i) for i in range(offset, min(offset + page_size, total))]
+        return httpx.Response(200, json={"total": total, "jobPostings": page},
+                              request=request)
+
+    return adapter, handler
+
+
+def _run_workday_scan(adapter, target, handler, *, max_pages, max_jobs):
+    async def run():
+        fetcher = HttpFetcher(
+            max_retries=0,
+            per_domain_min_interval_seconds=0,
+            jitter_seconds=0,
+            resolve_dns=False,
+            max_requests_per_host_per_run=1000,
+            max_requests_per_run=1000,
+            transport=httpx.MockTransport(handler),
+        )
+        async with fetcher:
+            context = PortalScanContext(
+                fetcher, max_pages_per_portal=max_pages,
+                max_jobs_per_portal=max_jobs,
+            )
+            return await adapter.scan(target, context)
+
+    return asyncio.run(run())
+
+
+def test_workday_uncapped_catalog_stays_complete(fixtures: Path) -> None:
+    """A. Normal board below the provider cap, naturally exhausted → TRUE."""
+    adapter, handler = _workday_synthetic_board(fixtures, page_size=20, total=44)
+    target = _target(
+        "https://example.wd5.myworkdayjobs.com/ExampleCareers",
+        "Workday",
+    )
+    result = _run_workday_scan(adapter, target, handler, max_pages=100,
+                               max_jobs=5000)
+    assert len(result.jobs) == 44
+    assert result.is_complete_snapshot is True
+    assert all(w != WorkdayAdapter.CAPPED_TOTAL_WARNING for w in result.warnings)
+
+
+def test_workday_suspicious_cap_catalog_is_never_complete(fixtures: Path) -> None:
+    """B. Canonical total == provider cap (2000) with full apparent traversal
+    MUST NOT complete: upstream may hold more than the cap reports."""
+    adapter, handler = _workday_synthetic_board(fixtures, page_size=20,
+                                                total=2000)
+    target = _target(
+        "https://example.wd5.myworkdayjobs.com/ExampleCareers",
+        "Workday",
+    )
+    result = _run_workday_scan(adapter, target, handler, max_pages=100,
+                               max_jobs=5000)
+    assert len(result.jobs) == 2000
+    assert result.is_complete_snapshot is False
+    assert WorkdayAdapter.CAPPED_TOTAL_WARNING in result.warnings
+    # Identity intact on the capped board: requisition-shaped native ids.
+    assert result.jobs[0].source_job_id == "REQ-9000"
+    assert result.jobs[-1].source_job_id == "REQ-10999"
+
+
+def test_workday_bounded_scan_stays_incomplete(fixtures: Path) -> None:
+    """C. Budget-capped scan of a capped board remains FALSE (both guards)."""
+    adapter, handler = _workday_synthetic_board(fixtures, page_size=20,
+                                                total=2000)
+    target = _target(
+        "https://example.wd5.myworkdayjobs.com/ExampleCareers",
+        "Workday",
+    )
+    result = _run_workday_scan(adapter, target, handler, max_pages=2,
+                               max_jobs=5000)
+    assert len(result.jobs) == 40
+    assert result.is_complete_snapshot is False
+
+
+def test_workday_identity_fix_survives_cap_guard() -> None:
+    """D. Badge-label fallback (cohort-60 P0 fix) is untouched by the guard."""
+    adapter = WorkdayAdapter()
+    job = adapter._parse_job(
+        {"title": "Role", "externalPath": "/job/X/Role_JR1",
+         "bulletFields": ["Regular Employee", "R0334457"]},
+        site_url="https://example.wd5.myworkdayjobs.com/Site",
+        index=0,
+    )
+    assert job.source_job_id == "R0334457"
+
+
 def test_phenom_adapter_parses_embedded_search_data_and_next_link(fixtures: Path) -> None:
     adapter = PhenomAdapter()
     target = _target(

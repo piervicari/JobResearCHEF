@@ -62,7 +62,7 @@ Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
    are multi-tenant validated.
 6. 10–20 company ingestion cohort — DONE 2026-09-09 as a 15-company wave
   (PASS 14/15, report `docs/reports/ingestion_cohort_15_20260909.md`).
-7. 50–100 company cohort — pending (60-company wave passed 2026-09-09;
+7. 50–100 company cohort — DONE 2026-09-09 as a 60-company wave (PASS 55/60;
   P1 follow-ups: GH mega-board path, registry re-resolution, site-less
   Workday records).
 8. INGESTION_V1 freeze — criteria in ADR 0063, not frozen yet.
@@ -79,10 +79,10 @@ controlled E2E canaries are done; ExternalSourceCandidate stays deferred
 Historical options below are not current.
 
 Deferred: BambooHR non-empty live validation; SuccessFactors parity retry
-on a smaller tenant; Workday >2K subdivision (`NEEDS_DESIGN` → audit
-2026-09-09 VERIFIED VULNERABLE / P0 cap-guard design next, report
-`docs/reports/stapply_facet_integration_audit_20260909.md`, ADR 0064 still
-PROPOSED); Oracle/SmartRecruiters requisition identity migration; SourceSpec v0.2/
+on a smaller tenant; Workday >2K subdivision: cap guard IMPLEMENTED
+2026-09-09, facet subdivision DESIGNED (report
+`docs/reports/workday_cap_and_facet_design_20260909.md`, implementation not
+started, ADR 0064 still PROPOSED); Oracle/SmartRecruiters requisition identity migration; SourceSpec v0.2/
 single_request, only if future evidence justifies it.
 
 ---

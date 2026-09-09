@@ -25,6 +25,15 @@ class WorkdayAdapter:
     name = "workday"
     page_size = 20
     max_pages = 100
+    # Known provider result cap: capped tenants report total == 2000 exactly
+    # and pagination past offset 2000 wraps to page 1 (Stapply ats-scrapers
+    # v0.3.0 evidence; JRC has no facet subdivision yet). A catalog sitting
+    # exactly on this cap MUST NOT complete — upstream may hold more jobs.
+    PROVIDER_RESULT_CAP = 2000
+    CAPPED_TOTAL_WARNING = (
+        "Workday catalog total equals the provider result cap (2000); "
+        "snapshot kept bounded until facet subdivision reconciles it"
+    )
     _TENANT = re.compile(r"\btenant\s*:\s*['\"]([^'\"]+)['\"]")
     _SITE = re.compile(r"\bsiteId\s*:\s*['\"]([^'\"]+)['\"]")
     # Requisition-id shapes observed on live CXS catalogs: JR/R/J/REQ prefixes
@@ -123,11 +132,26 @@ class WorkdayAdapter:
         if total == 0:
             warnings.append("upstream reports zero active jobs")
 
+        if self._is_suspicious_capped_total(total):
+            complete = False
+            if self.CAPPED_TOTAL_WARNING not in warnings:
+                warnings.append(self.CAPPED_TOTAL_WARNING)
+
         return AdapterScanResult(
             jobs=tuple(parsed_jobs),
             warnings=tuple(warnings),
             is_complete_snapshot=complete,
         )
+
+    @classmethod
+    def _is_suspicious_capped_total(cls, total: int | None) -> bool:
+        """True when the canonical total sits exactly on the provider cap.
+
+        Provider-general (no company names): a real 2000-job board
+        conservatively reads as bounded — false-incomplete is safer than
+        false-complete until facet subdivision exists.
+        """
+        return total == cls.PROVIDER_RESULT_CAP
 
     @classmethod
     def _bootstrap_identifiers(cls, html: str) -> tuple[str, str]:
