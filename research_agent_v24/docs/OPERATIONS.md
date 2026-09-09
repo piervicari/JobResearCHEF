@@ -32,6 +32,16 @@ Note: a persistent per-user env file may still pin the legacy path on a given
 machine (`RESEARCH_AGENT_DATABASE_URL` in `~/.config/research-agent/.env`);
 update it deliberately when adopting the canonical default.
 
+## Legacy archive (retired 2026-09-09)
+
+`data/research_agent.db` is HISTORICAL / PRE-V25 ARCHIVE — not active runtime.
+It stays on disk byte-for-byte (no merge, no deletion, no rewrite) for offline
+analysis, benchmarking, classifier datasets, and historical market analysis,
+but normal scanning and V25 registry state must not use it. Open it only via
+an intentional explicit override (`--database-url sqlite:///data/research_agent.db`).
+The machine env override was switched to the canonical DB (backup kept beside
+the env file); repository defaults no longer reach the archive accidentally.
+
 ## Command impact
 
 | Command | Network | Writes local state | Intended use |

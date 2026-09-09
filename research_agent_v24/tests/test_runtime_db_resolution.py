@@ -64,3 +64,29 @@ def test_explicit_database_url_override_still_wins(tmp_path: Path) -> None:
         pass
     assert custom.is_file()
     engine.dispose()
+
+
+def test_dashboard_resolves_same_canonical_db(tmp_path: Path, monkeypatch) -> None:
+    import types
+
+    import research_agent.cli as cli_module
+    import research_agent.dashboard.app as dashboard_app
+    from research_agent.cli import _engine
+    from research_agent.dashboard.app import _database_url
+
+    stub = types.SimpleNamespace(
+        database_url="sqlite:///~/.local/share/research-agent/research_agent.db",
+        log_level="WARNING",
+    )
+    monkeypatch.setenv("HOME", str(tmp_path))
+    monkeypatch.delenv("RESEARCH_AGENT_DATABASE_URL", raising=False)
+    monkeypatch.setattr(cli_module, "get_settings", lambda: stub)
+    monkeypatch.setattr(dashboard_app, "get_settings", lambda: stub)
+    dashboard_db = _database_url().replace("sqlite:///", "", 1)
+    engine = _engine()
+    try:
+        cli_db = engine.url.database
+    finally:
+        engine.dispose()
+    assert dashboard_db == cli_db
+    assert cli_db == str(tmp_path / ".local" / "share" / "research-agent" / "research_agent.db")

@@ -29,11 +29,13 @@ from research_agent.dashboard.queries import (
     source_job_rows,
 )
 from research_agent.db.migrations import create_schema
-from research_agent.db.session import create_db_engine
+from research_agent.db.session import create_db_engine, normalize_database_url
 
 
 def _database_url() -> str:
-    configured = os.getenv("RESEARCH_AGENT_DATABASE_URL", get_settings().database_url)
+    configured = normalize_database_url(
+        os.getenv("RESEARCH_AGENT_DATABASE_URL", get_settings().database_url)
+    )
     url = make_url(configured)
     if (
         url.get_backend_name() == "sqlite"

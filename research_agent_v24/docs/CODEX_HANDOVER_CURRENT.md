@@ -1,7 +1,7 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-09 — Runtime DB convergence (canonical ADR-0042 path +
-central resolver + 5 tests); suite 420/0
+**Updated:** 2026-09-09 — Legacy runtime DB retired to archive (env override
+switched, dashboard join fixed); suite 421/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -66,9 +66,9 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ### Current test baseline
 
-- 420 passed / 0 failed (full suite 2026-09-09: 411 + 1 Greenhouse
+- 421 passed / 0 failed (full suite 2026-09-09: 411 + 1 Greenhouse
   empty-board contract test + 1 Eightfold declarative routing test + 2 V25
-  Eightfold alignment tests + 5 runtime DB resolution tests).
+  Eightfold alignment tests + 6 runtime DB resolution tests).
 
 ### Current development focus
 
@@ -118,6 +118,10 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   CLI/scanner/dashboard/sync converge; the two existing DBs hold different
   useful state and were NOT merged — migration is a rollout-gated next task
   before the cohort (see `docs/OPERATIONS.md`).
+  LEGACY RETIREMENT 2026-09-09: the machine `~/.config` env override now
+  points at the canonical DB (backup kept beside it); a dashboard literal-`~`
+  join bug was fixed the same way; legacy `data/research_agent.db` is a
+  read-only historical archive (no merge, no deletion).
   Next step not started. Validation wave evidence dirs are now git-ignored
   ephemeral artifacts (see `.gitignore`); canonical evidence stays in
   `docs/reports/`. The old

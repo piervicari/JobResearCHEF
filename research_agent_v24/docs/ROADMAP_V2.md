@@ -15,9 +15,9 @@ Oracle ById, Eightfold `position_details` — all through the existing
 SuccessFactors: `PARITY_UNRESOLVED` → RSS feed NOT adopted; RMK HTML stays
 the sole authoritative path.
 
-Current baseline: 420 PASS / 0 FAIL (full suite 2026-09-09, +1 Greenhouse
+Current baseline: 421 PASS / 0 FAIL (full suite 2026-09-09, +1 Greenhouse
 empty-board contract test + 1 Eightfold declarative routing test + 2 V25
-Eightfold alignment tests + 5 runtime DB resolution tests, zero live HTTP in suite).
+Eightfold alignment tests + 6 runtime DB resolution tests, zero live HTTP in suite).
 
 First controlled canary completed 2026-09-08 (see
 `docs/reports/controlled_e2e_canary_20260908.md`): ZeroFOX SmartRecruiters
