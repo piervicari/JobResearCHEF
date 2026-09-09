@@ -190,10 +190,15 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
   comp probes: menlosecurity 200/17 jobs, snyk valid-empty).
 - Identity: existing value preserved (NOT migrated to external id, W2.1).
 - Catalog description: COMPLETE inline. Detail: none needed.
-- Known tenants: 1 (horizon3ai). Live validated: 0 adapter scans.
-- Empty endpoint-level evidence: yes (snyk probe). Status: EXPERIMENTAL.
-- Missing: adapter scans; multi-tenant blocked (1 portal in registry).
-- Next: single adapter scan when cheap.
+- Known tenants: 1 registry portal (horizon3ai) + V25 operational sources.
+  Live validated: 2 V25 tenants 2026-09-09 (OpenAI 781/781/781 exact complete
+  TRUE; Vanta 112/112/112 exact complete TRUE; cohort report
+  `docs/reports/ingestion_cohort_15_20260909.md`).
+- Empty endpoint-level evidence: yes (snyk probe). Status:
+  MULTI_TENANT_VALIDATED (2 distinct live tenants, exact complete accounting).
+  NOT PRODUCTION_SUPPORTED: live empty-board observation missing.
+- Missing: natural live empty board.
+- Next: wave complete — next step recommended separately, not executed here.
 
 ### SuccessFactors (RMK authoritative; RSS deferred)
 - Implementation: `sources/ats/successfactors.py` (name `successfactors_rmk`).

@@ -59,7 +59,8 @@ Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
 4. Unsupported ATS gaps — recorded in matrix.
 5. ExternalSourceCandidate lazy validation — DEFERRED until serving adapters
    are multi-tenant validated.
-6. 10–20 company ingestion cohort — pending.
+6. 10–20 company ingestion cohort — DONE 2026-09-09 as a 15-company wave
+  (PASS 14/15, report `docs/reports/ingestion_cohort_15_20260909.md`).
 7. 50–100 company cohort — pending.
 8. INGESTION_V1 freeze — criteria in ADR 0063, not frozen yet.
 9. LLM pipeline resumes — only after freeze. Honeywell PENDING_AI stays

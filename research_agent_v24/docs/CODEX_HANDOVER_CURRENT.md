@@ -1,7 +1,7 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-09 — Legacy runtime DB retired to archive (env override
-switched, dashboard join fixed); suite 421/0
+**Updated:** 2026-09-09 — First 15-company ingestion cohort PASS (14/15);
+Ashby MULTI_TENANT_VALIDATED; suite 421/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -116,12 +116,19 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   RUNTIME DB CONVERGENCE 2026-09-08: code/settings default switched to the
   canonical ADR-0042 persistent path with a central `~`-expanding resolver, so
   CLI/scanner/dashboard/sync converge; the two existing DBs hold different
-  useful state and were NOT merged — migration is a rollout-gated next task
-  before the cohort (see `docs/OPERATIONS.md`).
+  useful state and were NOT merged — per user decision 2026-09-09 no merge is
+  planned and migration is NOT required for rollout (see `docs/OPERATIONS.md`).
   LEGACY RETIREMENT 2026-09-09: the machine `~/.config` env override now
   points at the canonical DB (backup kept beside it); a dashboard literal-`~`
   join bug was fixed the same way; legacy `data/research_agent.db` is a
   read-only historical archive (no merge, no deletion).
+  COHORT 15 2026-09-09: first system ingestion wave PASS — 15 companies via
+  normal V25 sync → disposable DB (28-wire budget, 0 retries, canonical DB
+  untouched); 14/15 successful (6 complete + 7 bounded + 1 empty-valid),
+  exact observed-slice accounting everywhere, sole failure JPMorgan Oracle SSO
+  wall (upstream, no bypass); 1856 rows PENDING_AI; Ashby promoted to
+  MULTI_TENANT_VALIDATED (OpenAI 781 + Vanta 112 exact) — see
+  `docs/reports/ingestion_cohort_15_20260909.md`.
   Next step not started. Validation wave evidence dirs are now git-ignored
   ephemeral artifacts (see `.gitignore`); canonical evidence stays in
   `docs/reports/`. The old

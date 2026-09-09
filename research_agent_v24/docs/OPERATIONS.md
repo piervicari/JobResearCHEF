@@ -24,8 +24,8 @@ command's `--database-url` flag (e.g. disposable validation DBs).
 Do NOT delete, overwrite, or merge database files to "fix" divergence:
 `data/research_agent.db` (repo-local, pre-0042 operational history: 5789 jobs
 / 29 runs) and the canonical `~/.local/share` DB (V25-synced portals, 652 jobs
-/ 16 runs) contain different useful state. Existing-data migration is a
-separate rollout-gated task before the 10–20 cohort; until it closes, open
+/ 16 runs) contain different useful state. Per user decision 2026-09-09 no
+merge is planned and migration is NOT required for rollout; open
 legacy state explicitly with `--database-url sqlite:///data/research_agent.db`.
 
 Note: a persistent per-user env file may still pin the legacy path on a given
