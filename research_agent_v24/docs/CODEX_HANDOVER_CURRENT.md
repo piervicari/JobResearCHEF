@@ -1,13 +1,130 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-09 — 60-company ingestion cohort PASS (55/60) incl.
-Workday badge-ID P0 fix; suite 422/0
+**Updated:** 2026-09-09 — handover refresh: maintenance rule + CURRENT STATE
+restructure; HEAD `1ddc901`; suite 422/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
-## CURRENT SNAPSHOT — 2026-09-08
+# HANDOVER MAINTENANCE RULE
 
-This section overrides all dated sections below. Inside historical entries,
-phrases like "next task" or "Google probe is next" are stale — do not act on them.
+`docs/CODEX_HANDOVER_CURRENT.md` is the single canonical project handover.
+Do not create a parallel handover file (no COMPLETE_HANDOVER.md,
+AGENT_HANDOVER.md, PROJECT_STATE.md, or equivalents).
+
+Every JobResearCHEF development task that materially changes any of the
+following:
+
+- implementation state
+- architecture
+- provider/ATS evidence
+- source registry/control plane
+- runtime behavior
+- blockers
+- roadmap/milestones
+- accepted/proposed decisions
+- test baseline
+- next recommended task
+
+MUST update this handover in the SAME commit. A material task is not
+complete until the CURRENT handover reflects the new repository state.
+
+Rules: read this file FIRST before starting a new task; update CURRENT
+facts rather than appending contradictory history; historical evidence may
+remain but must be clearly marked historical; CURRENT state always wins
+over historical sections; never claim proposed work is implemented or
+implemented work is merely proposed; keep links to supporting ADRs/reports;
+tasks with no material project-state change need no handover edit.
+
+# CURRENT STATE (verified 2026-09-09, HEAD `1ddc901`)
+
+- Tests: **422 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
+- Canonical runtime DB: `~/.local/share/research-agent/research_agent.db`
+  (SHA-256 `ece676dc…`, unchanged by all validation waves). Repo-local
+  `data/research_agent.db` is HISTORICAL / PRE-V25 ARCHIVE ONLY; no merge
+  planned (ADR 0042). Runtime DB path split is closed.
+- V25 control plane: `data/target_employers/tier_s_operational_sources_v1.csv`
+  through the V25 sync/control-plane path (ADR 0051). RUN28 /
+  `apply_registry_changes` is NOT the V25 multi-source control plane.
+- AI pipeline: DEFERRED under ADR 0063. No LLM triage implemented.
+
+## Current provider validation (per `docs/ATS_VALIDATION_MATRIX.md`)
+
+MULTI_TENANT_VALIDATED, none PRODUCTION_SUPPORTED: Workday, Greenhouse,
+Oracle Recruiting Cloud, Lever, Eightfold (NVIDIA + Microsoft bindings),
+Ashby, SmartRecruiters. Lower tiers: SuccessFactors RMK EXPERIMENTAL,
+Teamtailor / Workable VALIDATED_ONE_TENANT, Mercedes-Beesite / BambooHR
+EXPERIMENTAL.
+
+## Current system evidence
+
+- Cohort 15 (2026-09-09): PASS, 14/15 (93.3%); Ashby promoted.
+  `docs/reports/ingestion_cohort_15_20260909.md`.
+- Cohort 60 (2026-09-09): PASS, 55/60 (91.7%), HIGH 21/21, 5969 raw =
+  5969 adapter = 5969 persisted, 103 wires.
+  `docs/reports/ingestion_cohort_60_20260909.md` (GH accounting corrected:
+  18 complete + 3 empty-valid + 3 failed).
+- Workday identity P0: FIXED — badge-like `bulletFields` caused 62 colliding
+  IDs; provider-general fix (requisition-shape detection + `externalPath`
+  fallback) in `sources/ats/workday.py`, regression-covered.
+- Source strategy audit (commit `1ddc901`): TIER decides WHEN, provider
+  decides HOW; Tier-S daily is a product requirement; Greenhouse lightweight
+  catalog PROVEN; Workday and Eightfold require FULL daily pagination.
+  Matrix: `docs/SOURCE_SCAN_STRATEGY.md`.
+
+## Current open issues (P1 / upstream)
+
+GH SpaceX/Anduril >20 MB guard (fix = lightweight catalog, not raising the
+limit); Booz Allen / Prudential 406 + two site-less Workday records
+(registry corrections); SentinelOne stale/dead board; JPMorgan Oracle SSO
+wall (UPSTREAM_BLOCKED, no auth workaround); Mercedes-Beesite
+trailing-slash binding defect (open).
+
+## Current decisions
+
+ADR 0063 ACCEPTED (AI deferred); ADR 0064 PROPOSED — do NOT treat as
+accepted; ADR 0042 / ADR 0051 ACCEPTED.
+
+# CURRENT DESIGN DIRECTION — NOT YET IMPLEMENTED
+
+Nothing below is implemented; recorded for next-agent context.
+
+- All locations are in scope; geography must NOT exclude/prune sources.
+- Facets: investigated as catalog partitioning / completeness / query
+  planning / ordering / metadata — facets must NOT decide WHETHER a job is
+  ingested (no Legal/HR/Finance/Marketing filtering); many-to-many concept.
+- Stapply / ats-scrapers: candidate registry intelligence / bootstrap seed /
+  reference for missing adapters / fallback / drift and completeness signals.
+  Vendored protocol reference exists (`external_reuse_audit/vendor/ats-scrapers`,
+  ADRs 0057/0060/0061). NOT the source of truth; direct official sources
+  remain authoritative unless a future decision changes that.
+- Workday facet subdivision: audit item — verify whether very large boards
+  silently cap/wrap (~2000 results) causing false-complete; JRC subdivision
+  NOT implemented.
+- Same-day Stapply snapshot watcher (morning direct scan + manifest observe
+  + compare + direct-verify): PROPOSED idea only; cadence/freshness/cost
+  evidence needed first.
+- Scan Architecture V2 (discovery → delta → LLM triage → selective detail →
+  full AI): DESIGNED in `docs/SOURCE_SCAN_STRATEGY.md`, NOT implemented.
+
+# CURRENT ROADMAP / NEXT TASK
+
+Do NOT run another cohort, implement AI, repair P1s broadly, or integrate
+Stapply in production. Next milestone:
+
+STAPPLY + FACET INTEGRATION AUDIT (documented only, not executed here):
+CORE coverage in Stapply, missing/wrong sources, bootstrap/identity
+compatibility, snapshot cadence/freshness, extraction cost, missing-adapter
+reuse, Workday >2k completeness, facets/filtering, canonicalization, drift
+detection, fallback feasibility.
+
+# KEY SUPPORTING FILES
+
+Matrix: `docs/ATS_VALIDATION_MATRIX.md`. Roadmap: `docs/ROADMAP_V2.md`.
+Ops: `docs/OPERATIONS.md`. Strategy: `docs/SOURCE_SCAN_STRATEGY.md`.
+Cohort reports: `docs/reports/ingestion_cohort_15_20260909.md`,
+`docs/reports/ingestion_cohort_60_20260909.md`. ADRs: 0042, 0051, 0063,
+0064 (PROPOSED), 0057/0060/0061.
+
+# Wave-ordered history (recent entries; superseded by CURRENT STATE above)
 
 ### Canonical company universe
 
@@ -169,9 +286,10 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   persisted (7/82/39), 0 dups/malformed, descriptions inline-complete
   (min 2916 chars), 0 detail requests, 0 LLM calls. Status
   MULTI_TENANT_VALIDATED; single missing gate = live empty-board
-  observation. (Superseded: Lever executed next — see Lever wave entry below.
-  Workday is the next validation candidate; 17 adapter-served scan-enabled
-  portals derived via WorkdayAdapter.supports(), AI DEFERRED.)
+  observation. (Superseded: Lever, then Workday, executed next — see wave
+  entries below. Historical note: at that time 17 adapter-served
+  scan-enabled Workday portals were derived via WorkdayAdapter.supports();
+  AI DEFERRED per ADR 0063.)
 - Open follow-ups (not started): BambooHR non-empty validation
   (no brute-force); Workday >2K subdivision (NEEDS_DESIGN).
 
@@ -179,7 +297,7 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 ## Historical development log — do not interpret "next task" inside these entries as current.
 
-The top CURRENT SNAPSHOT (2026-09-08) overrides everything below.
+The CURRENT STATE block at the top of this file overrides everything below.
 
 ## 1. Product objective
 
