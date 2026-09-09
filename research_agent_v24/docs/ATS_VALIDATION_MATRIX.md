@@ -16,8 +16,10 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 - Catalog: landing bootstrap + POST `{origin}/wday/cxs/{tenant}/{site}` jobs,
   body limit/offset (`page_size = 20` proven live), response `total`.
   Pagination: offset, total-guarded, total-change warning (code-read + JRCAD + live).
-- Identity: adapter-native stable ID (requisition else externalPath;
-  externalPath-derived detail addressing).
+- Identity: adapter-native stable ID (requisition-shape match else externalPath;
+  externalPath-derived detail addressing). Badge-ID defect found live in cohort
+  2026-09-09 (Intel/Thales badge-first bullets collapsed native IDs) and fixed
+  + regression-tested (requisition regex + externalPath fallback).
 - Catalog description: none inline (live: 0/244 rows); `postedOn`, `locationsText` only.
   Catalog carries no `timeType`/`remoteType` live (W2.1 mapping unexercised on catalog).
 - Detail: yes, GET CXS `{externalPath}` (Phase-3 renderer, live-proven 3/3 2026-09-08:
@@ -51,16 +53,18 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
 - Identity: posting id. Catalog description: partial/empty typical.
 - Detail: yes, sanctioned cross-host `api.smartrecruiters.com/v1/companies/{slug}/postings/{id}`
   (Phase-3, offline-tested). Detail required: selective.
-- Known tenants: 1 pure-SR portal (ZeroFOX) + 1 ServiceNow-flavored (armis).
-- Live validated: 1 (CAN1 ZeroFOX). Empty tested: YES (HTTP 200, totalFound=0,
-  valid schema, 1 wire). Pagination live: no (empty board).
-- Detail live: no. Identity live: n/a (0 jobs). Dedup live: no.
-- Completeness confidence: medium (contract solid, no non-empty live).
-- Safety tested live: yes (1 wire, retries 0, clean stop).
-- Status: VALIDATED_ONE_TENANT.
-- Missing: non-empty board (only 1 SR portal in registry → multi-tenant
-  blocked on tenant availability, documented, not worked around).
-- Next: none available without source creation — do not force.
+- Known tenants: 1 pure-SR registry portal (ZeroFOX) + V25 operational sources.
+- Live validated: 3 (CAN1 ZeroFOX empty; cohort 2026-09-09 Visa EMPTY_VALID
+  0/0/0 exact + ServiceNow 200/200/200 exact SUCCESS_BOUNDED at 2-page cap;
+  report `docs/reports/ingestion_cohort_15_20260909.md`). Empty tested: YES
+  twice (ZeroFOX, Visa). Pagination live: yes (ServiceNow 2 pages exact).
+- Detail live: no. Identity live: yes (distinct posting ids, 1 row each).
+  Dedup live: yes. Completeness confidence: high for observed slices.
+- Safety tested live: yes (retries 0, clean stops).
+- Status: MULTI_TENANT_VALIDATED (3 distinct live tenants, exact accounting).
+  NOT PRODUCTION_SUPPORTED: no live detail episode yet.
+- Missing: selective-detail live proof on a non-empty board.
+- Next: wave complete — next step recommended separately, not executed here.
 
 ### Oracle Recruiting Cloud
 - Implementation: `sources/ats/oracle.py` (name `oracle_recruiting_cloud`).
@@ -86,6 +90,9 @@ EXT = external repo protocol reference (never runtime); FIX = saved fixture.
   NOT PRODUCTION_SUPPORTED: full-traversal + empty-board evidence still missing.
 - Missing: empty-board observation; multi-page / total-variation episode live
   (guards unit-tested only); full-traversal proof.
+- Known upstream wall: JPMorgan Chase Oracle tenant redirects into Oracle
+  Access Management SSO login (cohort 2026-09-09, UPSTREAM_BLOCKED, no bypass
+  attempted) — do not select this source again; no adapter defect.
 - Next: none this phase (wave complete) — gaps listed above gate production support.
 
 ### Greenhouse

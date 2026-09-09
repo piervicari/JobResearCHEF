@@ -15,9 +15,10 @@ Oracle ById, Eightfold `position_details` — all through the existing
 SuccessFactors: `PARITY_UNRESOLVED` → RSS feed NOT adopted; RMK HTML stays
 the sole authoritative path.
 
-Current baseline: 421 PASS / 0 FAIL (full suite 2026-09-09, +1 Greenhouse
+Current baseline: 422 PASS / 0 FAIL (full suite 2026-09-09, +1 Greenhouse
 empty-board contract test + 1 Eightfold declarative routing test + 2 V25
-Eightfold alignment tests + 6 runtime DB resolution tests, zero live HTTP in suite).
+Eightfold alignment tests + 6 runtime DB resolution tests + 1 Workday badge-ID
+regression test, zero live HTTP in suite).
 
 First controlled canary completed 2026-09-08 (see
 `docs/reports/controlled_e2e_canary_20260908.md`): ZeroFOX SmartRecruiters
@@ -61,7 +62,9 @@ Phase: ATS Validation & Ingestion Hardening (ADR 0063, AI explicitly deferred).
    are multi-tenant validated.
 6. 10–20 company ingestion cohort — DONE 2026-09-09 as a 15-company wave
   (PASS 14/15, report `docs/reports/ingestion_cohort_15_20260909.md`).
-7. 50–100 company cohort — pending.
+7. 50–100 company cohort — pending (60-company wave passed 2026-09-09;
+  P1 follow-ups: GH mega-board path, registry re-resolution, site-less
+  Workday records).
 8. INGESTION_V1 freeze — criteria in ADR 0063, not frozen yet.
 9. LLM pipeline resumes — only after freeze. Honeywell PENDING_AI stays
    deferred evidence.

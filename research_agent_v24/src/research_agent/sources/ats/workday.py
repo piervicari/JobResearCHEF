@@ -27,6 +27,10 @@ class WorkdayAdapter:
     max_pages = 100
     _TENANT = re.compile(r"\btenant\s*:\s*['\"]([^'\"]+)['\"]")
     _SITE = re.compile(r"\bsiteId\s*:\s*['\"]([^'\"]+)['\"]")
+    # Requisition-id shapes observed on live CXS catalogs: JR/R/J/REQ prefixes
+    # plus digits (JR100132, R14702, J0107014, REQ-1001) or bare digits
+    # (2618439). Badge labels ("Spotlight Job", "Regular Employee") never match.
+    _REQUISITION = re.compile(r"^(?:(?:JR|R|J|REQ)-?)?\d[\d\-]*$", re.IGNORECASE)
     _SUPPORTED_FAMILIES = {"workday", "workday recruiting"}
 
     def supports(self, target: PortalTarget) -> bool:
@@ -149,8 +153,19 @@ class WorkdayAdapter:
         bullets = job.get("bulletFields")
         requisition = ""
         if isinstance(bullets, list):
+            candidates = [
+                value.strip()
+                for value in bullets
+                if isinstance(value, str) and value.strip()
+            ]
+            # Cohort-60 evidence: some tenants lead bulletFields with badge
+            # labels ("Spotlight Job", "Regular Employee") instead of the
+            # requisition id, collapsing many jobs onto one native id.
+            # Requisition shapes observed live (JR/R/J + digits, pure digits)
+            # win over badge text; anything else falls back to the stable
+            # externalPath rather than a collision-prone label.
             requisition = next(
-                (value.strip() for value in bullets if isinstance(value, str) and value.strip()),
+                (value for value in candidates if self._REQUISITION.match(value)),
                 "",
             )
         source_job_id = requisition or external_path

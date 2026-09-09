@@ -1,7 +1,7 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-09 — First 15-company ingestion cohort PASS (14/15);
-Ashby MULTI_TENANT_VALIDATED; suite 421/0
+**Updated:** 2026-09-09 — 60-company ingestion cohort PASS (55/60) incl.
+Workday badge-ID P0 fix; suite 422/0
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 ## CURRENT SNAPSHOT — 2026-09-08
@@ -68,7 +68,8 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
 
 - 421 passed / 0 failed (full suite 2026-09-09: 411 + 1 Greenhouse
   empty-board contract test + 1 Eightfold declarative routing test + 2 V25
-  Eightfold alignment tests + 6 runtime DB resolution tests).
+  Eightfold alignment tests + 6 runtime DB resolution tests + 1 Workday
+  badge-ID regression test).
 
 ### Current development focus
 
@@ -129,6 +130,13 @@ phrases like "next task" or "Google probe is next" are stale — do not act on t
   wall (upstream, no bypass); 1856 rows PENDING_AI; Ashby promoted to
   MULTI_TENANT_VALIDATED (OpenAI 781 + Vanta 112 exact) — see
   `docs/reports/ingestion_cohort_15_20260909.md`.
+  COHORT 60 2026-09-09: system scale wave PASS — 60 frozen companies via normal
+  V25 sync → disposable DB (103-wire budget, 0 retries, canonical DB
+  untouched); 55/60 successful (26 complete + 24 bounded + 5 empty-valid),
+  exact row-count accounting everywhere; failures: 2 oversize GH boards, 1 dead
+  board, 2 site-less Workday records, 0 persistence/registry-routing defects;
+  P0 badge-ID defect (Intel/Thales) fixed + tested + replay-proven; 5969 rows
+  PENDING_AI — see `docs/reports/ingestion_cohort_60_20260909.md`.
   Next step not started. Validation wave evidence dirs are now git-ignored
   ephemeral artifacts (see `.gitignore`); canonical evidence stays in
   `docs/reports/`. The old

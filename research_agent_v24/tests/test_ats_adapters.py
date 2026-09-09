@@ -286,6 +286,31 @@ def test_workday_adapter_reads_bootstrap_and_posts_paginated_jobs(fixtures: Path
     assert requested[2][2]["offset"] == 1
 
 
+def test_workday_requisition_prefers_id_shape_over_badge_labels() -> None:
+    """Cohort-60 evidence: Intel/Thales lead bulletFields with badge labels
+    ("Spotlight Job", "Regular Employee"), which collapsed dozens of jobs
+    onto one native id. Requisition shapes win; anything else falls back to
+    the stable externalPath."""
+    adapter = WorkdayAdapter()
+
+    def parse(bullets, external_path="/job/X/Role_JR1"):
+        return adapter._parse_job(
+            {"title": "Role", "externalPath": external_path,
+             "bulletFields": bullets},
+            site_url="https://example.wd5.myworkdayjobs.com/Site",
+            index=0,
+        )
+
+    assert parse(["Spotlight Job", "JR0286861"]).source_job_id == "JR0286861"
+    assert parse(["Regular Employee", "R0334457", "10 - INDUSTRY"]).source_job_id == "R0334457"
+    assert parse(["R14702"]).source_job_id == "R14702"
+    assert parse(["J0107014"]).source_job_id == "J0107014"
+    assert parse(["2618439"]).source_job_id == "2618439"
+    assert parse(["REQ-1001"]).source_job_id == "REQ-1001"
+    assert parse(["Night Shift"]).source_job_id == "/job/X/Role_JR1"
+    assert parse([]).source_job_id == "/job/X/Role_JR1"
+
+
 def test_workday_routing_requires_direct_host_and_unambiguous_family() -> None:
     direct = _target(
         "https://example.wd5.myworkdayjobs.com/ExampleCareers",
