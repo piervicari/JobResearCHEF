@@ -1,6 +1,8 @@
 # Workday cap guard + facet-subdivision design — 2026-09-09
 
-PHASE A IMPLEMENTED (this commit). PHASE B/C DESIGNED ONLY — not implemented.
+PHASE A IMPLEMENTED. PHASE B IMPLEMENTED 2026-09-09 (static recursive
+facet subdivision in `sources/ats/workday.py`, offline-tested only — no
+live validation yet). PHASE C DESIGNED ONLY — not implemented.
 Zero live wires used; evidence is repository code + vendored Stapply
 ats-scrapers v0.3.0 (`external_reuse_audit/vendor/ats-scrapers`) + synthetic
 fixtures. Invariant: ALL locations and ALL categories in scope — facets affect
@@ -38,7 +40,17 @@ FALSE; badge-label identity fallback intact.
 - Termination: `MAX_SUBDIVISION_DEPTH = 4`; per-branch offset fan-out under
   a shared semaphore; bounded loss is explicit, never silent.
 
-## Phase B — JRC static subdivision (DESIGNED, not implemented)
+## Phase B — JRC static subdivision (IMPLEMENTED 2026-09-09, offline only)
+
+Implemented as designed, with two recorded deviations:
+- Partial jobs are ALWAYS merged before a branch reports failure (budget,
+  empty page, fetch error, skipped postings) — jobs collected before the
+  problem persist; only the completion flag goes FALSE.
+- Union-level job-cap: `>` cap truncates + FALSE; `==` cap keeps all rows
+  but still FALSE (conservative; a full union at exactly the record cap
+  cannot prove absence of truncation).
+Root page-0 doubles as cap/facet probe (no extra wire); uncapped request
+sequences and warning texts are byte-identical to pre-Phase-B behavior.
 
 Root query (empty `appliedFacets`, as today) → read `total` + `facets[]`.
 If `total != 2000`: today's pagination unchanged. If capped: partition on

@@ -476,6 +476,187 @@ def test_workday_identity_fix_survives_cap_guard() -> None:
     assert job.source_job_id == "R0334457"
 
 
+class _FacetBoard:
+    """In-memory Workday CXS mock routed by (appliedFacets, offset).
+
+    Zero live wires. Unknown routes answer HTTP 400 (loud test bug).
+    """
+
+    def __init__(self, fixtures: Path, page_size: int = 20) -> None:
+        self.landing_text = (fixtures / "workday_landing.html").read_text(
+            encoding="utf-8"
+        )
+        self.page_size = page_size
+        self.routes: dict[frozenset, tuple[int, list, list]] = {}
+        self.fail_routes: set[frozenset] = set()
+        self.bodies: list[dict] = []
+
+    @staticmethod
+    def posting(index: int) -> dict:
+        return {
+            "title": f"Role {index}",
+            "externalPath": f"/job/Site/Role-{index}_REQ-{9000 + index}",
+            "locationsText": "Rome, Italy",
+            "postedOn": "Posted Today",
+            "bulletFields": [f"REQ-{9000 + index}"],
+        }
+
+    @staticmethod
+    def facet(dimension: str, values: list[tuple[str, int]]) -> dict:
+        return {
+            "facetParameter": dimension,
+            "values": [{"id": vid, "count": count} for vid, count in values],
+        }
+
+    @staticmethod
+    def key(applied: dict) -> frozenset:
+        return frozenset((facet, tuple(values)) for facet, values in applied.items())
+
+    def add(self, applied: dict, total: int, postings: list, facets: list) -> None:
+        self.routes[self.key(applied)] = (total, postings, facets)
+
+    def handler(self, request: httpx.Request) -> httpx.Response:
+        if request.method == "GET":
+            return httpx.Response(200, text=self.landing_text, request=request)
+        body = json.loads(request.content)
+        self.bodies.append(body)
+        route = self.key(body.get("appliedFacets") or {})
+        if route in self.fail_routes or route not in self.routes:
+            return httpx.Response(400, text="unknown test route", request=request)
+        total, postings, facets = self.routes[route]
+        offset = body["offset"]
+        page = postings[offset:offset + self.page_size]
+        return httpx.Response(
+            200,
+            json={"total": total, "jobPostings": page, "facets": facets},
+            request=request,
+        )
+
+
+def _run_facet_board(board: _FacetBoard, *, max_pages: int, max_jobs: int):
+    adapter = WorkdayAdapter()
+    adapter.page_size = board.page_size
+    target = _target(
+        "https://example.wd5.myworkdayjobs.com/ExampleCareers",
+        "Workday",
+    )
+
+    async def run():
+        fetcher = HttpFetcher(
+            max_retries=0,
+            per_domain_min_interval_seconds=0,
+            jitter_seconds=0,
+            resolve_dns=False,
+            max_requests_per_host_per_run=1000,
+            max_requests_per_run=1000,
+            transport=httpx.MockTransport(board.handler),
+        )
+        async with fetcher:
+            context = PortalScanContext(
+                fetcher, max_pages_per_portal=max_pages,
+                max_jobs_per_portal=max_jobs,
+            )
+            return await adapter.scan(target, context)
+
+    return asyncio.run(run())
+
+
+def test_workday_capped_root_subdivides_to_complete(fixtures: Path) -> None:
+    """Root total=2000 → one branch per jobFamilyGroup value → union TRUE."""
+    board = _FacetBoard(fixtures)
+    root_postings = [_FacetBoard.posting(i) for i in range(20)]
+    postings_a = [_FacetBoard.posting(100 + i) for i in range(40)]
+    postings_b = [_FacetBoard.posting(200 + i) for i in range(20)]
+    board.add({}, 2000, root_postings,
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 40), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 40, postings_a, [])
+    board.add({"jobFamilyGroup": ["B"]}, 20, postings_b, [])
+
+    result = _run_facet_board(board, max_pages=100, max_jobs=5000)
+
+    assert len(result.jobs) == 60
+    assert result.is_complete_snapshot is True
+    assert WorkdayAdapter.SUBDIVISION_ACTIVATED_WARNING in result.warnings
+    assert WorkdayAdapter.CAPPED_TOTAL_WARNING not in result.warnings
+    applied = [body["appliedFacets"] for body in board.bodies if body["offset"] == 0]
+    assert {"jobFamilyGroup": ["A"]} in applied
+    assert {"jobFamilyGroup": ["B"]} in applied
+
+
+def test_workday_nested_subdivision_resolves_capped_branch(fixtures: Path) -> None:
+    """Root capped → first-dimension branch still capped → second dimension
+    resolves it → TRUE."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 2000), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 2000,
+              [_FacetBoard.posting(100 + i) for i in range(20)],
+              [_FacetBoard.facet("timeType", [("FT", 30), ("PT", 20)])])
+    board.add({"jobFamilyGroup": ["B"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+    board.add({"jobFamilyGroup": ["A"], "timeType": ["FT"]}, 30,
+              [_FacetBoard.posting(300 + i) for i in range(30)], [])
+    board.add({"jobFamilyGroup": ["A"], "timeType": ["PT"]}, 20,
+              [_FacetBoard.posting(400 + i) for i in range(20)], [])
+
+    result = _run_facet_board(board, max_pages=100, max_jobs=5000)
+
+    assert len(result.jobs) == 70
+    assert result.is_complete_snapshot is True
+    assert WorkdayAdapter.CAPPED_TOTAL_WARNING not in result.warnings
+
+
+def test_workday_overlapping_branches_deduplicate(fixtures: Path) -> None:
+    """Same job in two branches persists once (JRC identity dedup)."""
+    board = _FacetBoard(fixtures)
+    shared = [_FacetBoard.posting(i) for i in range(20)]
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 20), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 20, shared, [])
+    board.add({"jobFamilyGroup": ["B"]}, 20, shared, [])
+
+    result = _run_facet_board(board, max_pages=100, max_jobs=5000)
+
+    assert len(result.jobs) == 20
+    assert len({job.source_job_id for job in result.jobs}) == 20
+    assert result.is_complete_snapshot is True
+
+
+def test_workday_failing_branch_keeps_jobs_but_not_complete(fixtures: Path) -> None:
+    """One branch errors → collected jobs remain → complete FALSE."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 20), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 20,
+              [_FacetBoard.posting(i) for i in range(20)], [])
+    board.add({"jobFamilyGroup": ["B"]}, 20, [], [])
+    board.fail_routes.add(_FacetBoard.key({"jobFamilyGroup": ["B"]}))
+
+    result = _run_facet_board(board, max_pages=100, max_jobs=5000)
+
+    assert len(result.jobs) == 20
+    assert result.is_complete_snapshot is False
+    assert WorkdayAdapter.BRANCH_FAILED_WARNING in result.warnings
+    assert WorkdayAdapter.CAPPED_TOTAL_WARNING in result.warnings
+
+
+def test_workday_branch_page_budget_keeps_partial_jobs(fixtures: Path) -> None:
+    """Branch hits the page budget → partial jobs kept → complete FALSE."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 40), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 40,
+              [_FacetBoard.posting(i) for i in range(40)], [])
+    board.add({"jobFamilyGroup": ["B"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+
+    result = _run_facet_board(board, max_pages=2, max_jobs=5000)
+
+    assert len(result.jobs) == 20
+    assert result.is_complete_snapshot is False
+    assert WorkdayAdapter.CAPPED_TOTAL_WARNING in result.warnings
+
+
 def test_phenom_adapter_parses_embedded_search_data_and_next_link(fixtures: Path) -> None:
     adapter = PhenomAdapter()
     target = _target(

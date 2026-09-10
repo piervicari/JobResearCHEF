@@ -79,10 +79,10 @@ controlled E2E canaries are done; ExternalSourceCandidate stays deferred
 Historical options below are not current.
 
 Deferred: BambooHR non-empty live validation; SuccessFactors parity retry
-on a smaller tenant; Workday >2K subdivision: cap guard IMPLEMENTED
-2026-09-09, facet subdivision DESIGNED (report
-`docs/reports/workday_cap_and_facet_design_20260909.md`, implementation not
-started, ADR 0064 still PROPOSED); Oracle/SmartRecruiters requisition identity migration; SourceSpec v0.2/
+on a smaller tenant; Workday >2K subdivision: cap guard + Phase-B static
+facet subdivision IMPLEMENTED 2026-09-09 (offline only, no live validation
+yet; report `docs/reports/workday_cap_and_facet_design_20260909.md`;
+Phase C deferred, ADR 0064 still PROPOSED); Oracle/SmartRecruiters requisition identity migration; SourceSpec v0.2/
 single_request, only if future evidence justifies it.
 
 ---

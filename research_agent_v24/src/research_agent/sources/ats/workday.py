@@ -27,12 +27,32 @@ class WorkdayAdapter:
     max_pages = 100
     # Known provider result cap: capped tenants report total == 2000 exactly
     # and pagination past offset 2000 wraps to page 1 (Stapply ats-scrapers
-    # v0.3.0 evidence; JRC has no facet subdivision yet). A catalog sitting
-    # exactly on this cap MUST NOT complete — upstream may hold more jobs.
+    # v0.3.0 evidence). A catalog sitting exactly on this cap MUST NOT
+    # complete without facet subdivision (Phase B, below).
     PROVIDER_RESULT_CAP = 2000
     CAPPED_TOTAL_WARNING = (
         "Workday catalog total equals the provider result cap (2000); "
         "snapshot kept bounded until facet subdivision reconciles it"
+    )
+    # Static Phase-B subdivision dimensions (Stapply-proven order). Phase C
+    # (counts-based selection) is deferred; this order is fixed.
+    _SUBDIVISION_DIMENSIONS = ("jobFamilyGroup", "timeType", "locations", "workerSubType")
+    SUBDIVISION_ACTIVATED_WARNING = (
+        "Workday facet subdivision activated: root catalog at provider cap (2000)"
+    )
+    BRANCH_UNRESOLVED_WARNING = (
+        "Workday facet branch remains capped after available dimensions; "
+        "snapshot kept bounded"
+    )
+    BRANCH_FAILED_WARNING = (
+        "Workday facet branch failed; collected jobs kept, snapshot bounded"
+    )
+    SUBDIVISION_BUDGET_WARNING = (
+        "Workday facet subdivision exhausted the page budget; snapshot kept bounded"
+    )
+    DUPLICATE_BRANCH_WARNING = (
+        "Workday facet branch repeats an already-visited filter state; "
+        "skipped, snapshot bounded"
     )
     _TENANT = re.compile(r"\btenant\s*:\s*['\"]([^'\"]+)['\"]")
     _SITE = re.compile(r"\bsiteId\s*:\s*['\"]([^'\"]+)['\"]")
@@ -65,34 +85,48 @@ class WorkdayAdapter:
             f"{origin}/wday/cxs/{quote(tenant, safe='')}/{quote(site, safe='')}/jobs"
         )
         site_url = f"{origin}/{quote(site, safe='')}"
-        parsed_jobs: list[RawJob] = []
         warnings: list[str] = []
+        page_limit = context.page_limit(self.max_pages)
+        pages_remaining = page_limit
+
+        # Root probe: page 0 doubles as cap/facet evidence (no extra wire).
+        payload0, postings0, total0 = await self._fetch_jobs_page(
+            context, api_url, {}, 0
+        )
+        pages_remaining -= 1
+
+        if self._is_suspicious_capped_total(total0):
+            return await self._scan_capped_root(
+                context, api_url, site_url, payload0, postings0, total0,
+                pages_remaining, warnings,
+            )
+        return await self._scan_uncapped_root(
+            context, api_url, site_url, payload0, postings0, total0,
+            page_limit, pages_remaining, warnings,
+        )
+
+    async def _scan_uncapped_root(
+        self,
+        context: PortalScanContext,
+        api_url: str,
+        site_url: str,
+        payload0: dict,
+        postings0: list,
+        total0: int,
+        page_limit: int,
+        pages_remaining: int,
+        warnings: list[str],
+    ) -> AdapterScanResult:
+        """Original full-pagination path, unchanged semantics for uncapped
+        catalogs (request sequence, warnings, and closure rules preserved)."""
+        parsed_jobs: list[RawJob] = []
         complete = True
         total: int | None = None
 
-        page_limit = context.page_limit(self.max_pages)
-        for page_index in range(page_limit):
-            offset = page_index * self.page_size
-            response = await context.fetch(
-                FetchRequest(
-                    api_url,
-                    method="POST",
-                    allow_cache=False,
-                    headers={"Accept": "application/json"},
-                    json_body={
-                        "appliedFacets": {},
-                        "limit": self.page_size,
-                        "offset": offset,
-                        "searchText": "",
-                    },
-                )
-            )
-            require_success(response)
-            payload = require_mapping(response.json(), context="Workday jobs response")
-            jobs = require_list(payload.get("jobPostings"), context="Workday jobPostings")
-            raw_total = payload.get("total")
-            if not isinstance(raw_total, int) or raw_total < 0:
-                raise AdapterSchemaError("Workday jobs response is missing non-negative total")
+        page_index = 0
+        payload, postings, raw_total = payload0, postings0, total0
+        while True:
+            jobs = postings
             if total is None:
                 total = raw_total
             elif total != raw_total:
@@ -106,7 +140,8 @@ class WorkdayAdapter:
                 except AdapterSchemaError as exc:
                     complete = False
                     warnings.append(f"{exc}; skipped")
-            natural_end = offset + len(jobs) >= total or len(jobs) < self.page_size
+            offset = page_index * self.page_size
+            natural_end = offset + len(jobs) >= (total or 0) or len(jobs) < self.page_size
             if len(parsed_jobs) > context.max_jobs_per_portal or (
                 len(parsed_jobs) == context.max_jobs_per_portal and not natural_end
             ):
@@ -123,25 +158,260 @@ class WorkdayAdapter:
                 raise AdapterSchemaError(
                     f"Workday returned an empty page before total at offset {offset}"
                 )
-        else:
-            complete = False
-            warnings.append(
-                f"Workday pagination stopped at safety cap of {page_limit} pages"
+            if pages_remaining <= 0:
+                complete = False
+                warnings.append(
+                    f"Workday pagination stopped at safety cap of {page_limit} pages"
+                )
+                break
+            page_index += 1
+            offset = page_index * self.page_size
+            payload, postings, raw_total = await self._fetch_jobs_page(
+                context, api_url, {}, offset
             )
+            pages_remaining -= 1
 
         if total == 0:
             warnings.append("upstream reports zero active jobs")
-
-        if self._is_suspicious_capped_total(total):
-            complete = False
-            if self.CAPPED_TOTAL_WARNING not in warnings:
-                warnings.append(self.CAPPED_TOTAL_WARNING)
 
         return AdapterScanResult(
             jobs=tuple(parsed_jobs),
             warnings=tuple(warnings),
             is_complete_snapshot=complete,
         )
+
+    async def _scan_capped_root(
+        self,
+        context: PortalScanContext,
+        api_url: str,
+        site_url: str,
+        payload0: dict,
+        postings0: list,
+        total0: int,
+        pages_remaining: int,
+        warnings: list[str],
+    ) -> AdapterScanResult:
+        """Phase-B static recursive facet subdivision (all values traversed,
+        JRC identity dedup, TRUE only if every branch completes)."""
+        warnings.append(self.SUBDIVISION_ACTIVATED_WARNING)
+        collected: dict[str, RawJob] = {}
+        seen: set[tuple] = set()
+        budget = [pages_remaining]
+        resolved = await self._subdivide(
+            context, api_url, site_url, {}, 0,
+            (payload0, postings0, total0),
+            budget, seen, collected, warnings,
+        )
+        jobs = list(collected.values())
+        complete = resolved
+        if len(jobs) > context.max_jobs_per_portal:
+            jobs = jobs[: context.max_jobs_per_portal]
+            complete = False
+            warnings.append(
+                "Workday pagination stopped at job cap of "
+                f"{context.max_jobs_per_portal} records"
+            )
+        elif len(jobs) == context.max_jobs_per_portal and jobs:
+            complete = False
+            warnings.append(
+                "Workday pagination stopped at job cap of "
+                f"{context.max_jobs_per_portal} records"
+            )
+        if not complete and self.CAPPED_TOTAL_WARNING not in warnings:
+            warnings.append(self.CAPPED_TOTAL_WARNING)
+        return AdapterScanResult(
+            jobs=tuple(jobs),
+            warnings=tuple(warnings),
+            is_complete_snapshot=complete,
+        )
+
+    async def _subdivide(
+        self,
+        context: PortalScanContext,
+        api_url: str,
+        site_url: str,
+        applied: dict[str, list[str]],
+        dim_index: int,
+        first: tuple[dict, list, int],
+        budget: list[int],
+        seen: set[tuple],
+        collected: dict[str, RawJob],
+        warnings: list[str],
+    ) -> bool:
+        """Recursively partition one capped filter state. Returns True only
+        if this state and every required child state completed safely."""
+        key = (dim_index, tuple(sorted((facet, tuple(values)) for facet, values in applied.items())))
+        if key in seen:
+            warnings.append(self.DUPLICATE_BRANCH_WARNING)
+            return False
+        seen.add(key)
+        payload, postings, total = first
+        if dim_index >= len(self._SUBDIVISION_DIMENSIONS):
+            leaf_jobs, _ = await self._paginate_branch(
+                context, api_url, site_url, applied, first,
+                budget, warnings,
+            )
+            self._merge(collected, leaf_jobs)
+            warnings.append(self.BRANCH_UNRESOLVED_WARNING)
+            return False
+        dimension = self._SUBDIVISION_DIMENSIONS[dim_index]
+        values = self._facet_value_ids(payload.get("facets"), dimension)
+        if len(values) < 2:
+            # Useless dimension here — try the next one with the same
+            # filters. dim_index always advances, so this terminates.
+            return await self._subdivide(
+                context, api_url, site_url, applied, dim_index + 1, first,
+                budget, seen, collected, warnings,
+            )
+        all_ok = True
+        for value_id in values:
+            child = {**applied, dimension: [value_id]}
+            if budget[0] <= 0:
+                warnings.append(self.SUBDIVISION_BUDGET_WARNING)
+                return False
+            try:
+                budget[0] -= 1
+                child_first = await self._fetch_jobs_page(context, api_url, child, 0)
+            except Exception:
+                warnings.append(self.BRANCH_FAILED_WARNING)
+                all_ok = False
+                continue
+            child_payload, child_postings, child_total = child_first
+            if self._is_suspicious_capped_total(child_total):
+                child_ok = await self._subdivide(
+                    context, api_url, site_url, child, dim_index + 1,
+                    child_first, budget, seen, collected, warnings,
+                )
+            else:
+                branch_jobs, child_ok = await self._paginate_branch(
+                    context, api_url, site_url, child, child_first,
+                    budget, warnings,
+                )
+                self._merge(collected, branch_jobs)
+            all_ok = child_ok and all_ok
+        return all_ok
+
+    async def _fetch_jobs_page(
+        self,
+        context: PortalScanContext,
+        api_url: str,
+        applied_facets: dict[str, list[str]],
+        offset: int,
+    ) -> tuple[dict, list, int]:
+        """One POST page under the given facet filter. Returns
+        (payload, jobPostings, total); raises on transport/schema failure
+        (branch callers convert that into branch failure)."""
+        response = await context.fetch(
+            FetchRequest(
+                api_url,
+                method="POST",
+                allow_cache=False,
+                headers={"Accept": "application/json"},
+                json_body={
+                    "appliedFacets": applied_facets,
+                    "limit": self.page_size,
+                    "offset": offset,
+                    "searchText": "",
+                },
+            )
+        )
+        require_success(response)
+        payload = require_mapping(response.json(), context="Workday jobs response")
+        postings = require_list(payload.get("jobPostings"), context="Workday jobPostings")
+        raw_total = payload.get("total")
+        if not isinstance(raw_total, int) or raw_total < 0:
+            raise AdapterSchemaError("Workday jobs response is missing non-negative total")
+        return payload, postings, raw_total
+
+    async def _paginate_branch(
+        self,
+        context: PortalScanContext,
+        api_url: str,
+        site_url: str,
+        applied: dict[str, list[str]],
+        first: tuple[dict, list, int],
+        budget: list[int],
+        warnings: list[str],
+    ) -> tuple[list[RawJob], bool]:
+        """Paginate one uncapped filter state from its prefetched first page.
+        Returns (jobs, completed): partial jobs are ALWAYS returned (callers
+        merge them); completed is False on budget exhaustion, empty pages,
+        fetch failure, or skipped postings."""
+        _, postings, total = first
+        branch_jobs: list[RawJob] = []
+        ok = True
+        offset = 0
+        current = (first[0], postings, total)
+        page_index = 0
+        while True:
+            _, page_postings, page_total = current
+            if page_total != total:
+                warning = f"Workday total changed during pagination: {total} -> {page_total}"
+                if warning not in warnings:
+                    warnings.append(warning)
+            for index, value in enumerate(page_postings):
+                job = require_mapping(value, context=f"Workday jobPostings[{index}]")
+                try:
+                    branch_jobs.append(self._parse_job(job, site_url=site_url, index=index))
+                except AdapterSchemaError as exc:
+                    ok = False
+                    warnings.append(f"{exc}; skipped")
+            natural_end = (
+                offset + len(page_postings) >= total
+                or len(page_postings) < self.page_size
+            )
+            if natural_end:
+                break
+            if not page_postings:
+                warnings.append(
+                    f"Workday returned an empty page before total at offset {offset}"
+                )
+                return branch_jobs, False
+            if budget[0] <= 0:
+                warnings.append(self.SUBDIVISION_BUDGET_WARNING)
+                return branch_jobs, False
+            page_index += 1
+            offset = page_index * self.page_size
+            budget[0] -= 1
+            try:
+                current = await self._fetch_jobs_page(context, api_url, applied, offset)
+            except Exception:
+                warnings.append(self.BRANCH_FAILED_WARNING)
+                return branch_jobs, False
+        return branch_jobs, ok
+
+    @staticmethod
+    def _merge(collected: dict[str, RawJob], branch_jobs: list[RawJob] | None) -> None:
+        """Union with JRC identity dedup (requisition-shape else externalPath,
+        via _parse_job). First occurrence wins; overlap is expected."""
+        if not branch_jobs:
+            return
+        for job in branch_jobs:
+            collected.setdefault(job.source_job_id, job)
+
+    @staticmethod
+    def _facet_value_ids(facets: object, dimension: str) -> list[str]:
+        """Value ids for one facetParameter from a facets[] payload. Order
+        preserved, duplicates removed, blank ids dropped."""
+        if not isinstance(facets, list):
+            return []
+        for facet in facets:
+            if not isinstance(facet, dict):
+                continue
+            if facet.get("facetParameter") != dimension:
+                continue
+            values = facet.get("values")
+            if not isinstance(values, list):
+                return []
+            ids: list[str] = []
+            for value in values:
+                if not isinstance(value, dict):
+                    continue
+                value_id = value.get("id")
+                if isinstance(value_id, str) and value_id.strip() and value_id not in ids:
+                    ids.append(value_id)
+            return ids
+        return []
 
     @classmethod
     def _is_suspicious_capped_total(cls, total: int | None) -> bool:

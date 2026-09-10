@@ -22,7 +22,12 @@ NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
   Payload LOW per page (~4–9 KB). Detail: 1 GET per selected job.
 - Cap guard (IMPLEMENTED 2026-09-09): canonical total == 2000 forces
   `complete_snapshot = FALSE` + warning (provider cap; upstream may hold
-  more; past offset 2000 wraps). Facet subdivision NOT implemented.
+  more; past offset 2000 wraps).
+- Phase-B static facet subdivision (IMPLEMENTED 2026-09-09, offline only):
+  capped root partitions over jobFamilyGroup → timeType → locations →
+  workerSubType via `appliedFacets`, all values traversed, JRC identity
+  union dedup, TRUE only if every branch completes; partial jobs always
+  kept. No live validation yet.
 - Closure: only when a full traversal completes (complete_snapshot TRUE).
 
 ### Greenhouse — LIGHTWEIGHT_SINGLE_SHOT / SELECTIVE_DETAIL
@@ -145,9 +150,7 @@ Workday is the only PROVEN TRUE_FACET family among the providers audited so
 far (`appliedFacets` + per-value counts);
 Eightfold is SERVER_FILTER_ONLY (query/location/sort, start-only in JRC
 spec); GH/Lever/Ashby need NO subdivision (single-shot complete).
-VERIFIED VULNERABLE, GUARDED 2026-09-09: JRC Workday had no total==2000 cap
-detection and could false-complete a capped board; the minimal cap guard is
-now IMPLEMENTED (canonical total == 2000 → bounded + warning; design
-`docs/reports/workday_cap_and_facet_design_20260909.md`). Facet subdivision
-and dynamic planning NOT implemented. Facets partition/order/metadata only
-— never ingest-or-skip. All locations and all categories stay in scope.
+Phase-B static Workday subdivision IMPLEMENTED 2026-09-09 (offline only,
+no live validation yet); dynamic planning NOT implemented. Facets
+partition/order/metadata only — never ingest-or-skip. All locations and
+all categories stay in scope.

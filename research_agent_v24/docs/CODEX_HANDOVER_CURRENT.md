@@ -1,8 +1,8 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-09 — STAPPLY + FACET INTEGRATION AUDIT done (report
-`docs/reports/stapply_facet_integration_audit_20260909.md`); suite 426/0
-at time of writing (commit identity lives in `git log`, not in this file).
+**Updated:** 2026-09-09 — Workday Phase-B static facet subdivision
+IMPLEMENTED (offline only, no live validation yet); suite 431/0 at time of
+writing (commit identity lives in `git log`, not in this file).
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
 # HANDOVER MAINTENANCE RULE
@@ -37,7 +37,7 @@ tasks with no material project-state change need no handover edit.
 
 # CURRENT STATE (verified 2026-09-09; exact commit in `git log`)
 
-- Tests: **426 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
+- Tests: **431 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
 - Canonical runtime DB: `~/.local/share/research-agent/research_agent.db`
   (SHA-256 `ece676dc…`, unchanged by all validation waves). Repo-local
   `data/research_agent.db` is HISTORICAL / PRE-V25 ARCHIVE ONLY; no merge
@@ -108,11 +108,14 @@ Nothing below is implemented; recorded for next-agent context.
   large families. Decisions: registry-intel/drift-design/canonicalization/
   adapter-reference ADOPT; bootstrap/fallback/same-day/facet-subdivision/
   dynamic-planning/facet-metadata MORE_EVIDENCE; ADR 0064 stays PROPOSED.
-- Workday facet subdivision: audit item — VERIFIED VULNERABLE 2026-09-09 and
-  GUARDED same day: canonical total == 2000 forces `complete_snapshot =
-  FALSE` + warning (`PROVIDER_RESULT_CAP`, provider-general, 4 regression
-  tests). Facet subdivision and dynamic facet planner NOT implemented
-  (design: `docs/reports/workday_cap_and_facet_design_20260909.md`).
+- Workday facet subdivision: Phase-B static subdivision IMPLEMENTED
+  2026-09-09 (offline only, no live validation yet): capped root partitions
+  over jobFamilyGroup → timeType → locations → workerSubType via
+  `appliedFacets`, ALL values traversed, JRC identity union dedup, TRUE only
+  if every branch completes, partial jobs always kept (5 new regression
+  tests + prior guard/identity tests). Phase C (dynamic planner) NOT
+  implemented; no generic cross-provider facet framework (design:
+  `docs/reports/workday_cap_and_facet_design_20260909.md`).
 - Same-day Stapply snapshot watcher (morning direct scan + manifest observe
   + compare + direct-verify): PROPOSED idea only; cadence/freshness/cost
   evidence needed first.
@@ -126,13 +129,16 @@ Stapply in production. Next milestone:
 
 STAPPLY + FACET INTEGRATION AUDIT — DONE 2026-09-09 (documented only, nothing
 executed): report `docs/reports/stapply_facet_integration_audit_20260909.md`.
-WORKDAY CAP GUARD — IMPLEMENTED 2026-09-09 (design
-`docs/reports/workday_cap_and_facet_design_20260909.md`).
-IMPLEMENTED: Workday false-complete cap guard.
-NOT IMPLEMENTED: facet subdivision, dynamic facet planner.
-NEXT: Workday facet-subdivision implementation/validation, if design
-supports it. No cohort, no AI, no P1 repairs, no Stapply production
-integration, ADR 0064 stays PROPOSED.
+WORKDAY CAP GUARD + PHASE-B SUBDIVISION — IMPLEMENTED 2026-09-09
+(design `docs/reports/workday_cap_and_facet_design_20260909.md`, offline
+only, no live validation yet).
+IMPLEMENTED: Workday false-complete cap guard; Workday Phase-B static
+facet subdivision.
+NOT IMPLEMENTED: dynamic facet planner / Phase C; generic cross-provider
+facet framework.
+NEXT: controlled live Workday validation of Phase B (NOT executed here).
+No cohort, no AI, no P1 repairs, no Stapply production integration,
+ADR 0064 stays PROPOSED.
 
 # KEY SUPPORTING FILES
 
