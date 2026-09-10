@@ -31,6 +31,11 @@ NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
   unprovable: no exhaustiveness marker, possible no-value jobs, unknown
   count universe, workerSubType overlaps, Stapply checks nothing) —
   capped roots stay FALSE with INCOMPLETE/MISMATCH/UNPROVEN warnings.
+  CAPABILITY LAYER 2026-09-10 (offline only): dimensions discovered from
+  the live payload (`WorkdayFacetCapability`: expansion-usable vs
+  proof-eligible split; PARTIAL/UNKNOWN stay usable for discovery;
+  nested groups exposed, never flattened; static preference, no
+  optimizer). Proof hook stays FALSE.
   LIVE 2026-09-10 (Airbus, 6 wires): strong evidence of capped semantics
   (2000 reported vs ~2600 implied universe),
   appliedFacets AND-combine, 3/3 advertised==child, non-partition

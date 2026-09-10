@@ -699,7 +699,7 @@ def _run_subdivide(board: _FacetBoard, *, max_budget: int = 100):
             collected: dict = {}
             warnings: list = []
             resolved = await adapter._subdivide(
-                context, api_url, site_url, {}, 0, first,
+                context, api_url, site_url, {}, first,
                 [max_budget], set(), collected, warnings,
             )
             return resolved, collected, warnings
@@ -764,6 +764,103 @@ def test_workday_nested_contradiction_propagates_to_root(fixtures: Path) -> None
     assert resolved is False
     assert len(collected) == 70
     assert WorkdayAdapter.COVERAGE_INCOMPLETE_WARNING in warnings
+
+
+def test_workday_capability_discovers_classic_dimensions() -> None:
+    """1. Classic jobFamilyGroup/workerSubType payload → discovered, usable,
+    PARTITION_CANDIDATE vs OVERLAPPING classified, proof off."""
+    facets = [
+        {"facetParameter": "jobFamilyGroup", "descriptor": "Area",
+         "values": [{"id": "A", "count": 30}, {"id": "B", "count": 14}]},
+        {"facetParameter": "workerSubType", "descriptor": "Type",
+         "values": [{"id": "R", "count": 40}, {"id": "T", "count": 20}]},
+    ]
+    caps = WorkdayAdapter._discover_capabilities(facets, 44)
+    by_param = {cap.parameter: cap for cap in caps}
+    assert set(by_param) == {"jobFamilyGroup", "workerSubType"}
+    assert by_param["jobFamilyGroup"].usable_for_expansion is True
+    assert by_param["jobFamilyGroup"].coverage_class == "PARTITION_CANDIDATE"
+    assert by_param["workerSubType"].coverage_class == "OVERLAPPING"
+    assert all(cap.proof_eligible is False for cap in caps)
+    chosen = WorkdayAdapter._choose_expansion_dimension(caps, {})
+    assert chosen is not None and chosen.parameter == "jobFamilyGroup"
+
+
+def test_workday_capability_discovers_airbus_like_payload() -> None:
+    """2. Airbus-like payload (FullPartTime/jobFamily/hiringCompany/nested
+    group, no timeType/locations) → real dimensions discovered; nested
+    group exposed but unusable; preference still starts at jobFamilyGroup."""
+    facets = [
+        {"facetParameter": "jobFamilyGroup", "descriptor": "Area",
+         "values": [{"id": "A", "count": 636}, {"id": "B", "count": 385}]},
+        {"facetParameter": "FullPartTime", "descriptor": "Schedule",
+         "values": [{"id": "F", "count": 2696}, {"id": "P", "count": 60}]},
+        {"facetParameter": "jobFamily", "descriptor": "Family",
+         "values": [{"id": "X", "count": 100}]},
+        {"facetParameter": "locationMainGroup", "descriptor": "Location",
+         "values": [{"facetParameter": "locationCountry", "descriptor": "Country",
+                     "values": []}]},
+    ]
+    caps = WorkdayAdapter._discover_capabilities(facets, 2000)
+    by_param = {cap.parameter: cap for cap in caps}
+    assert set(by_param) == {"jobFamilyGroup", "FullPartTime", "jobFamily",
+                             "locationMainGroup"}
+    nested = by_param["locationMainGroup"]
+    assert nested.coverage_class == "NESTED"
+    assert nested.filterable is False
+    assert nested.usable_for_expansion is False
+    assert nested.nested_subgroups == ("locationCountry",)
+    assert by_param["jobFamily"].usable_for_expansion is False  # 1 value
+    chosen = WorkdayAdapter._choose_expansion_dimension(caps, {})
+    assert chosen is not None and chosen.parameter == "jobFamilyGroup"
+    # jobFamilyGroup applied → falls back to FullPartTime (preference
+    # order), not to payload order.
+    fallback = WorkdayAdapter._choose_expansion_dimension(
+        caps, {"jobFamilyGroup": ["A"]})
+    assert fallback is not None and fallback.parameter == "FullPartTime"
+
+
+def test_workday_fallback_dimension_used_when_preferred_absent(
+    fixtures: Path,
+) -> None:
+    """3. No preferred dimension usable → payload-discovered fallback
+    (jobFamily) partitions for discovery; jobs kept, FALSE."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamily", [("X", 30), ("Y", 20)])])
+    board.add({"jobFamily": ["X"]}, 30,
+              [_FacetBoard.posting(100 + i) for i in range(30)], [])
+    board.add({"jobFamily": ["Y"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+
+    result = _run_facet_board(board, max_pages=100, max_jobs=5000)
+
+    assert len(result.jobs) == 50
+    assert result.is_complete_snapshot is False
+    applied = [body["appliedFacets"] for body in board.bodies if body["offset"] == 0]
+    assert {"jobFamily": ["X"]} in applied
+    assert {"jobFamily": ["Y"]} in applied
+
+
+def test_workday_partial_and_unknown_stay_usable_without_proof() -> None:
+    """4+5. PARTIAL_COVERAGE and UNKNOWN facets: usable_for_expansion TRUE
+    (discovery), proof_eligible FALSE (no proof)."""
+    partial = WorkdayAdapter._discover_capabilities(
+        [{"facetParameter": "Reload_Classification", "descriptor": "Grade",
+          "values": [{"id": "G", "count": 100}, {"id": "H", "count": 50}]}],
+        2000,
+    )[0]
+    assert partial.coverage_class == "PARTIAL_COVERAGE"
+    assert partial.usable_for_expansion is True
+    assert partial.proof_eligible is False
+    unknown = WorkdayAdapter._discover_capabilities(
+        [{"facetParameter": "hiringCompany", "descriptor": "Co",
+          "values": [{"id": "A"}, {"id": "B"}]}],
+        2000,
+    )[0]
+    assert unknown.coverage_class == "UNKNOWN"
+    assert unknown.usable_for_expansion is True
+    assert unknown.proof_eligible is False
 
 
 def test_workday_failing_branch_keeps_jobs_but_not_complete(fixtures: Path) -> None:

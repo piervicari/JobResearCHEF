@@ -39,10 +39,12 @@ guaranteed for ties. No MISMATCH observed.
   workerSubType (sums exactly 47); Proofpoint workerSubType/timeType
   (sums exactly 145). Candidate ≠ proven (exclusivity untested).
 - PARTIAL_COVERAGE (live): Proofpoint jobFamilyGroup sums 142 vs total
-  145 → 3 jobs without a JFG value (or truncated list). Missing
-  membership is REAL, not hypothetical.
+  145 → OBSERVED_FACET_COVERAGE_GAP. Possible causes remain unresolved:
+  missing membership, truncated facet value list, or other Workday
+  semantics. Do NOT claim missing membership proven.
 - OVERLAPPING: Airbus dimension sums disagree (2558/2756/2760) →
-  non-partition semantics indicated. Child page-0 overlaps 0 (weak).
+  non-partition semantics indicated; exact cause (overlap vs
+  missing-value membership) unresolved. Child page-0 overlaps 0 (weak).
 - UNKNOWN: value-list exhaustiveness everywhere; wrap mechanics.
 
 ## Cap evidence — STRONG_EVIDENCE_NOT_PROVEN (unchanged)
@@ -58,10 +60,12 @@ budget. Option C (wrap) untested.
 WorkdayFacetCapability per live payload, no static assumptions:
 {facet_parameter, descriptor, n_values, counts[], nested_subgroups[],
 coverage_class ∈ {PARTITION_CANDIDATE, OVERLAPPING, PARTIAL_COVERAGE,
-UNKNOWN}, usable_for_subdivision = n_values ≥ 2 AND class !=
-PARTIAL_COVERAGE}. Subdivision discovers dimensions from the payload in
+UNKNOWN}, usable_for_expansion, proof_eligible}. Expansion rule:
+filterable AND n_values ≥ 2 — usable even when PARTIAL/UNKNOWN
+(discovery ≠ proof). proof_eligible stays FALSE for capped catalogs.
+Subdivision discovers dimensions from the payload in
 a PREFERENCE order (today's static tuple first) and skips absent/
-degenerate/partial ones. Coverage classes are per-tenant observations,
+degenerate/unfilterable ones (PARTIAL/UNKNOWN stay usable for expansion). Coverage classes are per-tenant observations,
 recomputed per scan — never cached theorems. Counts-based selection
 stays Phase C.
 

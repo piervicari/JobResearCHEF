@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 from urllib.parse import quote, urlsplit, urlunsplit
 
 from research_agent.pipeline.http import FetchRequest
@@ -21,6 +22,29 @@ from research_agent.sources.base import (
 )
 
 
+@dataclass(frozen=True)
+class WorkdayFacetCapability:
+    """One discovered facet dimension from a live Workday facets[] payload.
+
+    Provider-general, per-payload observation (never a cached theorem):
+    - usable_for_expansion: safe to partition on for DISCOVERY (filterable
+      syntax + at least 2 values). PARTIAL/UNKNOWN coverage stays usable —
+      discovery is not proof.
+    - proof_eligible: whether traversing this dimension could justify
+      completeness. Always False for capped catalogs (no offline proof
+      exists); kept as a separate flag so a future proven rule has a home.
+    """
+
+    parameter: str
+    descriptor: str = ""
+    values: tuple[tuple[str, int | None], ...] = ()
+    nested_subgroups: tuple[str, ...] = ()
+    coverage_class: str = "UNKNOWN"
+    filterable: bool = False
+    usable_for_expansion: bool = False
+    proof_eligible: bool = False
+
+
 class WorkdayAdapter:
     name = "workday"
     page_size = 20
@@ -34,9 +58,15 @@ class WorkdayAdapter:
         "Workday catalog total equals the provider result cap (2000); "
         "snapshot kept bounded until facet subdivision reconciles it"
     )
-    # Static Phase-B subdivision dimensions (Stapply-proven order). Phase C
-    # (counts-based selection) is deferred; this order is fixed.
-    _SUBDIVISION_DIMENSIONS = ("jobFamilyGroup", "timeType", "locations", "workerSubType")
+    # Static PREFERENCE order for expansion dimensions (evidence-driven,
+    # NOT a universe: available dimensions always come from the live
+    # payload via _discover_capabilities. Phase C (cost optimization) is
+    # deferred; this order is fixed.
+    _PREFERRED_DIMENSIONS = ("jobFamilyGroup", "timeType", "locations", "workerSubType")
+    # Backstop: applied-filter sets grow strictly every level, and the
+    # seen-state set blocks repeats, so recursion provably terminates;
+    # this depth cap is defense-in-depth only.
+    _MAX_SUBDIVISION_DEPTH = 8
     SUBDIVISION_ACTIVATED_WARNING = (
         "Workday facet subdivision activated: root catalog at provider cap (2000)"
     )
@@ -206,7 +236,7 @@ class WorkdayAdapter:
         seen: set[tuple] = set()
         budget = [pages_remaining]
         resolved = await self._subdivide(
-            context, api_url, site_url, {}, 0,
+            context, api_url, site_url, {},
             (payload0, postings0, total0),
             budget, seen, collected, warnings,
         )
@@ -243,22 +273,26 @@ class WorkdayAdapter:
         api_url: str,
         site_url: str,
         applied: dict[str, list[str]],
-        dim_index: int,
         first: tuple[dict, list, int],
         budget: list[int],
         seen: set[tuple],
         collected: dict[str, RawJob],
         warnings: list[str],
+        depth: int = 0,
     ) -> bool:
         """Recursively partition one capped filter state. Returns True only
-        if this state and every required child state completed safely."""
-        key = (dim_index, tuple(sorted((facet, tuple(values)) for facet, values in applied.items())))
+        if this state and every required child state completed safely.
+
+        Dimensions are discovered from the live payload at every level
+        (preference order, never assumed); C1/C2 contradictions poison the
+        returned boolean while discovered jobs are still merged."""
+        key = tuple(sorted((facet, tuple(values)) for facet, values in applied.items()))
         if key in seen:
             warnings.append(self.DUPLICATE_BRANCH_WARNING)
             return False
         seen.add(key)
         payload, postings, total = first
-        if dim_index >= len(self._SUBDIVISION_DIMENSIONS):
+        if depth >= self._MAX_SUBDIVISION_DEPTH:
             leaf_jobs, _ = await self._paginate_branch(
                 context, api_url, site_url, applied, first,
                 budget, warnings,
@@ -266,20 +300,21 @@ class WorkdayAdapter:
             self._merge(collected, leaf_jobs)
             warnings.append(self.BRANCH_UNRESOLVED_WARNING)
             return False
-        dimension = self._SUBDIVISION_DIMENSIONS[dim_index]
-        facet_values = self._facet_values(payload.get("facets"), dimension)
-        value_ids = [value_id for value_id, _ in facet_values]
-        if len(value_ids) < 2:
-            # Useless dimension here — try the next one with the same
-            # filters. dim_index always advances, so this terminates.
-            return await self._subdivide(
-                context, api_url, site_url, applied, dim_index + 1, first,
-                budget, seen, collected, warnings,
+        capability = self._choose_expansion_dimension(
+            self._discover_capabilities(payload.get("facets"), total), applied
+        )
+        if capability is None:
+            leaf_jobs, _ = await self._paginate_branch(
+                context, api_url, site_url, applied, first,
+                budget, warnings,
             )
-        counts = [count for _, count in facet_values]
-        int_counts = [count for count in counts if isinstance(count, int)]
+            self._merge(collected, leaf_jobs)
+            warnings.append(self.BRANCH_UNRESOLVED_WARNING)
+            return False
+        dimension = capability.parameter
+        value_ids = [value_id for value_id, _ in capability.values]
         cover_ok = True
-        if int_counts and len(int_counts) == len(counts) and sum(int_counts) < total:
+        if capability.coverage_class == "PARTIAL_COVERAGE":
             # Safe direction only: advertised counts that cannot cover the
             # capped parent prove incompleteness (value list truncated, jobs
             # lacking values, or counts over another universe). Overlap can
@@ -289,7 +324,7 @@ class WorkdayAdapter:
             cover_ok = False
             if self.COVERAGE_INCOMPLETE_WARNING not in warnings:
                 warnings.append(self.COVERAGE_INCOMPLETE_WARNING)
-        counts_by_id = dict(facet_values)
+        counts_by_id = dict(capability.values)
         all_ok = True
         for value_id in value_ids:
             child = {**applied, dimension: [value_id]}
@@ -306,8 +341,9 @@ class WorkdayAdapter:
             child_payload, child_postings, child_total = child_first
             if self._is_suspicious_capped_total(child_total):
                 child_ok = await self._subdivide(
-                    context, api_url, site_url, child, dim_index + 1,
+                    context, api_url, site_url, child,
                     child_first, budget, seen, collected, warnings,
+                    depth + 1,
                 )
             else:
                 branch_jobs, child_ok = await self._paginate_branch(
@@ -432,37 +468,119 @@ class WorkdayAdapter:
             collected.setdefault(job.source_job_id, job)
 
     @staticmethod
-    def _facet_values(facets: object, dimension: str) -> list[tuple[str, int | None]]:
-        """(value id, advertised count) pairs for one facetParameter.
+    def _discover_capabilities(
+        facets: object, parent_total: int
+    ) -> list[WorkdayFacetCapability]:
+        """Discover usable facet dimensions from a live facets[] payload.
 
-        Order preserved, duplicates removed, blank ids dropped. Counts may
-        be absent (None) — callers must treat missing counts as unproven,
-        never as zero."""
+        Provider-general: dimension keys come from the payload, never from
+        an assumed universe (tenants differ — Airbus has no `locations` /
+        `timeType`; nested locationMainGroup groups appear instead).
+        Coverage classes are per-payload observations with parent_total as
+        reference; sums BELOW parent prove PARTIAL (overlap can only
+        inflate). A filter dimension with real value ids is assumed
+        applicable in appliedFacets — a wrong guess degrades to branch
+        failure (complete FALSE), never to false-complete."""
         if not isinstance(facets, list):
             return []
+        capabilities: list[WorkdayFacetCapability] = []
+        seen_params: set[str] = set()
         for facet in facets:
             if not isinstance(facet, dict):
                 continue
-            if facet.get("facetParameter") != dimension:
+            parameter = facet.get("facetParameter")
+            if (
+                not isinstance(parameter, str)
+                or not parameter.strip()
+                or parameter in seen_params
+            ):
                 continue
-            values = facet.get("values")
-            if not isinstance(values, list):
-                return []
+            seen_params.add(parameter)
+            descriptor = facet.get("descriptor")
+            raw_values = facet.get("values")
             pairs: list[tuple[str, int | None]] = []
-            seen_ids: set[str] = set()
-            for value in values:
-                if not isinstance(value, dict):
-                    continue
-                value_id = value.get("id")
-                if not isinstance(value_id, str) or not value_id.strip():
-                    continue
-                if value_id in seen_ids:
-                    continue
-                seen_ids.add(value_id)
-                count = value.get("count")
-                pairs.append((value_id, count if isinstance(count, int) else None))
-            return pairs
-        return []
+            subgroups: list[str] = []
+            if isinstance(raw_values, list):
+                known_ids: set[str] = set()
+                for value in raw_values:
+                    if not isinstance(value, dict):
+                        continue
+                    value_id = value.get("id")
+                    if (
+                        isinstance(value_id, str)
+                        and value_id.strip()
+                        and value_id not in known_ids
+                    ):
+                        known_ids.add(value_id)
+                        count = value.get("count")
+                        pairs.append(
+                            (value_id, count if isinstance(count, int) else None)
+                        )
+                    elif isinstance(value.get("facetParameter"), str):
+                        subgroups.append(value["facetParameter"])
+            if subgroups and not pairs:
+                # Nested group (e.g. locationMainGroup → locationCountry /
+                # locations): exposed but NOT flattened — wire format for
+                # subgroup filters is unverified live. Conservative: unusable.
+                capabilities.append(
+                    WorkdayFacetCapability(
+                        parameter=parameter,
+                        descriptor=descriptor if isinstance(descriptor, str) else "",
+                        nested_subgroups=tuple(subgroups),
+                        coverage_class="NESTED",
+                    )
+                )
+                continue
+            counts = [count for _, count in pairs]
+            int_counts = [count for count in counts if isinstance(count, int)]
+            if not pairs or len(int_counts) != len(counts):
+                coverage = "UNKNOWN"
+            elif sum(int_counts) < parent_total:
+                coverage = "PARTIAL_COVERAGE"
+            elif sum(int_counts) > parent_total:
+                coverage = "OVERLAPPING"
+            else:
+                coverage = "PARTITION_CANDIDATE"
+            usable = len(pairs) >= 2
+            capabilities.append(
+                WorkdayFacetCapability(
+                    parameter=parameter,
+                    descriptor=descriptor if isinstance(descriptor, str) else "",
+                    values=tuple(pairs),
+                    coverage_class=coverage,
+                    filterable=bool(pairs),
+                    usable_for_expansion=usable,
+                )
+            )
+        return capabilities
+
+    @classmethod
+    def _choose_expansion_dimension(
+        cls,
+        capabilities: list[WorkdayFacetCapability],
+        applied: dict[str, list[str]],
+    ) -> WorkdayFacetCapability | None:
+        """Next usable expansion dimension: static preference first, then
+        payload order. Skips applied, unusable, and degenerate dimensions.
+        No cost optimization (Phase C deferred); every required value of
+        the chosen dimension is traversed by the caller."""
+        by_param = {capability.parameter: capability for capability in capabilities}
+        ordered = [
+            by_param[parameter]
+            for parameter in cls._PREFERRED_DIMENSIONS
+            if parameter in by_param
+        ]
+        ordered += [
+            capability
+            for capability in capabilities
+            if capability.parameter not in cls._PREFERRED_DIMENSIONS
+        ]
+        for capability in ordered:
+            if capability.parameter in applied:
+                continue
+            if capability.usable_for_expansion:
+                return capability
+        return None
 
     @classmethod
     def _subdivision_coverage_proven(cls, total: int, facets: object) -> bool:

@@ -1,8 +1,8 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-10 — multi-tenant facet validation (Brunello +
-Proofpoint, 12 wires; static tuple PARTIAL, capability model designed,
-proof hook stays FALSE); suite 436/0 at time of
+**Updated:** 2026-09-10 — Workday facet capability layer IMPLEMENTED
+(payload-discovered dimensions, expansion-vs-proof split, hook stays
+FALSE); suite 440/0 at time of
 writing (commit identity lives in `git log`, not in this file).
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
@@ -38,7 +38,7 @@ tasks with no material project-state change need no handover edit.
 
 # CURRENT STATE (verified 2026-09-09; exact commit in `git log`)
 
-- Tests: **436 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
+- Tests: **440 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
 - Canonical runtime DB: `~/.local/share/research-agent/research_agent.db`
   (SHA-256 `ece676dc…`, unchanged by all validation waves). Repo-local
   `data/research_agent.db` is HISTORICAL / PRE-V25 ARCHIVE ONLY; no merge
@@ -85,9 +85,12 @@ trailing-slash binding defect (open).
 ADR 0063 ACCEPTED (AI deferred); ADR 0064 PROPOSED — do NOT treat as
 accepted; ADR 0042 / ADR 0051 ACCEPTED.
 
-# CURRENT DESIGN DIRECTION — NOT YET IMPLEMENTED
+# CURRENT WORKDAY COMPLETENESS STATE
 
-Nothing below is implemented; recorded for next-agent context.
+IMPLEMENTED / LIVE-VALIDATED / NOT PROVEN / NOT IMPLEMENTED for Workday
+below; other pending (non-Workday) designs follow under their own header.
+Standing invariants: all locations in scope; all categories in scope;
+facets affect HOW/ORDER, never WHETHER a job is ingested.
 
 - All locations are in scope; geography must NOT exclude/prune sources.
 - Facets: investigated as catalog partitioning / completeness / query
@@ -109,14 +112,16 @@ Nothing below is implemented; recorded for next-agent context.
   large families. Decisions: registry-intel/drift-design/canonicalization/
   adapter-reference ADOPT; bootstrap/fallback/same-day/facet-subdivision/
   dynamic-planning/facet-metadata MORE_EVIDENCE; ADR 0064 stays PROPOSED.
-- Workday facet subdivision: Phase-B static subdivision IMPLEMENTED
-  2026-09-09 (offline only, no live validation yet) and coverage-HARDENED
-  same day: capped root partitions over jobFamilyGroup → timeType →
-  locations → workerSubType via `appliedFacets`, ALL values traversed, JRC
-  identity union dedup, partial jobs always kept — but a capped root NEVER
-  completes offline (9 regression tests incl. direct _subdivide resolution
-  booleans: C1/C2/nested contradictions structurally poison the proof and
-  propagate to the root).
+- Workday facet subdivision: Phase-B IMPLEMENTED 2026-09-09 (offline only)
+  and coverage-HARDENED same day, capability layer IMPLEMENTED 2026-09-10
+  (offline only, 4 new tests): dimensions discovered per payload
+  (`WorkdayFacetCapability`: usable_for_expansion vs proof_eligible;
+  PARTIAL/UNKNOWN stay usable for discovery; nested groups exposed never
+  flattened; static preference order, no optimizer). Capped root
+  partitions over discovered dimensions via `appliedFacets`, ALL values
+  traversed, JRC identity union dedup, partial jobs always kept — but a
+  capped root NEVER completes offline (C1/C2/nested contradictions
+  structurally poison the proof and propagate to the root).
   LIVE-VALIDATED 2026-09-10 (Airbus portal 5, 6/15 wires, all HTTP 200,
   no DB writes): strong evidence of capped semantics (2000 reported vs ~2600
   implied universe, uniqueness not enumerated); appliedFacets accepted +
@@ -144,6 +149,9 @@ Nothing below is implemented; recorded for next-agent context.
   framework; production high-budget Workday profile (designed only: explicit
   per-run model_copy/env profile, no global limit changes) — design:
   `docs/reports/workday_cap_and_facet_design_20260909.md`).
+
+# OTHER PENDING DESIGNS — NOT YET IMPLEMENTED
+
 - Same-day Stapply snapshot watcher (morning direct scan + manifest observe
   + compare + direct-verify): PROPOSED idea only; cadence/freshness/cost
   evidence needed first.
@@ -161,17 +169,20 @@ WORKDAY CAP GUARD + PHASE-B SUBDIVISION + COVERAGE HARDENING — IMPLEMENTED
 2026-09-09/10 (design `docs/reports/workday_cap_and_facet_design_20260909.md`;
 first live facet-evidence probe 2026-09-10, report
 `docs/reports/workday_facet_live_validation_20260910.md`).
-IMPLEMENTED: Workday false-complete cap guard; Workday Phase-B static
+IMPLEMENTED: Workday false-complete cap guard; Workday Phase-B
 facet subdivision; coverage hardening (discovery yes, capped-complete no);
-C1/C2 structural proof poisoning.
-LIVE-VALIDATED: capped cap behavior, appliedFacets AND, count matches,
-overlap, identity shapes (Airbus 6-wire probe) — nothing beyond that.
+C1/C2 structural proof poisoning; payload-discovered capability layer
+(expansion-vs-proof split, hook stays FALSE).
+LIVE-VALIDATED: strong capped-semantics evidence, appliedFacets AND,
+count matches, non-partition semantics indicated (exact cause unresolved),
+identity shapes (Airbus 6-wire probe + Brunello/Proofpoint 12-wire
+multi-tenant probe) — nothing beyond that.
 NOT PROVEN: facet traversal justifying complete_snapshot TRUE.
 NOT IMPLEMENTED: dynamic facet planner / Phase C; generic cross-provider
 facet framework; production high-budget Workday profile.
-NEXT: implement payload-discovered dimension eligibility (capability
-layer, static preference order kept, capped roots still never complete)
-— NOT executed here.
+NEXT: define the capped completeness proof rule once live evidence can
+support it (value-list exhaustiveness + no-value enumeration + wrap
+characterization on a second capped tenant) — NOT executed here.
 No cohort, no AI, no P1 repairs, no Stapply production integration,
 ADR 0064 stays PROPOSED.
 

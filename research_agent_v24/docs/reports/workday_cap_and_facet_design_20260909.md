@@ -52,6 +52,22 @@ Implemented as designed, with two recorded deviations:
 Root page-0 doubles as cap/facet probe (no extra wire); uncapped request
 sequences and warning texts are byte-identical to pre-Phase-B behavior.
 
+## Capability layer (IMPLEMENTED 2026-09-10, offline only)
+
+`WorkdayFacetCapability` (frozen dataclass, local to the Workday
+adapter): parameter / descriptor / values+counts / nested_subgroups /
+coverage_class / filterable / usable_for_expansion / proof_eligible.
+`_discover_capabilities()` builds one per payload facetParameter
+(no assumed universe); `_choose_expansion_dimension()` applies the
+static preference first, then payload order, skipping applied/unusable
+ones. usable_for_expansion = filterable AND ≥2 values — PARTIAL and
+UNKNOWN stay usable (discovery ≠ proof, mandatory split).
+proof_eligible is always False (hook unchanged). Nested groups
+(locationMainGroup-class) are exposed with their subgroup names but
+never flattened (wire format unverified). Recursion is bounded by
+strictly growing applied-filter sets + seen-states + depth backstop (8).
+C1/C2 structural poisoning operates on the chosen capability.
+
 Root query (empty `appliedFacets`, as today) → read `total` + `facets[]`.
 If `total != 2000`: today's pagination unchanged. If capped: partition on
 `jobFamilyGroup` first (Stapply's proven default), then per-branch
