@@ -1,8 +1,8 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-10 — Workday facet capability layer IMPLEMENTED
-(payload-discovered dimensions, expansion-vs-proof split, hook stays
-FALSE); suite 440/0 at time of
+**Updated:** 2026-09-10 — proof-evidence wave (WRAP_PROVEN, Proofpoint
+root 145/145, union INCONCLUSIVE, NVIDIA second capped tenant, hook
+stays FALSE, no code change); suite 440/0 at time of
 writing (commit identity lives in `git log`, not in this file).
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
@@ -149,6 +149,15 @@ facets affect HOW/ORDER, never WHETHER a job is ingested.
   framework; production high-budget Workday profile (designed only: explicit
   per-run model_copy/env profile, no global limit changes) — design:
   `docs/reports/workday_cap_and_facet_design_20260909.md`).
+  PROOF WAVE 2026-09-10 (35/35 wires, report
+  `docs/reports/workday_completeness_proof_evidence_20260910.md`):
+  WRAP_PROVEN (Airbus 2000 == 0 IDs, deterministic); Proofpoint root
+  exactly enumerated (145/145, pinned totals — naive stopping would quit
+  at page 2); top-2 branches reconcile exactly (60, 35 ⊆ root); union
+  INCONCLUSIVE (9 small branches unverified — budget; gap stays
+  OBSERVED_FACET_COVERAGE_GAP); second capped tenant FOUND (NVIDIA
+  Workday 2000); proof shape designed, exhaustiveness primitive missing,
+  hook FALSE, no code change.
 
 # OTHER PENDING DESIGNS — NOT YET IMPLEMENTED
 
@@ -180,9 +189,9 @@ multi-tenant probe) — nothing beyond that.
 NOT PROVEN: facet traversal justifying complete_snapshot TRUE.
 NOT IMPLEMENTED: dynamic facet planner / Phase C; generic cross-provider
 facet framework; production high-budget Workday profile.
-NEXT: define the capped completeness proof rule once live evidence can
-support it (value-list exhaustiveness + no-value enumeration + wrap
-characterization on a second capped tenant) — NOT executed here.
+NEXT: bounded exhaustiveness completion — Proofpoint remaining 9 JFG
+branches (~11 wires) for the exact union verdict + NVIDIA boundary/child
+validation — NOT executed here.
 No cohort, no AI, no P1 repairs, no Stapply production integration,
 ADR 0064 stays PROPOSED.
 

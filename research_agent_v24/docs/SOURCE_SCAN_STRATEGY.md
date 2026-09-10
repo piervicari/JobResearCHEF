@@ -48,6 +48,10 @@ NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
   145); cap STRONG_EVIDENCE_NOT_PROVEN; capability model designed, not
   implemented.
   Live evidence: `docs/reports/workday_facet_live_validation_20260910.md`.
+  PROOF WAVE 2026-09-10 (35/35 wires): WRAP_PROVEN on Airbus (2000 == 0
+  IDs); Proofpoint root 145/145 with top-2 branches reconciled, union
+  INCONCLUSIVE; second capped tenant FOUND (NVIDIA 2000); proof shape
+  designed, exhaustiveness primitive still missing, hook FALSE.
 - Closure: only when a full traversal completes (complete_snapshot TRUE).
 
 ### Greenhouse — LIGHTWEIGHT_SINGLE_SHOT / SELECTIVE_DETAIL

@@ -142,6 +142,23 @@ facetParameter on Airbus; nested locationMainGroup) — skip-on-absence
 is the correct behavior; one tenant is not enough to redesign the
 dimension list. Proof hook stays FALSE; C1/C2 structural poisoning stays.
 
+## Proof-evidence wave (2026-09-10, 35/35 wires, hook stays FALSE)
+
+Full report: `docs/reports/workday_completeness_proof_evidence_20260910.md`.
+- Wrap: WRAP_PROVEN on Airbus (offset 2000 == offset 0 IDs, deterministic;
+  2020 wraps too; total=0 past page 1 confirms pinned-total design).
+- Proofpoint: root exactly enumerated (145/145); top-2 JFG branches
+  reconcile exactly (60, 35 ⊆ root); full-union question INCONCLUSIVE
+  (9 small branches' IDs unverified — budget); gap stays
+  OBSERVED_FACET_COVERAGE_GAP (listing rows carry no facet membership).
+- Second capped tenant FOUND: NVIDIA Workday root = 2000 (same wd5
+  backend as Eightfold's 2686); boundary/child checks deferred.
+- Proof rule SHAPE designed; exhaustiveness primitive has no verified
+  implementation (sums only refute; siblings don't transfer; no
+  no-value bucket; union==parent needs wrap-absence) → remaining blocker
+  named, hook unchanged. Capability layer reviewed: still valid, no code
+  change.
+
 ## Multi-tenant validation (2026-09-10, +Brunello/Proofpoint, 12 wires)
 
 Full report: `docs/reports/workday_facet_multitenant_validation_20260910.md`.

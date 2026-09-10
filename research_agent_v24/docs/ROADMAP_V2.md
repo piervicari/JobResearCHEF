@@ -97,6 +97,10 @@ implemented; report
 `docs/reports/workday_facet_multitenant_validation_20260910.md`);
 capability layer IMPLEMENTED 2026-09-10 (payload-discovered dimensions,
 expansion-vs-proof split, static preference, hook stays FALSE);
+proof-evidence wave 2026-09-10 (35/35 wires — WRAP_PROVEN, Proofpoint
+root 145/145 + top-2 reconciled, union INCONCLUSIVE, NVIDIA second
+capped tenant FOUND, proof shape designed / primitive missing, hook
+unchanged, no code change);
 Phase C deferred,
 ADR 0064 still PROPOSED); Oracle/SmartRecruiters requisition identity migration; SourceSpec v0.2/
 single_request, only if future evidence justifies it.
