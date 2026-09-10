@@ -83,8 +83,13 @@ on a smaller tenant; Workday >2K subdivision: cap guard + Phase-B static
 facet subdivision IMPLEMENTED 2026-09-09 and coverage-HARDENED same day
 (subdivision discovers but never completes a capped root offline — proof
 impossible from current evidence; report
-`docs/reports/workday_cap_and_facet_design_20260909.md`; no live
-validation yet; Phase C deferred, ADR 0064 still PROPOSED); Oracle/SmartRecruiters requisition identity migration; SourceSpec v0.2/
+`docs/reports/workday_cap_and_facet_design_20260909.md`; C1/C2
+contradictions structurally poison the proof (same day); first live
+facet-evidence probe 2026-09-10 (Airbus portal 5, 6 wires, all 200 —
+cap confirmed, appliedFacets AND, 3/3 count MATCH, overlap proven;
+report `docs/reports/workday_facet_live_validation_20260910.md`,
+NEEDS_MORE_EVIDENCE, proof hook stays FALSE); Phase C deferred,
+ADR 0064 still PROPOSED); Oracle/SmartRecruiters requisition identity migration; SourceSpec v0.2/
 single_request, only if future evidence justifies it.
 
 ---

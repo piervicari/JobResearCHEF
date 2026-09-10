@@ -1,8 +1,8 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-09 — Workday Phase-B coverage hardening IMPLEMENTED
-(subdivision discovers but never completes a capped root offline — proof
-impossible from current evidence); suite 433/0 at time of
+**Updated:** 2026-09-10 — C1/C2 structural proof poisoning + first live
+Workday facet-evidence probe (Airbus, 6 wires, NEEDS_MORE_EVIDENCE, hook
+stays FALSE); suite 436/0 at time of
 writing (commit identity lives in `git log`, not in this file).
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
@@ -38,7 +38,7 @@ tasks with no material project-state change need no handover edit.
 
 # CURRENT STATE (verified 2026-09-09; exact commit in `git log`)
 
-- Tests: **433 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
+- Tests: **436 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
 - Canonical runtime DB: `~/.local/share/research-agent/research_agent.db`
   (SHA-256 `ece676dc…`, unchanged by all validation waves). Repo-local
   `data/research_agent.db` is HISTORICAL / PRE-V25 ARCHIVE ONLY; no merge
@@ -114,7 +114,15 @@ Nothing below is implemented; recorded for next-agent context.
   same day: capped root partitions over jobFamilyGroup → timeType →
   locations → workerSubType via `appliedFacets`, ALL values traversed, JRC
   identity union dedup, partial jobs always kept — but a capped root NEVER
-  completes offline (6 new/updated regression tests).
+  completes offline (9 regression tests incl. direct _subdivide resolution
+  booleans: C1/C2/nested contradictions structurally poison the proof and
+  propagate to the root).
+  LIVE-VALIDATED 2026-09-10 (Airbus portal 5, 6/15 wires, all HTTP 200,
+  no DB writes): cap exists (2000 < true ~2600); appliedFacets accepted +
+  AND-combine; 3/3 advertised==child (636, 385, nested 36); short-term
+  stability; overlap proven; bullets fit JRC identity; tenant vocab lacks
+  locations/timeType keys. Classification NEEDS_MORE_EVIDENCE — proof
+  hook stays FALSE.
   PROVEN: uncapped natural-end TRUE; subdivision discovery expansion.
   NOT PROVEN: facet traversal justifying complete_snapshot TRUE (no
   exhaustiveness marker, possible no-value jobs, unknown count universe,
@@ -139,11 +147,14 @@ Stapply in production. Next milestone:
 STAPPLY + FACET INTEGRATION AUDIT — DONE 2026-09-09 (documented only, nothing
 executed): report `docs/reports/stapply_facet_integration_audit_20260909.md`.
 WORKDAY CAP GUARD + PHASE-B SUBDIVISION + COVERAGE HARDENING — IMPLEMENTED
-2026-09-09 (design `docs/reports/workday_cap_and_facet_design_20260909.md`,
-offline only, no live validation yet).
+2026-09-09/10 (design `docs/reports/workday_cap_and_facet_design_20260909.md`;
+first live facet-evidence probe 2026-09-10, report
+`docs/reports/workday_facet_live_validation_20260910.md`).
 IMPLEMENTED: Workday false-complete cap guard; Workday Phase-B static
-facet subdivision; coverage hardening (discovery yes, capped-complete no).
-PROVEN: uncapped natural-end TRUE; subdivision discovery expansion.
+facet subdivision; coverage hardening (discovery yes, capped-complete no);
+C1/C2 structural proof poisoning.
+LIVE-VALIDATED: capped cap behavior, appliedFacets AND, count matches,
+overlap, identity shapes (Airbus 6-wire probe) — nothing beyond that.
 NOT PROVEN: facet traversal justifying complete_snapshot TRUE.
 NOT IMPLEMENTED: dynamic facet planner / Phase C; generic cross-provider
 facet framework; production high-budget Workday profile.

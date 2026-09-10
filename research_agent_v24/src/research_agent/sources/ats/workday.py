@@ -278,11 +278,15 @@ class WorkdayAdapter:
             )
         counts = [count for _, count in facet_values]
         int_counts = [count for count in counts if isinstance(count, int)]
+        cover_ok = True
         if int_counts and len(int_counts) == len(counts) and sum(int_counts) < total:
             # Safe direction only: advertised counts that cannot cover the
             # capped parent prove incompleteness (value list truncated, jobs
             # lacking values, or counts over another universe). Overlap can
             # only inflate sums, never explain a shortfall.
+            # Structural: the coverage proof for this level fails, even
+            # though every child is still traversed for discovery.
+            cover_ok = False
             if self.COVERAGE_INCOMPLETE_WARNING not in warnings:
                 warnings.append(self.COVERAGE_INCOMPLETE_WARNING)
         counts_by_id = dict(facet_values)
@@ -317,13 +321,17 @@ class WorkdayAdapter:
                     and isinstance(advertised, int)
                     and child_total != advertised
                 ):
+                    # Structural: a cleanly paginated child disagreeing with
+                    # its advertised count poisons this proof path. Jobs stay
+                    # merged; only the boolean fails.
+                    child_ok = False
                     warnings.append(
                         f"Workday child branch total {child_total} disagrees "
                         f"with advertised facet count {advertised} for "
                         f"{dimension}={value_id}; snapshot kept bounded"
                     )
             all_ok = child_ok and all_ok
-        return all_ok
+        return all_ok and cover_ok
 
     async def _fetch_jobs_page(
         self,

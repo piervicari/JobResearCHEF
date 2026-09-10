@@ -669,6 +669,103 @@ def test_workday_child_count_mismatch_is_flagged(fixtures: Path) -> None:
     assert WorkdayAdapter.COVERAGE_UNPROVEN_WARNING in result.warnings
 
 
+def _run_subdivide(board: _FacetBoard, *, max_budget: int = 100):
+    """Call _subdivide directly on the root filter state.
+
+    Observes the resolution BOOLEAN itself (not just warnings/complete),
+    proving contradictions structurally poison the proof chain."""
+
+    adapter = WorkdayAdapter()
+    adapter.page_size = board.page_size
+    api_url = "https://example.wd5.myworkdayjobs.com/wday/cxs/Tenant/Site/jobs"
+    site_url = "https://example.wd5.myworkdayjobs.com/Site"
+
+    async def run():
+        fetcher = HttpFetcher(
+            max_retries=0,
+            per_domain_min_interval_seconds=0,
+            jitter_seconds=0,
+            resolve_dns=False,
+            max_requests_per_host_per_run=1000,
+            max_requests_per_run=1000,
+            transport=httpx.MockTransport(board.handler),
+        )
+        async with fetcher:
+            context = PortalScanContext(
+                fetcher, max_pages_per_portal=100,
+                max_jobs_per_portal=5000,
+            )
+            first = await adapter._fetch_jobs_page(context, api_url, {}, 0)
+            collected: dict = {}
+            warnings: list = []
+            resolved = await adapter._subdivide(
+                context, api_url, site_url, {}, 0, first,
+                [max_budget], set(), collected, warnings,
+            )
+            return resolved, collected, warnings
+
+    return asyncio.run(run())
+
+
+def test_workday_c1_contradiction_poisons_resolution(fixtures: Path) -> None:
+    """C1 structural: advertised 60 << parent 2000 → resolution FALSE even
+    though every child paginates cleanly; jobs still collected."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 40), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 40,
+              [_FacetBoard.posting(100 + i) for i in range(40)], [])
+    board.add({"jobFamilyGroup": ["B"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+
+    resolved, collected, warnings = _run_subdivide(board)
+
+    assert resolved is False
+    assert len(collected) == 60
+    assert WorkdayAdapter.COVERAGE_INCOMPLETE_WARNING in warnings
+
+
+def test_workday_c2_mismatch_poisons_resolution(fixtures: Path) -> None:
+    """C2 structural: clean child total 25 vs advertised 40 → that proof
+    path FALSE; sibling jobs still collected."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 40), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 25,
+              [_FacetBoard.posting(100 + i) for i in range(25)], [])
+    board.add({"jobFamilyGroup": ["B"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+
+    resolved, collected, warnings = _run_subdivide(board)
+
+    assert resolved is False
+    assert len(collected) == 45
+    assert "disagrees with advertised facet count" in " ".join(warnings)
+
+
+def test_workday_nested_contradiction_propagates_to_root(fixtures: Path) -> None:
+    """Nested C1 (timeType 30+20=50 << capped branch 2000) propagates all
+    the way up: root resolution FALSE, all discovered jobs kept."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 2000), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 2000,
+              [_FacetBoard.posting(100 + i) for i in range(20)],
+              [_FacetBoard.facet("timeType", [("FT", 30), ("PT", 20)])])
+    board.add({"jobFamilyGroup": ["B"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+    board.add({"jobFamilyGroup": ["A"], "timeType": ["FT"]}, 30,
+              [_FacetBoard.posting(300 + i) for i in range(30)], [])
+    board.add({"jobFamilyGroup": ["A"], "timeType": ["PT"]}, 20,
+              [_FacetBoard.posting(400 + i) for i in range(20)], [])
+
+    resolved, collected, warnings = _run_subdivide(board)
+
+    assert resolved is False
+    assert len(collected) == 70
+    assert WorkdayAdapter.COVERAGE_INCOMPLETE_WARNING in warnings
+
+
 def test_workday_failing_branch_keeps_jobs_but_not_complete(fixtures: Path) -> None:
     """One branch errors → collected jobs remain → complete FALSE."""
     board = _FacetBoard(fixtures)

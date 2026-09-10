@@ -31,7 +31,11 @@ NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
   unprovable: no exhaustiveness marker, possible no-value jobs, unknown
   count universe, workerSubType overlaps, Stapply checks nothing) —
   capped roots stay FALSE with INCOMPLETE/MISMATCH/UNPROVEN warnings.
-  No live validation yet.
+  LIVE 2026-09-10 (Airbus, 6 wires): cap confirmed (2000 < true ~2600),
+  appliedFacets AND-combine, 3/3 advertised==child, overlap proven,
+  tenant facet vocab differs (no locations/timeType keys) — proof still
+  NEEDS_MORE_EVIDENCE, hook stays FALSE.
+  Live evidence: `docs/reports/workday_facet_live_validation_20260910.md`.
 - Closure: only when a full traversal completes (complete_snapshot TRUE).
 
 ### Greenhouse — LIGHTWEIGHT_SINGLE_SHOT / SELECTIVE_DETAIL

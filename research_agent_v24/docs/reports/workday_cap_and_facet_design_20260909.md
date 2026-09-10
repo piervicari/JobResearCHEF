@@ -109,6 +109,22 @@ Rules implemented (all fail toward FALSE, never toward TRUE):
 - Overlap (e.g. identical jobs across branches) dedups correctly AND
   counts against partition-completeness.
 
+## Live facet evidence (2026-09-10, Airbus portal 5, 6 wires)
+
+Full report: `docs/reports/workday_facet_live_validation_20260910.md`.
+Classification: NEEDS_MORE_EVIDENCE. Proven: cap exists (reported 2000 <
+true ~2500–2700 — counts reflect the TRUE universe, not the capped set);
+appliedFacets accepted and AND-combine; 3/3 advertised==child totals
+(636, 385, nested 36); short-term repeat stability; overlap exists
+(dimensions disagree on universe size: 2558 vs 2756 vs 2760);
+Reload_Classification (sum 390) proves partial dimensions are real;
+bullets compatible with JRC shape-first identity. Unknown: value-list
+exhaustiveness, no-value populations, wrap behavior, second tenant.
+Tenant facet vocab DIFFERS from static keys (no `locations`/`timeType`
+facetParameter on Airbus; nested locationMainGroup) — skip-on-absence
+is the correct behavior; one tenant is not enough to redesign the
+dimension list. Proof hook stays FALSE; C1/C2 structural poisoning stays.
+
 ## Controlled live-validation budget (designed, NOT activated)
 
 Current real defaults (`config/settings.yaml` + `ScannerSettings`): page
