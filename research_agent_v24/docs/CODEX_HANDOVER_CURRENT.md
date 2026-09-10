@@ -1,8 +1,8 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-10 — C1/C2 structural proof poisoning + first live
-Workday facet-evidence probe (Airbus, 6 wires, NEEDS_MORE_EVIDENCE, hook
-stays FALSE); suite 436/0 at time of
+**Updated:** 2026-09-10 — multi-tenant facet validation (Brunello +
+Proofpoint, 12 wires; static tuple PARTIAL, capability model designed,
+proof hook stays FALSE); suite 436/0 at time of
 writing (commit identity lives in `git log`, not in this file).
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
@@ -118,11 +118,22 @@ Nothing below is implemented; recorded for next-agent context.
   booleans: C1/C2/nested contradictions structurally poison the proof and
   propagate to the root).
   LIVE-VALIDATED 2026-09-10 (Airbus portal 5, 6/15 wires, all HTTP 200,
-  no DB writes): cap exists (2000 < true ~2600); appliedFacets accepted +
+  no DB writes): strong evidence of capped semantics (2000 reported vs ~2600
+  implied universe, uniqueness not enumerated); appliedFacets accepted +
   AND-combine; 3/3 advertised==child (636, 385, nested 36); short-term
-  stability; overlap proven; bullets fit JRC identity; tenant vocab lacks
+  stability; non-partition semantics indicated (overlap and/or
+  missing-value membership unresolved); bullets fit JRC identity; tenant vocab lacks
   locations/timeType keys. Classification NEEDS_MORE_EVIDENCE — proof
   hook stays FALSE.
+  MULTI-TENANT 2026-09-10 (Brunello 47 + Proofpoint 145, 12/18 wires, all
+  HTTP 200, no DB writes; report
+  `docs/reports/workday_facet_multitenant_validation_20260910.md`):
+  static tuple PARTIAL (JFG+workerSubType common 3/3; timeType
+  tenant-specific-or-degenerate; `locations` absent everywhere — nested
+  groups instead); advertised==child 9/9 incl. nested AND; stability for
+  ids+counts (not tie order); PARTIAL_COVERAGE live (Proofpoint JFG
+  142/145); cap STRONG_EVIDENCE_NOT_PROVEN; capability model DESIGNED
+  (payload-discovered eligibility, per-tenant classes) — NOT implemented.
   PROVEN: uncapped natural-end TRUE; subdivision discovery expansion.
   NOT PROVEN: facet traversal justifying complete_snapshot TRUE (no
   exhaustiveness marker, possible no-value jobs, unknown count universe,
@@ -158,9 +169,9 @@ overlap, identity shapes (Airbus 6-wire probe) — nothing beyond that.
 NOT PROVEN: facet traversal justifying complete_snapshot TRUE.
 NOT IMPLEMENTED: dynamic facet planner / Phase C; generic cross-provider
 facet framework; production high-budget Workday profile.
-NEXT: controlled live Workday validation (NOT executed here) — needs the
-in-code live-evidence gate (value-list stability, zero no-value jobs,
-advertised-vs-recovered reconciliation, wrap-absence proof).
+NEXT: implement payload-discovered dimension eligibility (capability
+layer, static preference order kept, capped roots still never complete)
+— NOT executed here.
 No cohort, no AI, no P1 repairs, no Stapply production integration,
 ADR 0064 stays PROPOSED.
 

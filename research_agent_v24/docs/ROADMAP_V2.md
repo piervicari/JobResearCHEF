@@ -86,9 +86,16 @@ impossible from current evidence; report
 `docs/reports/workday_cap_and_facet_design_20260909.md`; C1/C2
 contradictions structurally poison the proof (same day); first live
 facet-evidence probe 2026-09-10 (Airbus portal 5, 6 wires, all 200 —
-cap confirmed, appliedFacets AND, 3/3 count MATCH, overlap proven;
+strong capped-semantics evidence, appliedFacets AND, 3/3 count MATCH,
+non-partition semantics indicated;
 report `docs/reports/workday_facet_live_validation_20260910.md`,
-NEEDS_MORE_EVIDENCE, proof hook stays FALSE); Phase C deferred,
+NEEDS_MORE_EVIDENCE, proof hook stays FALSE); multi-tenant validation
+2026-09-10 (Brunello 47 + Proofpoint 145, 12 wires, all 200 — static
+tuple PARTIAL, advertised==child 9/9, missing membership real,
+cap STRONG_EVIDENCE_NOT_PROVEN, capability model designed-not-
+implemented; report
+`docs/reports/workday_facet_multitenant_validation_20260910.md`);
+Phase C deferred,
 ADR 0064 still PROPOSED); Oracle/SmartRecruiters requisition identity migration; SourceSpec v0.2/
 single_request, only if future evidence justifies it.
 

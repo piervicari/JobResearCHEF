@@ -31,10 +31,17 @@ NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
   unprovable: no exhaustiveness marker, possible no-value jobs, unknown
   count universe, workerSubType overlaps, Stapply checks nothing) —
   capped roots stay FALSE with INCOMPLETE/MISMATCH/UNPROVEN warnings.
-  LIVE 2026-09-10 (Airbus, 6 wires): cap confirmed (2000 < true ~2600),
-  appliedFacets AND-combine, 3/3 advertised==child, overlap proven,
+  LIVE 2026-09-10 (Airbus, 6 wires): strong evidence of capped semantics
+  (2000 reported vs ~2600 implied universe),
+  appliedFacets AND-combine, 3/3 advertised==child, non-partition
+  semantics indicated,
   tenant facet vocab differs (no locations/timeType keys) — proof still
-  NEEDS_MORE_EVIDENCE, hook stays FALSE.
+  NEEDS_MORE_EVIDENCE, hook stays FALSE. MULTI-TENANT 2026-09-10
+  (+Brunello 47, +Proofpoint 145, 12 wires): static tuple PARTIAL
+  (JFG+workerSubType common; locations absent everywhere); advertised==
+  child 9/9; missing membership proven real once (Proofpoint JFG 142/
+  145); cap STRONG_EVIDENCE_NOT_PROVEN; capability model designed, not
+  implemented.
   Live evidence: `docs/reports/workday_facet_live_validation_20260910.md`.
 - Closure: only when a full traversal completes (complete_snapshot TRUE).
 

@@ -112,10 +112,11 @@ Rules implemented (all fail toward FALSE, never toward TRUE):
 ## Live facet evidence (2026-09-10, Airbus portal 5, 6 wires)
 
 Full report: `docs/reports/workday_facet_live_validation_20260910.md`.
-Classification: NEEDS_MORE_EVIDENCE. Proven: cap exists (reported 2000 <
-true ~2500–2700 — counts reflect the TRUE universe, not the capped set);
-appliedFacets accepted and AND-combine; 3/3 advertised==child totals
-(636, 385, nested 36); short-term repeat stability; overlap exists
+Classification: NEEDS_MORE_EVIDENCE. Proven: strong evidence of capped
+semantics (reported 2000 vs ~2600 implied universe); appliedFacets
+accepted and AND-combine; 3/3 advertised==child totals
+(636, 385, nested 36); short-term repeat stability; non-partition
+semantics indicated;
 (dimensions disagree on universe size: 2558 vs 2756 vs 2760);
 Reload_Classification (sum 390) proves partial dimensions are real;
 bullets compatible with JRC shape-first identity. Unknown: value-list
@@ -124,6 +125,20 @@ Tenant facet vocab DIFFERS from static keys (no `locations`/`timeType`
 facetParameter on Airbus; nested locationMainGroup) — skip-on-absence
 is the correct behavior; one tenant is not enough to redesign the
 dimension list. Proof hook stays FALSE; C1/C2 structural poisoning stays.
+
+## Multi-tenant validation (2026-09-10, +Brunello/Proofpoint, 12 wires)
+
+Full report: `docs/reports/workday_facet_multitenant_validation_20260910.md`.
+Static tuple portability: PARTIAL (jobFamilyGroup + workerSubType common
+3/3; timeType tenant-specific-or-degenerate; `locations` absent
+everywhere — nested groups instead). Advertised==child 9/9 incl. nested
+AND-combines; repeat stability holds for ids+counts (not tie order).
+PARTIAL_COVERAGE proven live once (Proofpoint JFG 142/145 — missing
+membership is real). Cap stays STRONG_EVIDENCE_NOT_PROVEN (no B-proof:
+no exhaustive+exclusive dim >2000; A refused on budget; wrap untested).
+Capability model DESIGNED (payload-discovered eligibility, per-tenant
+classes, static preference order kept) — NOT implemented. Proof hook
+unchanged (FALSE).
 
 ## Controlled live-validation budget (designed, NOT activated)
 

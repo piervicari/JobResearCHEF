@@ -19,7 +19,9 @@ complete_snapshot=TRUE NOT enabled.
 
 ## Findings
 
-1. ROOT FACETS: total=2000 exactly (cap CONFIRMED live). 8 dimensions:
+1. ROOT FACETS: total=2000 exactly (strong evidence of capped total
+   semantics; >2000 unique jobs not yet proven — counts imply a larger
+   universe but uniqueness was not enumerated). 8 dimensions:
    startDate(6), jobFamilyGroup(14), jobFamily(55), hiringCompany(55),
    workerSubType(6), FullPartTime(2), Reload_Classification(13),
    locationMainGroup(2, NESTED sub-groups locationCountry/locations).
@@ -33,12 +35,15 @@ complete_snapshot=TRUE NOT enabled.
 5. ADVERTISED vs CHILD: 636==636, 385==385, nested 36==36 → 3/3 MATCH.
 6. COUNT UNIVERSE: dimension sums EXCEED the cap (JFG 2558, startDate
    2710, FullPartTime 2756, workerSubType 2760) → counts reflect the TRUE
-   universe (~2500–2700), not the capped 2000 set. True total > reported
-   total: cap behaviorally confirmed. Reload_Classification sums to 390
+   universe (~2500–2700), not the capped 2000 set. Reported 2000 with
+   larger implied universe: strong evidence of capped total semantics
+   (>2000 unique jobs not yet proven). Reload_Classification sums to 390
    → partial dimension exists (C1 would correctly fire on it).
-7. OVERLAP: PROVEN live — workerSubType sums (2760) exceed FullPartTime
-   sums (2756) exceed JFG sums (2558); dimensions disagree on universe
-   size, so overlap and/or no-value populations MUST exist somewhere.
+7. OVERLAP: non-partition semantics indicated — workerSubType sums (2760)
+   exceed FullPartTime sums (2756) exceed JFG sums (2558); dimensions
+   disagree on universe size, so overlap and/or missing-value membership
+   remain unresolved (absence of observed shared jobs does not prove
+   exclusivity).
    Child page-0 overlap c0∩c1 = 0 (weak, first pages only).
 8. MISSING MEMBERSHIP: UNKNOWN (bounded probe cannot enumerate
    no-value jobs; Reload_Classification's 390-sum shows large
@@ -61,8 +66,10 @@ dimensions (Reload_Classification-class).
 
 ## Proven / Unknown
 
-PROVEN: cap exists (2000 < true ~2600); appliedFacets accepted + AND;
-3/3 advertised==child; short-term stability; overlap exists; bullets
+PROVEN: strong evidence of capped total semantics (2000 reported vs ~2600
+implied universe); appliedFacets accepted + AND;
+3/3 advertised==child; short-term stability; non-partition semantics
+indicated (overlap and/or missing-value membership unresolved); bullets
 compatible with JRC identity. UNKNOWN: value-list exhaustiveness;
 no-value populations per dimension; wrap behavior; count semantics
 under churn; any second tenant.
