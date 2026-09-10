@@ -54,6 +54,14 @@ class WorkdayAdapter:
         "Workday facet branch repeats an already-visited filter state; "
         "skipped, snapshot bounded"
     )
+    COVERAGE_UNPROVEN_WARNING = (
+        "Workday facet coverage cannot be proven from available evidence; "
+        "snapshot kept bounded"
+    )
+    COVERAGE_INCOMPLETE_WARNING = (
+        "Workday advertised facet counts cannot cover the capped parent "
+        "total; snapshot kept bounded"
+    )
     _TENANT = re.compile(r"\btenant\s*:\s*['\"]([^'\"]+)['\"]")
     _SITE = re.compile(r"\bsiteId\s*:\s*['\"]([^'\"]+)['\"]")
     # Requisition-id shapes observed on live CXS catalogs: JR/R/J/REQ prefixes
@@ -202,8 +210,10 @@ class WorkdayAdapter:
             (payload0, postings0, total0),
             budget, seen, collected, warnings,
         )
+        complete = resolved and self._subdivision_coverage_proven(
+            total0, payload0.get("facets")
+        )
         jobs = list(collected.values())
-        complete = resolved
         if len(jobs) > context.max_jobs_per_portal:
             jobs = jobs[: context.max_jobs_per_portal]
             complete = False
@@ -219,6 +229,8 @@ class WorkdayAdapter:
             )
         if not complete and self.CAPPED_TOTAL_WARNING not in warnings:
             warnings.append(self.CAPPED_TOTAL_WARNING)
+        if not complete and self.COVERAGE_UNPROVEN_WARNING not in warnings:
+            warnings.append(self.COVERAGE_UNPROVEN_WARNING)
         return AdapterScanResult(
             jobs=tuple(jobs),
             warnings=tuple(warnings),
@@ -255,16 +267,27 @@ class WorkdayAdapter:
             warnings.append(self.BRANCH_UNRESOLVED_WARNING)
             return False
         dimension = self._SUBDIVISION_DIMENSIONS[dim_index]
-        values = self._facet_value_ids(payload.get("facets"), dimension)
-        if len(values) < 2:
+        facet_values = self._facet_values(payload.get("facets"), dimension)
+        value_ids = [value_id for value_id, _ in facet_values]
+        if len(value_ids) < 2:
             # Useless dimension here — try the next one with the same
             # filters. dim_index always advances, so this terminates.
             return await self._subdivide(
                 context, api_url, site_url, applied, dim_index + 1, first,
                 budget, seen, collected, warnings,
             )
+        counts = [count for _, count in facet_values]
+        int_counts = [count for count in counts if isinstance(count, int)]
+        if int_counts and len(int_counts) == len(counts) and sum(int_counts) < total:
+            # Safe direction only: advertised counts that cannot cover the
+            # capped parent prove incompleteness (value list truncated, jobs
+            # lacking values, or counts over another universe). Overlap can
+            # only inflate sums, never explain a shortfall.
+            if self.COVERAGE_INCOMPLETE_WARNING not in warnings:
+                warnings.append(self.COVERAGE_INCOMPLETE_WARNING)
+        counts_by_id = dict(facet_values)
         all_ok = True
-        for value_id in values:
+        for value_id in value_ids:
             child = {**applied, dimension: [value_id]}
             if budget[0] <= 0:
                 warnings.append(self.SUBDIVISION_BUDGET_WARNING)
@@ -288,6 +311,17 @@ class WorkdayAdapter:
                     budget, warnings,
                 )
                 self._merge(collected, branch_jobs)
+                advertised = counts_by_id.get(value_id)
+                if (
+                    child_ok
+                    and isinstance(advertised, int)
+                    and child_total != advertised
+                ):
+                    warnings.append(
+                        f"Workday child branch total {child_total} disagrees "
+                        f"with advertised facet count {advertised} for "
+                        f"{dimension}={value_id}; snapshot kept bounded"
+                    )
             all_ok = child_ok and all_ok
         return all_ok
 
@@ -390,9 +424,12 @@ class WorkdayAdapter:
             collected.setdefault(job.source_job_id, job)
 
     @staticmethod
-    def _facet_value_ids(facets: object, dimension: str) -> list[str]:
-        """Value ids for one facetParameter from a facets[] payload. Order
-        preserved, duplicates removed, blank ids dropped."""
+    def _facet_values(facets: object, dimension: str) -> list[tuple[str, int | None]]:
+        """(value id, advertised count) pairs for one facetParameter.
+
+        Order preserved, duplicates removed, blank ids dropped. Counts may
+        be absent (None) — callers must treat missing counts as unproven,
+        never as zero."""
         if not isinstance(facets, list):
             return []
         for facet in facets:
@@ -403,15 +440,43 @@ class WorkdayAdapter:
             values = facet.get("values")
             if not isinstance(values, list):
                 return []
-            ids: list[str] = []
+            pairs: list[tuple[str, int | None]] = []
+            seen_ids: set[str] = set()
             for value in values:
                 if not isinstance(value, dict):
                     continue
                 value_id = value.get("id")
-                if isinstance(value_id, str) and value_id.strip() and value_id not in ids:
-                    ids.append(value_id)
-            return ids
+                if not isinstance(value_id, str) or not value_id.strip():
+                    continue
+                if value_id in seen_ids:
+                    continue
+                seen_ids.add(value_id)
+                count = value.get("count")
+                pairs.append((value_id, count if isinstance(count, int) else None))
+            return pairs
         return []
+
+    @classmethod
+    def _subdivision_coverage_proven(cls, total: int, facets: object) -> bool:
+        """Whether offline evidence proves a capped subdivision covers its
+        parent universe. Currently ALWAYS False:
+
+        - facet value lists have no exhaustiveness marker (no per-facet
+          total, no truncation flag) in observed payloads;
+        - jobs may lack a value in the chosen dimension (site-less-style
+          records exist; no-value postings are plausible);
+        - advertised counts' universe is unknown (capped set vs true set);
+        - workerSubType demonstrably overlaps (Stapply's own comment), so
+          no dimension gets exclusivity by default;
+        - Stapply itself performs no coverage check (union-absorb only).
+
+        Live evidence that could flip this per tenant (NOT implemented):
+        repeated-query stability of value lists, zero no-value jobs on
+        every branch, advertised-vs-recovered reconciliation on all
+        branches, and wrap-absence proof. Until then subdivision expands
+        discovery but never completes.
+        """
+        return False
 
     @classmethod
     def _is_suspicious_capped_total(cls, total: int | None) -> bool:

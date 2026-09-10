@@ -26,8 +26,12 @@ NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
 - Phase-B static facet subdivision (IMPLEMENTED 2026-09-09, offline only):
   capped root partitions over jobFamilyGroup → timeType → locations →
   workerSubType via `appliedFacets`, all values traversed, JRC identity
-  union dedup, TRUE only if every branch completes; partial jobs always
-  kept. No live validation yet.
+  union dedup, partial jobs always kept. HARDENED 2026-09-09: subdivision
+  expands discovery but NEVER completes a capped root offline (coverage
+  unprovable: no exhaustiveness marker, possible no-value jobs, unknown
+  count universe, workerSubType overlaps, Stapply checks nothing) —
+  capped roots stay FALSE with INCOMPLETE/MISMATCH/UNPROVEN warnings.
+  No live validation yet.
 - Closure: only when a full traversal completes (complete_snapshot TRUE).
 
 ### Greenhouse — LIGHTWEIGHT_SINGLE_SHOT / SELECTIVE_DETAIL

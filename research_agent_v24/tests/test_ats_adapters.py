@@ -561,8 +561,30 @@ def _run_facet_board(board: _FacetBoard, *, max_pages: int, max_jobs: int):
     return asyncio.run(run())
 
 
-def test_workday_capped_root_subdivides_to_complete(fixtures: Path) -> None:
-    """Root total=2000 → one branch per jobFamilyGroup value → union TRUE."""
+def test_workday_tiny_facet_cover_is_not_complete(fixtures: Path) -> None:
+    """Coverage-gap repro: advertised 40+20=60 << capped root 2000.
+
+    Traversing every advertised facet value is NOT proof the capped root
+    was fully covered (value lists may be truncated; jobs may lack values;
+    root total itself is capped) → jobs kept, complete FALSE."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 40), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 40,
+              [_FacetBoard.posting(100 + i) for i in range(40)], [])
+    board.add({"jobFamilyGroup": ["B"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+
+    result = _run_facet_board(board, max_pages=100, max_jobs=5000)
+
+    assert len(result.jobs) == 60
+    assert result.is_complete_snapshot is False
+    assert WorkdayAdapter.COVERAGE_UNPROVEN_WARNING in result.warnings
+
+
+def test_workday_subdivided_union_kept_bounded_without_proof(fixtures: Path) -> None:
+    """Root total=2000 → one branch per jobFamilyGroup value → union kept,
+    but coverage unproven (advertised 60 << capped 2000) → FALSE."""
     board = _FacetBoard(fixtures)
     root_postings = [_FacetBoard.posting(i) for i in range(20)]
     postings_a = [_FacetBoard.posting(100 + i) for i in range(40)]
@@ -575,17 +597,19 @@ def test_workday_capped_root_subdivides_to_complete(fixtures: Path) -> None:
     result = _run_facet_board(board, max_pages=100, max_jobs=5000)
 
     assert len(result.jobs) == 60
-    assert result.is_complete_snapshot is True
+    assert result.is_complete_snapshot is False
     assert WorkdayAdapter.SUBDIVISION_ACTIVATED_WARNING in result.warnings
-    assert WorkdayAdapter.CAPPED_TOTAL_WARNING not in result.warnings
+    assert WorkdayAdapter.COVERAGE_INCOMPLETE_WARNING in result.warnings
+    assert WorkdayAdapter.COVERAGE_UNPROVEN_WARNING in result.warnings
+    assert WorkdayAdapter.CAPPED_TOTAL_WARNING in result.warnings
     applied = [body["appliedFacets"] for body in board.bodies if body["offset"] == 0]
     assert {"jobFamilyGroup": ["A"]} in applied
     assert {"jobFamilyGroup": ["B"]} in applied
 
 
-def test_workday_nested_subdivision_resolves_capped_branch(fixtures: Path) -> None:
+def test_workday_nested_subdivision_stays_bounded(fixtures: Path) -> None:
     """Root capped → first-dimension branch still capped → second dimension
-    resolves it → TRUE."""
+    resolves pagination, but coverage remains unproven → jobs kept, FALSE."""
     board = _FacetBoard(fixtures)
     board.add({}, 2000, [_FacetBoard.posting(i) for i in range(20)],
               [_FacetBoard.facet("jobFamilyGroup", [("A", 2000), ("B", 20)])])
@@ -602,12 +626,15 @@ def test_workday_nested_subdivision_resolves_capped_branch(fixtures: Path) -> No
     result = _run_facet_board(board, max_pages=100, max_jobs=5000)
 
     assert len(result.jobs) == 70
-    assert result.is_complete_snapshot is True
-    assert WorkdayAdapter.CAPPED_TOTAL_WARNING not in result.warnings
+    assert result.is_complete_snapshot is False
+    assert WorkdayAdapter.COVERAGE_INCOMPLETE_WARNING in result.warnings
+    assert WorkdayAdapter.COVERAGE_UNPROVEN_WARNING in result.warnings
+    assert WorkdayAdapter.CAPPED_TOTAL_WARNING in result.warnings
 
 
 def test_workday_overlapping_branches_deduplicate(fixtures: Path) -> None:
-    """Same job in two branches persists once (JRC identity dedup)."""
+    """Same job in two branches persists once (JRC identity dedup), and the
+    overlap itself is evidence against partition-completeness → FALSE."""
     board = _FacetBoard(fixtures)
     shared = [_FacetBoard.posting(i) for i in range(20)]
     board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
@@ -619,7 +646,27 @@ def test_workday_overlapping_branches_deduplicate(fixtures: Path) -> None:
 
     assert len(result.jobs) == 20
     assert len({job.source_job_id for job in result.jobs}) == 20
-    assert result.is_complete_snapshot is True
+    assert result.is_complete_snapshot is False
+    assert WorkdayAdapter.COVERAGE_UNPROVEN_WARNING in result.warnings
+
+
+def test_workday_child_count_mismatch_is_flagged(fixtures: Path) -> None:
+    """Branch paginates cleanly but recovers 25 jobs against advertised 40 →
+    contradiction flagged, jobs kept, FALSE."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 40), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 25,
+              [_FacetBoard.posting(100 + i) for i in range(25)], [])
+    board.add({"jobFamilyGroup": ["B"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+
+    result = _run_facet_board(board, max_pages=100, max_jobs=5000)
+
+    assert len(result.jobs) == 45
+    assert result.is_complete_snapshot is False
+    assert "disagrees with advertised facet count" in " ".join(result.warnings)
+    assert WorkdayAdapter.COVERAGE_UNPROVEN_WARNING in result.warnings
 
 
 def test_workday_failing_branch_keeps_jobs_but_not_complete(fixtures: Path) -> None:

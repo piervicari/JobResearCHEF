@@ -72,11 +72,58 @@ in that priority order, with the static Phase-B order as the default when
 counts are missing. Graduate Phase B → C ONLY on measured evidence that
 static order wastes branches on real boards.
 
-## Completeness semantics (future)
+## Completeness semantics (enforced)
 
 `complete_snapshot = TRUE` iff (a) uncapped catalog reached natural end,
-OR (b) capped catalog was partitioned and EVERY required branch reached
-complete natural end. FALSE if any branch hits page/job/wire budget, any
-branch errors, subdivision cannot resolve the cap, or recursion depth is
-exhausted with capped leaves remaining. No absence-based closure from an
-incomplete scan (existing lifecycle rule unchanged: closure requires TRUE).
+OR (b) capped catalog was partitioned AND every required branch reached
+complete natural end AND subdivision coverage is proven. (b)'s coverage
+proof is currently IMPOSSIBLE from offline evidence (see Coverage
+hardening below) — so capped roots stay FALSE while keeping all
+discovered jobs. No absence-based closure from an incomplete scan
+(existing lifecycle rule unchanged: closure requires TRUE).
+
+## Coverage hardening (2026-09-09) — subdivision discovers, never completes
+
+Finding: traversing every advertised facet value does NOT prove a capped
+root was covered. Evidence (vendored Stapply v0.3.0 + payload semantics):
+- Stapply performs NO coverage check — union-absorb only, completeness
+  merely asserted in a comment ("the union covers the full set").
+- Facet value lists carry no exhaustiveness marker (no per-facet total,
+  no truncation flag) — truncated lists are indistinguishable from
+  complete ones offline.
+- Jobs may lack a value in the chosen dimension (site-less-style records
+  exist; no-value postings are plausible and unrefuted).
+- Advertised counts' universe is unknown (capped-2000 set vs true set);
+  `sum(counts) == root.total` is UNSAFE as a rule (root total is capped).
+- workerSubType demonstrably OVERLAPS (Stapply's own comment: multi-tag,
+  sums exceed total) — no dimension gets exclusivity by default.
+
+Rules implemented (all fail toward FALSE, never toward TRUE):
+- C1 proven-incomplete: sum(advertised counts, chosen dimension) <
+  parent total → COVERAGE_INCOMPLETE (overlap can only inflate sums).
+- C2 count contradiction: cleanly paginated child total != advertised
+  count for that value → informational mismatch warning.
+- Proof hook `_subdivision_coverage_proven()` returns False with the live
+  evidence gate documented in-code (value-list stability, zero no-value
+  jobs, full advertised-vs-recovered reconciliation, wrap-absence proof).
+- Overlap (e.g. identical jobs across branches) dedups correctly AND
+  counts against partition-completeness.
+
+## Controlled live-validation budget (designed, NOT activated)
+
+Current real defaults (`config/settings.yaml` + `ScannerSettings`): page
+20/Workday, max_pages_per_portal 30, max_requests_per_host_per_run 30,
+max_requests_per_run 500, max_jobs_per_portal 500 (bulk 5000),
+per-domain concurrency 1, pacing 1.0 s. A capped Workday traversal does
+NOT fit: 2000 jobs need ~101 wires on one host.
+No global change and no new plumbing: `settings.scanner.model_copy()`
+(per-run override precedent in `scan_pilot_command`) plus the
+`RESEARCH_AGENT_` env prefix already express a single-portal validation
+profile. Proposed profile (future run only): concurrency 1, retries 0,
+1.0 s+ throttle, explicit per-run host cap ≥ estimated wires + margin,
+explicit run cap, explicit page/job caps, single Workday portal,
+disposable DB. Cost estimates (catalog wires, +1 landing):
+ordinary pagination — 2000 ≈ 101, 5000 ≈ 251, 10000 ≈ 501;
+subdivision ≈ ordinary + per-branch rounding/probe overhead (small when
+branches partition cleanly; deeper nesting adds probes per capped level).
+Subdivision is NOT a wire-saving measure — it buys completeness, bounded.
