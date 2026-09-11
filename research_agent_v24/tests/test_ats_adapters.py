@@ -1,6 +1,7 @@
 import asyncio
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import httpx
 import pytest
@@ -10,6 +11,8 @@ from research_agent.pipeline.http import (
     HostCircuitOpenError,
     HttpFetcher,
     RequestBudgetExceededError,
+    TooManyRedirectsError,
+    UnsafeDestinationError,
 )
 from research_agent.sources.ats.ashby import AshbyAdapter
 from research_agent.sources.ats.avature import AvatureAdapter
@@ -27,6 +30,7 @@ from research_agent.sources.base import (
     AdapterScanResult,
     PortalScanContext,
     PortalTarget,
+    ScanRequestBudgetExceeded,
 )
 
 
@@ -556,6 +560,7 @@ class _FacetBoard:
         self.routes: dict[frozenset, tuple[int, list, list]] = {}
         self.fail_routes: set[frozenset] = set()
         self.raw_overrides: dict[tuple[frozenset, int], tuple[int, object]] = {}
+        self.raise_overrides: dict[tuple[frozenset, int], Exception] = {}
         self.bodies: list[dict] = []
 
     @staticmethod
@@ -588,6 +593,9 @@ class _FacetBoard:
         body = json.loads(request.content)
         self.bodies.append(body)
         route = self.key(body.get("appliedFacets") or {})
+        raised = self.raise_overrides.get((route, body["offset"]))
+        if raised is not None:
+            raise raised
         override = self.raw_overrides.get((route, body["offset"]))
         if override is not None:
             status, payload = override
@@ -607,7 +615,8 @@ class _FacetBoard:
 
 
 def _run_facet_board(board: _FacetBoard, *, max_pages: int, max_jobs: int,
-                     host_budget: int = 1000, run_budget: int = 1000):
+                     host_budget: int = 1000, run_budget: int = 1000,
+                     max_consecutive_errors: int | None = None):
     adapter = WorkdayAdapter()
     adapter.page_size = board.page_size
     target = _target(
@@ -629,10 +638,77 @@ def _run_facet_board(board: _FacetBoard, *, max_pages: int, max_jobs: int,
             context = PortalScanContext(
                 fetcher, max_pages_per_portal=max_pages,
                 max_jobs_per_portal=max_jobs,
+                max_consecutive_errors=max_consecutive_errors,
             )
             return await adapter.scan(target, context)
 
     return asyncio.run(run())
+
+
+def test_workday_max_consecutive_errors_aborts_siblings(fixtures: Path) -> None:
+    """A. Consecutive-failure stop during subdivision propagates; sibling C
+    never requested; the adapter control flow stops (not just later wire
+    refusal)."""
+    from research_agent.sources.base import MaxConsecutiveErrorsExceeded
+
+    board = _three_branch_board(fixtures)
+    board.raise_overrides[(_FacetBoard.key({"jobFamilyGroup": ["B"]}), 0)] = (
+        TooManyRedirectsError("redirect loop in test", attempts=())
+    )
+    with pytest.raises(MaxConsecutiveErrorsExceeded):
+        _run_facet_board(board, max_pages=100, max_jobs=5000,
+                         max_consecutive_errors=1)
+    applied = _applied_at_offset_zero(board)
+    assert {"jobFamilyGroup": ["A"]} in applied
+    assert {"jobFamilyGroup": ["C"]} not in applied
+
+
+def test_workday_unsafe_destination_aborts_siblings(fixtures: Path) -> None:
+    """B. Public-boundary violation is structural, never a normal branch
+    condition: propagates, sibling C never requested."""
+    board = _three_branch_board(fixtures)
+    board.raise_overrides[(_FacetBoard.key({"jobFamilyGroup": ["B"]}), 0)] = (
+        UnsafeDestinationError("outside public boundary in test", attempts=())
+    )
+    with pytest.raises(UnsafeDestinationError):
+        _run_facet_board(board, max_pages=100, max_jobs=5000)
+    applied = _applied_at_offset_zero(board)
+    assert {"jobFamilyGroup": ["A"]} in applied
+    assert {"jobFamilyGroup": ["C"]} not in applied
+
+
+def test_workday_scan_request_budget_stays_bounded() -> None:
+    """C. ScanRequestBudgetExceeded is explicitly NOT a hard abort:
+    _paginate_branch keeps partial jobs and reports incomplete."""
+    from research_agent.sources.ats.workday import WorkdayAdapter as WDAdapter
+
+    async def run():
+        adapter = WDAdapter()
+
+        async def exploding_fetch(request):
+            raise ScanRequestBudgetExceeded("per-scan wire budget spent in test")
+
+        stub = SimpleNamespace(fetch=exploding_fetch)
+        first_postings = [
+            {"title": f"Role {i}", "externalPath": f"/job/S/Role-{i}_REQ-{i}",
+             "bulletFields": [f"REQ-{i}"]}
+            for i in range(20)
+        ]
+        warnings: list = []
+        jobs, completed = await adapter._paginate_branch(
+            stub,  # type: ignore[arg-type]  # minimal fetch-only stub
+            "https://example.test/jobs", "https://example.test/Site",
+            {}, ({"total": 40, "jobPostings": first_postings},
+                 first_postings, 40),
+            [10], warnings,
+        )
+        return jobs, completed, warnings
+
+    jobs, completed, warnings = asyncio.run(run())
+    assert len(jobs) == 20
+    assert completed is False
+    assert WorkdayAdapter.BRANCH_FAILED_WARNING in warnings
+    assert ScanRequestBudgetExceeded not in WorkdayAdapter._HARD_ABORT_ERRORS
 
 
 def test_workday_tiny_facet_cover_is_not_complete(fixtures: Path) -> None:

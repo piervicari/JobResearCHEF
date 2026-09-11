@@ -11,6 +11,7 @@ from research_agent.pipeline.http import (
     FetchRequest,
     HostCircuitOpenError,
     RequestBudgetExceededError,
+    UnsafeDestinationError,
 )
 from research_agent.sources.ats.common import (
     AdapterSchemaError,
@@ -21,6 +22,7 @@ from research_agent.sources.ats.common import (
 )
 from research_agent.sources.base import (
     AdapterScanResult,
+    MaxConsecutiveErrorsExceeded,
     PortalScanContext,
     PortalTarget,
     RawJob,
@@ -70,19 +72,29 @@ class WorkdayAdapter:
         "Workday catalog total equals the provider result cap (2000); "
         "snapshot kept bounded until facet subdivision reconciles it"
     )
-    # Hard-abort taxonomy (repository contracts, http.py): these MUST
-    # propagate out of subdivision immediately — no sibling branch may be
-    # attempted afterwards. Everything else stays bounded branch failure.
+    # Hard-abort taxonomy (repository contracts, http.py + base.py): these
+    # MUST propagate out of subdivision immediately — no sibling branch may
+    # be attempted afterwards. Everything else stays bounded branch failure.
     # - AccessChallengeError: bot/human-verification challenge detected.
     # - HostCircuitOpenError: 401/403/429 block state, host held open.
-    # - RequestBudgetExceededError: wire budget exhausted ("immediate stop"
-    #   contract, ADR 0058/0059). Page/job budgets are NOT exceptions and
-    #   keep their bounded-FALSE semantics; AdapterHttpError/AdapterSchemaError
+    # - RequestBudgetExceededError: fetcher wire budget exhausted
+    #   ("immediate stop" contract, ADR 0058/0059). Distinct from
+    #   ScanRequestBudgetExceeded (per-scan policy: adapters keep partial
+    #   results, complete FALSE — explicitly bounded, NOT propagated).
+    # - MaxConsecutiveErrorsExceeded: per-scan consecutive-failure budget
+    #   exhausted ("stopping conservatively"); the adapter control flow
+    #   itself must stop, not just refuse later wires.
+    # - UnsafeDestinationError: public-boundary violation is structural
+    #   (all adapter URLs derive from one landing origin) — never a normal
+    #   branch condition. Page/job budgets are NOT exceptions and keep
+    #   their bounded-FALSE semantics; AdapterHttpError/AdapterSchemaError
     #   stay ordinary recoverable branch failures.
     _HARD_ABORT_ERRORS = (
         AccessChallengeError,
         HostCircuitOpenError,
         RequestBudgetExceededError,
+        MaxConsecutiveErrorsExceeded,
+        UnsafeDestinationError,
     )
     # Static PREFERENCE order for expansion dimensions (evidence-driven,
     # NOT a universe: available dimensions always come from the live
@@ -405,8 +417,15 @@ class WorkdayAdapter:
         offset: int,
     ) -> tuple[dict, list, int]:
         """One POST page under the given facet filter. Returns
-        (payload, jobPostings, total); raises on transport/schema failure
-        (branch callers convert that into branch failure)."""
+        (payload, jobPostings, total).
+
+        Failure contract (callers implement it):
+        - HARD SAFETY / STOP signals (challenge, circuit-open, wire
+          budget, consecutive-failure stop, unsafe destination) propagate
+          unchanged — callers must not convert them to branch failure.
+        - SCAN BUDGET / bounded policy (ScanRequestBudgetExceeded) and
+          RECOVERABLE branch errors (HTTP/schema) become partial jobs +
+          complete FALSE via the callers' bounded handling."""
         response = await context.fetch(
             FetchRequest(
                 api_url,
