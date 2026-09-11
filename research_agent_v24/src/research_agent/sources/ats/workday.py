@@ -48,7 +48,13 @@ class WorkdayFacetCapability:
 class WorkdayAdapter:
     name = "workday"
     page_size = 20
-    max_pages = 100
+    # Adapter page ceiling is intentionally HIGH and finite (500 pages =
+    # 10,000 jobs at page size 20): it must never block an explicitly
+    # authorized per-run context budget, while normal runs stay bounded by
+    # the much lower context default (min() semantics in page_limit) and by
+    # the independent fetcher request/job budgets. Do NOT raise this to
+    # chase bigger boards; raise the explicit context instead.
+    max_pages = 500
     # Known provider result cap: capped tenants report total == 2000 exactly
     # and pagination past offset 2000 wraps to page 1 (Stapply ats-scrapers
     # v0.3.0 evidence). A catalog sitting exactly on this cap MUST NOT
@@ -467,9 +473,9 @@ class WorkdayAdapter:
         for job in branch_jobs:
             collected.setdefault(job.source_job_id, job)
 
-    @staticmethod
+    @classmethod
     def _discover_capabilities(
-        facets: object, parent_total: int
+        cls, facets: object, parent_total: int
     ) -> list[WorkdayFacetCapability]:
         """Discover usable facet dimensions from a live facets[] payload.
 
@@ -535,11 +541,24 @@ class WorkdayAdapter:
             int_counts = [count for count in counts if isinstance(count, int)]
             if not pairs or len(int_counts) != len(counts):
                 coverage = "UNKNOWN"
+            elif cls._is_suspicious_capped_total(parent_total):
+                # Capped parent total may be smaller than the real universe
+                # (proven shape: real 2600 vs reported 2000), so advertised
+                # sums can only REFUTE coverage, never confirm it: a short
+                # sum proves PARTIAL, anything else is UNKNOWN (never
+                # OVERLAPPING / PARTITION_CANDIDATE / EXHAUSTIVE).
+                if sum(int_counts) < parent_total:
+                    coverage = "PARTIAL_COVERAGE"
+                else:
+                    coverage = "UNKNOWN"
             elif sum(int_counts) < parent_total:
                 coverage = "PARTIAL_COVERAGE"
             elif sum(int_counts) > parent_total:
                 coverage = "OVERLAPPING"
             else:
+                # Candidate only: equal sums on an uncapped parent suggest
+                # a partition but prove neither exclusivity nor
+                # exhaustiveness. Confidence is NOT upgraded.
                 coverage = "PARTITION_CANDIDATE"
             usable = len(pairs) >= 2
             capabilities.append(

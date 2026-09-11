@@ -166,12 +166,12 @@ Static tuple portability: PARTIAL (jobFamilyGroup + workerSubType common
 3/3; timeType tenant-specific-or-degenerate; `locations` absent
 everywhere — nested groups instead). Advertised==child 9/9 incl. nested
 AND-combines; repeat stability holds for ids+counts (not tie order).
-PARTIAL_COVERAGE proven live once (Proofpoint JFG 142/145 — missing
-membership is real). Cap stays STRONG_EVIDENCE_NOT_PROVEN (no B-proof:
-no exhaustive+exclusive dim >2000; A refused on budget; wrap untested).
-Capability model DESIGNED (payload-discovered eligibility, per-tenant
-classes, static preference order kept) — NOT implemented. Proof hook
-unchanged (FALSE).
+Proofpoint JFG 142/145 is an OBSERVED_FACET_COVERAGE_GAP (cause
+unresolved). Cap stays STRONG_EVIDENCE_NOT_PROVEN (no B-proof:
+no exhaustive+exclusive dim >2000; A refused on budget; wrap untested —
+wrap since PROVEN on Airbus, see proof-evidence section).
+Capability layer IMPLEMENTED (payload-discovered eligibility, per-tenant
+classes, expansion-vs-proof split). Proof hook unchanged (FALSE).
 
 ## Controlled live-validation budget (designed, NOT activated)
 
@@ -191,3 +191,10 @@ ordinary pagination — 2000 ≈ 101, 5000 ≈ 251, 10000 ≈ 501;
 subdivision ≈ ordinary + per-branch rounding/probe overhead (small when
 branches partition cleanly; deeper nesting adds probes per capped level).
 Subdivision is NOT a wire-saving measure — it buys completeness, bounded.
+
+Page-ceiling fix (2026-09-10, offline): adapter `max_pages` raised
+100 → 500 (finite: 10,000 jobs at page 20). Verified: default context
+still clamps to 30 via min(); explicit 250-page contexts traverse past
+the old 100-page ceiling; host wire budget and per-portal job cap remain
+independent hard stops (budget exhaustion → FALSE or raised budget
+error, never silent bypass). settings.yaml untouched.

@@ -396,15 +396,16 @@ def _workday_synthetic_board(fixtures: Path, *, page_size: int, total: int):
     return adapter, handler
 
 
-def _run_workday_scan(adapter, target, handler, *, max_pages, max_jobs):
+def _run_workday_scan(adapter, target, handler, *, max_pages, max_jobs,
+                      host_budget=1000, run_budget=1000):
     async def run():
         fetcher = HttpFetcher(
             max_retries=0,
             per_domain_min_interval_seconds=0,
             jitter_seconds=0,
             resolve_dns=False,
-            max_requests_per_host_per_run=1000,
-            max_requests_per_run=1000,
+            max_requests_per_host_per_run=host_budget,
+            max_requests_per_run=run_budget,
             transport=httpx.MockTransport(handler),
         )
         async with fetcher:
@@ -429,6 +430,66 @@ def test_workday_uncapped_catalog_stays_complete(fixtures: Path) -> None:
     assert len(result.jobs) == 44
     assert result.is_complete_snapshot is True
     assert all(w != WorkdayAdapter.CAPPED_TOTAL_WARNING for w in result.warnings)
+
+
+def test_workday_default_context_stays_conservative(fixtures: Path) -> None:
+    """Normal runs keep the conservative page ceiling: a 3000-job board
+    under the default 30-page context stops bounded at 600 jobs."""
+    adapter, handler = _workday_synthetic_board(fixtures, page_size=20, total=3000)
+    target = _target(
+        "https://example.wd5.myworkdayjobs.com/ExampleCareers",
+        "Workday",
+    )
+    result = _run_workday_scan(adapter, target, handler, max_pages=30,
+                               max_jobs=5000)
+    assert len(result.jobs) == 600
+    assert result.is_complete_snapshot is False
+
+
+def test_workday_explicit_high_page_budget_not_clamped(fixtures: Path) -> None:
+    """An explicitly authorized 250-page context traverses a 3000-job
+    uncapped board past the old 100-page adapter ceiling → TRUE."""
+    adapter, handler = _workday_synthetic_board(fixtures, page_size=20, total=3000)
+    target = _target(
+        "https://example.wd5.myworkdayjobs.com/ExampleCareers",
+        "Workday",
+    )
+    result = _run_workday_scan(adapter, target, handler, max_pages=250,
+                               max_jobs=5000)
+    assert len(result.jobs) == 3000
+    assert result.is_complete_snapshot is True
+
+
+def test_workday_explicit_pages_do_not_bypass_hard_stops(fixtures: Path) -> None:
+    """Explicit page authorization does not bypass the host wire budget or
+    the per-portal job cap."""
+    from research_agent.pipeline.http import RequestBudgetExceededError
+
+    adapter, handler = _workday_synthetic_board(fixtures, page_size=20, total=3000)
+    target = _target(
+        "https://example.wd5.myworkdayjobs.com/ExampleCareers",
+        "Workday",
+    )
+    with pytest.raises(RequestBudgetExceededError):
+        _run_workday_scan(adapter, target, handler, max_pages=250,
+                          max_jobs=5000, host_budget=5)
+    capped = _run_workday_scan(adapter, target, handler, max_pages=250,
+                               max_jobs=50)
+    assert len(capped.jobs) == 50
+    assert capped.is_complete_snapshot is False
+
+
+def test_workday_page_budget_exhaustion_stays_incomplete(fixtures: Path) -> None:
+    """A 3000-job board under a 2-page context → jobs kept, FALSE."""
+    adapter, handler = _workday_synthetic_board(fixtures, page_size=20, total=3000)
+    target = _target(
+        "https://example.wd5.myworkdayjobs.com/ExampleCareers",
+        "Workday",
+    )
+    result = _run_workday_scan(adapter, target, handler, max_pages=2,
+                               max_jobs=5000)
+    assert len(result.jobs) == 40
+    assert result.is_complete_snapshot is False
 
 
 def test_workday_suspicious_cap_catalog_is_never_complete(fixtures: Path) -> None:
@@ -861,6 +922,63 @@ def test_workday_partial_and_unknown_stay_usable_without_proof() -> None:
     assert unknown.coverage_class == "UNKNOWN"
     assert unknown.usable_for_expansion is True
     assert unknown.proof_eligible is False
+
+
+def _capability(facet_parameter, values, parent_total):
+    caps = WorkdayAdapter._discover_capabilities(
+        [{"facetParameter": facet_parameter, "values":
+          [{"id": vid, "count": count} if count is not None else {"id": vid}
+           for vid, count in values]}],
+        parent_total,
+    )
+    assert len(caps) == 1
+    return caps[0]
+
+
+def test_workday_capped_parent_sum_above_cap_is_unknown() -> None:
+    """Capped 2000, advertised sum 2558 (Airbus shape) → UNKNOWN, never
+    OVERLAPPING; still usable for expansion, never proof-eligible."""
+    cap = _capability("jobFamilyGroup", [("A", 1400), ("B", 1158)], 2000)
+    assert cap.coverage_class == "UNKNOWN"
+    assert cap.coverage_class != "OVERLAPPING"
+    assert cap.usable_for_expansion is True
+    assert cap.proof_eligible is False
+
+
+def test_workday_capped_parent_sum_equal_cap_is_unknown() -> None:
+    """Capped 2000, advertised sum exactly 2000 → UNKNOWN, never
+    PARTITION_CANDIDATE (disjoint 1400+600 proves nothing under a cap)."""
+    cap = _capability("jobFamilyGroup", [("A", 1400), ("B", 600)], 2000)
+    assert cap.coverage_class == "UNKNOWN"
+    assert cap.coverage_class != "PARTITION_CANDIDATE"
+    assert cap.usable_for_expansion is True
+    assert cap.proof_eligible is False
+
+
+def test_workday_capped_parent_short_sum_is_partial() -> None:
+    """Capped 2000, advertised sum 1900 → PARTIAL_COVERAGE (safe refutation);
+    expansion stays usable, proof stays off."""
+    cap = _capability("jobFamilyGroup", [("A", 1500), ("B", 400)], 2000)
+    assert cap.coverage_class == "PARTIAL_COVERAGE"
+    assert cap.usable_for_expansion is True
+    assert cap.proof_eligible is False
+
+
+def test_workday_capped_parent_missing_counts_is_unknown() -> None:
+    """Capped 2000 with absent counts → UNKNOWN (never treated as zero)."""
+    cap = _capability("jobFamilyGroup", [("A", None), ("B", None)], 2000)
+    assert cap.coverage_class == "UNKNOWN"
+    assert cap.usable_for_expansion is True
+    assert cap.proof_eligible is False
+
+
+def test_workday_uncapped_equal_sum_stays_candidate_only() -> None:
+    """Uncapped parent with equal sums keeps PARTITION_CANDIDATE as a
+    suggestion only — confidence not upgraded, proof still off."""
+    cap = _capability("workerSubType", [("R", 140), ("T", 5)], 145)
+    assert cap.coverage_class == "PARTITION_CANDIDATE"
+    assert cap.usable_for_expansion is True
+    assert cap.proof_eligible is False
 
 
 def test_workday_failing_branch_keeps_jobs_but_not_complete(fixtures: Path) -> None:

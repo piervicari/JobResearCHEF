@@ -44,9 +44,11 @@ NO_DETAIL_NEEDED / UNKNOWN. Costs = catalog wires (excl. detail), retries 0.
   NEEDS_MORE_EVIDENCE, hook stays FALSE. MULTI-TENANT 2026-09-10
   (+Brunello 47, +Proofpoint 145, 12 wires): static tuple PARTIAL
   (JFG+workerSubType common; locations absent everywhere); advertised==
-  child 9/9; missing membership proven real once (Proofpoint JFG 142/
-  145); cap STRONG_EVIDENCE_NOT_PROVEN; capability model designed, not
-  implemented.
+  child 9/9; Proofpoint JFG 142/145 is an OBSERVED_FACET_COVERAGE_GAP
+  (cause unresolved: missing membership, truncated values, or other
+  semantics);
+  cap STRONG_EVIDENCE_NOT_PROVEN; capability layer implemented, not
+  designed-only;
   Live evidence: `docs/reports/workday_facet_live_validation_20260910.md`.
   PROOF WAVE 2026-09-10 (35/35 wires): WRAP_PROVEN on Airbus (2000 == 0
   IDs); Proofpoint root 145/145 with top-2 branches reconciled, union

@@ -91,9 +91,9 @@ non-partition semantics indicated;
 report `docs/reports/workday_facet_live_validation_20260910.md`,
 NEEDS_MORE_EVIDENCE, proof hook stays FALSE); multi-tenant validation
 2026-09-10 (Brunello 47 + Proofpoint 145, 12 wires, all 200 — static
-tuple PARTIAL, advertised==child 9/9, missing membership real,
-cap STRONG_EVIDENCE_NOT_PROVEN, capability model designed-not-
-implemented; report
+tuple PARTIAL, advertised==child 9/9, Proofpoint 142/145 is an
+OBSERVED_FACET_COVERAGE_GAP (cause unresolved),
+cap STRONG_EVIDENCE_NOT_PROVEN, capability layer implemented; report
 `docs/reports/workday_facet_multitenant_validation_20260910.md`);
 capability layer IMPLEMENTED 2026-09-10 (payload-discovered dimensions,
 expansion-vs-proof split, static preference, hook stays FALSE);

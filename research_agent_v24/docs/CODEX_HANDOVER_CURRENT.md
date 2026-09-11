@@ -1,8 +1,8 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-10 — proof-evidence wave (WRAP_PROVEN, Proofpoint
-root 145/145, union INCONCLUSIVE, NVIDIA second capped tenant, hook
-stays FALSE, no code change); suite 440/0 at time of
+**Updated:** 2026-09-10 — budget/semantics hardening (explicit high-page
+contexts unblocked at finite ceiling 500; capped-parent classification
+conservative; stale claims corrected); suite 449/0 at time of
 writing (commit identity lives in `git log`, not in this file).
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
@@ -38,7 +38,7 @@ tasks with no material project-state change need no handover edit.
 
 # CURRENT STATE (verified 2026-09-09; exact commit in `git log`)
 
-- Tests: **440 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
+- Tests: **449 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
 - Canonical runtime DB: `~/.local/share/research-agent/research_agent.db`
   (SHA-256 `ece676dc…`, unchanged by all validation waves). Repo-local
   `data/research_agent.db` is HISTORICAL / PRE-V25 ARCHIVE ONLY; no merge
@@ -136,9 +136,9 @@ facets affect HOW/ORDER, never WHETHER a job is ingested.
   static tuple PARTIAL (JFG+workerSubType common 3/3; timeType
   tenant-specific-or-degenerate; `locations` absent everywhere — nested
   groups instead); advertised==child 9/9 incl. nested AND; stability for
-  ids+counts (not tie order); PARTIAL_COVERAGE live (Proofpoint JFG
-  142/145); cap STRONG_EVIDENCE_NOT_PROVEN; capability model DESIGNED
-  (payload-discovered eligibility, per-tenant classes) — NOT implemented.
+  ids+counts (not tie order); Proofpoint JFG 142/145 is an
+  OBSERVED_FACET_COVERAGE_GAP (cause unresolved); cap
+  STRONG_EVIDENCE_NOT_PROVEN; capability layer IMPLEMENTED (see below).
   PROVEN: uncapped natural-end TRUE; subdivision discovery expansion.
   NOT PROVEN: facet traversal justifying complete_snapshot TRUE (no
   exhaustiveness marker, possible no-value jobs, unknown count universe,
@@ -181,7 +181,9 @@ first live facet-evidence probe 2026-09-10, report
 IMPLEMENTED: Workday false-complete cap guard; Workday Phase-B
 facet subdivision; coverage hardening (discovery yes, capped-complete no);
 C1/C2 structural proof poisoning; payload-discovered capability layer
-(expansion-vs-proof split, hook stays FALSE).
+(expansion-vs-proof split, hook stays FALSE); explicit high-page
+validation unblocked at finite adapter ceiling 500 (defaults unchanged);
+capped-parent classification conservative (sums only refute).
 LIVE-VALIDATED: strong capped-semantics evidence, appliedFacets AND,
 count matches, non-partition semantics indicated (exact cause unresolved),
 identity shapes (Airbus 6-wire probe + Brunello/Proofpoint 12-wire
