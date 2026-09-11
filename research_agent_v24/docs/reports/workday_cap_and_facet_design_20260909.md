@@ -198,3 +198,13 @@ still clamps to 30 via min(); explicit 250-page contexts traverse past
 the old 100-page ceiling; host wire budget and per-portal job cap remain
 independent hard stops (budget exhaustion → FALSE or raised budget
 error, never silent bypass). settings.yaml untouched.
+
+Hard-abort propagation (2026-09-10, offline): `AccessChallengeError`,
+`HostCircuitOpenError` (401/403/429 block states) and
+`RequestBudgetExceededError` (wire budget, "immediate stop" contract)
+propagate out of subdivision immediately — no sibling branch attempted
+afterwards. `AdapterHttpError`/`AdapterSchemaError` stay ordinary
+recoverable branch failures (partial jobs + FALSE); page/job budgets
+keep bounded-FALSE semantics (not exceptions). Proven by request-
+sequence tests through the real HttpFetcher (challenge body, 429,
+mid-pagination 429, wire-budget exhaustion).

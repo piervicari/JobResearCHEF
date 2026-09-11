@@ -5,7 +5,12 @@ from pathlib import Path
 import httpx
 import pytest
 
-from research_agent.pipeline.http import HttpFetcher
+from research_agent.pipeline.http import (
+    AccessChallengeError,
+    HostCircuitOpenError,
+    HttpFetcher,
+    RequestBudgetExceededError,
+)
 from research_agent.sources.ats.ashby import AshbyAdapter
 from research_agent.sources.ats.avature import AvatureAdapter
 from research_agent.sources.ats.common import AdapterSchemaError
@@ -550,6 +555,7 @@ class _FacetBoard:
         self.page_size = page_size
         self.routes: dict[frozenset, tuple[int, list, list]] = {}
         self.fail_routes: set[frozenset] = set()
+        self.raw_overrides: dict[tuple[frozenset, int], tuple[int, object]] = {}
         self.bodies: list[dict] = []
 
     @staticmethod
@@ -582,6 +588,12 @@ class _FacetBoard:
         body = json.loads(request.content)
         self.bodies.append(body)
         route = self.key(body.get("appliedFacets") or {})
+        override = self.raw_overrides.get((route, body["offset"]))
+        if override is not None:
+            status, payload = override
+            if isinstance(payload, bytes):
+                return httpx.Response(status, content=payload, request=request)
+            return httpx.Response(status, json=payload, request=request)
         if route in self.fail_routes or route not in self.routes:
             return httpx.Response(400, text="unknown test route", request=request)
         total, postings, facets = self.routes[route]
@@ -594,7 +606,8 @@ class _FacetBoard:
         )
 
 
-def _run_facet_board(board: _FacetBoard, *, max_pages: int, max_jobs: int):
+def _run_facet_board(board: _FacetBoard, *, max_pages: int, max_jobs: int,
+                     host_budget: int = 1000, run_budget: int = 1000):
     adapter = WorkdayAdapter()
     adapter.page_size = board.page_size
     target = _target(
@@ -608,8 +621,8 @@ def _run_facet_board(board: _FacetBoard, *, max_pages: int, max_jobs: int):
             per_domain_min_interval_seconds=0,
             jitter_seconds=0,
             resolve_dns=False,
-            max_requests_per_host_per_run=1000,
-            max_requests_per_run=1000,
+            max_requests_per_host_per_run=host_budget,
+            max_requests_per_run=run_budget,
             transport=httpx.MockTransport(board.handler),
         )
         async with fetcher:
@@ -1014,6 +1027,92 @@ def test_workday_branch_page_budget_keeps_partial_jobs(fixtures: Path) -> None:
     assert len(result.jobs) == 20
     assert result.is_complete_snapshot is False
     assert WorkdayAdapter.CAPPED_TOTAL_WARNING in result.warnings
+
+
+_CHALLENGE_HTML = (
+    b"<html><head><title>just a moment...</title></head>"
+    b"<body>cf-chl-blocked</body></html>"
+)
+
+
+def _three_branch_board(fixtures: Path) -> _FacetBoard:
+    """Capped root with three clean jobFamilyGroup branches (A/B/C)."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup",
+                                 [("A", 20), ("B", 20), ("C", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 20,
+              [_FacetBoard.posting(i) for i in range(20)], [])
+    board.add({"jobFamilyGroup": ["B"]}, 20,
+              [_FacetBoard.posting(100 + i) for i in range(20)], [])
+    board.add({"jobFamilyGroup": ["C"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+    return board
+
+
+def _applied_at_offset_zero(board: _FacetBoard) -> list:
+    return [body["appliedFacets"] for body in board.bodies if body["offset"] == 0]
+
+
+def test_workday_challenge_aborts_sibling_branches(fixtures: Path) -> None:
+    """TEST A: challenge on child B propagates; sibling C never requested."""
+    board = _three_branch_board(fixtures)
+    board.raw_overrides[(_FacetBoard.key({"jobFamilyGroup": ["B"]}), 0)] = (
+        200, _CHALLENGE_HTML,
+    )
+    with pytest.raises(AccessChallengeError):
+        _run_facet_board(board, max_pages=100, max_jobs=5000)
+    applied = _applied_at_offset_zero(board)
+    assert {"jobFamilyGroup": ["A"]} in applied
+    assert {"jobFamilyGroup": ["C"]} not in applied
+
+
+def test_workday_circuit_open_aborts_sibling_branches(fixtures: Path) -> None:
+    """TEST B: HTTP 429 on child B propagates; sibling C never requested."""
+    board = _three_branch_board(fixtures)
+    board.raw_overrides[(_FacetBoard.key({"jobFamilyGroup": ["B"]}), 0)] = (
+        429, {"error": "slow down"},
+    )
+    with pytest.raises(HostCircuitOpenError):
+        _run_facet_board(board, max_pages=100, max_jobs=5000)
+    applied = _applied_at_offset_zero(board)
+    assert {"jobFamilyGroup": ["A"]} in applied
+    assert {"jobFamilyGroup": ["C"]} not in applied
+
+
+def test_workday_mid_pagination_abort_stops_everything(fixtures: Path) -> None:
+    """TEST C: 429 on page 2 of child A propagates; no further page and no
+    sibling B traversal."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 40), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 40,
+              [_FacetBoard.posting(i) for i in range(40)], [])
+    board.add({"jobFamilyGroup": ["B"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+    board.raw_overrides[(_FacetBoard.key({"jobFamilyGroup": ["A"]}), 20)] = (
+        429, {"error": "slow down"},
+    )
+    with pytest.raises(HostCircuitOpenError):
+        _run_facet_board(board, max_pages=100, max_jobs=5000)
+    applied = _applied_at_offset_zero(board)
+    assert {"jobFamilyGroup": ["B"]} not in applied
+
+
+def test_workday_wire_budget_abort_propagates_in_subdivision(
+    fixtures: Path,
+) -> None:
+    """Wire-budget exhaustion inside subdivision propagates (hard abort),
+    it is not downgraded to branch failure."""
+    board = _FacetBoard(fixtures)
+    board.add({}, 2000, [_FacetBoard.posting(900 + i) for i in range(20)],
+              [_FacetBoard.facet("jobFamilyGroup", [("A", 40), ("B", 20)])])
+    board.add({"jobFamilyGroup": ["A"]}, 40,
+              [_FacetBoard.posting(i) for i in range(40)], [])
+    board.add({"jobFamilyGroup": ["B"]}, 20,
+              [_FacetBoard.posting(200 + i) for i in range(20)], [])
+    with pytest.raises(RequestBudgetExceededError):
+        _run_facet_board(board, max_pages=100, max_jobs=5000, host_budget=3)
 
 
 def test_phenom_adapter_parses_embedded_search_data_and_next_link(fixtures: Path) -> None:

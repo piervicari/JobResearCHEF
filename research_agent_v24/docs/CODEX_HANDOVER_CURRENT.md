@@ -1,8 +1,8 @@
 # CODEX HANDOVER — RESEARCH AGENT PIER — CURRENT STATE
 
-**Updated:** 2026-09-10 — budget/semantics hardening (explicit high-page
-contexts unblocked at finite ceiling 500; capped-parent classification
-conservative; stale claims corrected); suite 449/0 at time of
+**Updated:** 2026-09-10 — abort hardening (hard-abort propagation in
+subdivision; challenge/circuit/budget fail fast, recoverable stays
+bounded); suite 453/0 at time of
 writing (commit identity lives in `git log`, not in this file).
 **Read this file first.** Then read `docs/ROADMAP_V2.md` and only the ADRs in `docs/decisions/` needed for rationale.
 
@@ -38,7 +38,7 @@ tasks with no material project-state change need no handover edit.
 
 # CURRENT STATE (verified 2026-09-09; exact commit in `git log`)
 
-- Tests: **449 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
+- Tests: **453 passed / 0 failed** (canonical `PYTHONPATH=src .venv/bin/python -m pytest tests/ -q`).
 - Canonical runtime DB: `~/.local/share/research-agent/research_agent.db`
   (SHA-256 `ece676dc…`, unchanged by all validation waves). Repo-local
   `data/research_agent.db` is HISTORICAL / PRE-V25 ARCHIVE ONLY; no merge
@@ -183,7 +183,11 @@ facet subdivision; coverage hardening (discovery yes, capped-complete no);
 C1/C2 structural proof poisoning; payload-discovered capability layer
 (expansion-vs-proof split, hook stays FALSE); explicit high-page
 validation unblocked at finite adapter ceiling 500 (defaults unchanged);
-capped-parent classification conservative (sums only refute).
+capped-parent classification conservative (sums only refute); Phase-B
+hard-abort propagation respects HTTP/circuit safety contract
+(challenge/circuit/wire-budget fail fast and propagate; ordinary branch
+failure stays partial-jobs + FALSE; page/job budgets keep bounded
+semantics).
 LIVE-VALIDATED: strong capped-semantics evidence, appliedFacets AND,
 count matches, non-partition semantics indicated (exact cause unresolved),
 identity shapes (Airbus 6-wire probe + Brunello/Proofpoint 12-wire

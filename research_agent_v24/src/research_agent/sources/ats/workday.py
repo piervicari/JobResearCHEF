@@ -6,7 +6,12 @@ import re
 from dataclasses import dataclass
 from urllib.parse import quote, urlsplit, urlunsplit
 
-from research_agent.pipeline.http import FetchRequest
+from research_agent.pipeline.http import (
+    AccessChallengeError,
+    FetchRequest,
+    HostCircuitOpenError,
+    RequestBudgetExceededError,
+)
 from research_agent.sources.ats.common import (
     AdapterSchemaError,
     require_list,
@@ -48,12 +53,13 @@ class WorkdayFacetCapability:
 class WorkdayAdapter:
     name = "workday"
     page_size = 20
-    # Adapter page ceiling is intentionally HIGH and finite (500 pages =
-    # 10,000 jobs at page size 20): it must never block an explicitly
-    # authorized per-run context budget, while normal runs stay bounded by
-    # the much lower context default (min() semantics in page_limit) and by
-    # the independent fetcher request/job budgets. Do NOT raise this to
-    # chase bigger boards; raise the explicit context instead.
+    # Adapter page ceiling: explicit contexts may raise the effective
+    # Workday page limit up to this finite ceiling (500 pages = 10,000
+    # jobs at page size 20); normal defaults remain much lower via min()
+    # semantics in page_limit, and the independent fetcher request/job
+    # budgets stay hard stops regardless. Do NOT raise this ceiling to
+    # chase bigger boards — authorize an explicit context instead — and
+    # never remove it: the scanner expects a finite adapter bound.
     max_pages = 500
     # Known provider result cap: capped tenants report total == 2000 exactly
     # and pagination past offset 2000 wraps to page 1 (Stapply ats-scrapers
@@ -63,6 +69,20 @@ class WorkdayAdapter:
     CAPPED_TOTAL_WARNING = (
         "Workday catalog total equals the provider result cap (2000); "
         "snapshot kept bounded until facet subdivision reconciles it"
+    )
+    # Hard-abort taxonomy (repository contracts, http.py): these MUST
+    # propagate out of subdivision immediately — no sibling branch may be
+    # attempted afterwards. Everything else stays bounded branch failure.
+    # - AccessChallengeError: bot/human-verification challenge detected.
+    # - HostCircuitOpenError: 401/403/429 block state, host held open.
+    # - RequestBudgetExceededError: wire budget exhausted ("immediate stop"
+    #   contract, ADR 0058/0059). Page/job budgets are NOT exceptions and
+    #   keep their bounded-FALSE semantics; AdapterHttpError/AdapterSchemaError
+    #   stay ordinary recoverable branch failures.
+    _HARD_ABORT_ERRORS = (
+        AccessChallengeError,
+        HostCircuitOpenError,
+        RequestBudgetExceededError,
     )
     # Static PREFERENCE order for expansion dimensions (evidence-driven,
     # NOT a universe: available dimensions always come from the live
@@ -340,7 +360,9 @@ class WorkdayAdapter:
             try:
                 budget[0] -= 1
                 child_first = await self._fetch_jobs_page(context, api_url, child, 0)
-            except Exception:
+            except Exception as exc:
+                if isinstance(exc, self._HARD_ABORT_ERRORS):
+                    raise
                 warnings.append(self.BRANCH_FAILED_WARNING)
                 all_ok = False
                 continue
@@ -459,7 +481,9 @@ class WorkdayAdapter:
             budget[0] -= 1
             try:
                 current = await self._fetch_jobs_page(context, api_url, applied, offset)
-            except Exception:
+            except Exception as exc:
+                if isinstance(exc, self._HARD_ABORT_ERRORS):
+                    raise
                 warnings.append(self.BRANCH_FAILED_WARNING)
                 return branch_jobs, False
         return branch_jobs, ok
